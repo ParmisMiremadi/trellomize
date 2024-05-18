@@ -22,7 +22,7 @@ def signup():
             username1 = line.strip().split(",")[1]
 
             if email == email1 or username == username1:
-                print("Error: The entered information is duplicate.")
+                print("Error: The entered information is duplicate!")
                 return   
     with open("user.json", "a") as file:
         file.write(f"{email},{username},{password},{be_active}\n")
@@ -35,23 +35,22 @@ def login():
     
     with open("user.json", "r") as file:
         for line in file:
+            username1 = line.strip().split(",")[1]
+            password1 = line.strip().split(",")[2]
             be_active1 = line.strip().split(",")[3]
             
-            if be_active != bool(be_active1):
-                print("You don't have access to your account!")
-                return
-            else:
-                username1 = line.strip().split(",")[1]
-                password1 = line.strip().split(",")[2]
-
-                if username == username1:
-                    if password == password1:
-                        print("Log in successful :)")
+            if username == username1:
+                if password == password1:
+                    if be_active != bool(be_active1):
+                        print("Error: You don't have access to your account!")
                         return
                     else:
-                        print("Error: The password is invalid.")
+                        print("Log in successful :)")
                         return
-        print("Error: Username not found.")
+                else:
+                    print("Error: The password is invalid!")
+                    return
+        print("Error: Username not found!")
 
 while True:
     print("1. Sign up")
@@ -66,6 +65,6 @@ while True:
         login()
         clear_consoule(2)
     else:
-        print("Invalid choice. Please try again.")
+        print("Error: Invalid choice! Please try again.")
         clear_consoule(2)
        
