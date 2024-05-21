@@ -1,6 +1,7 @@
 import json
 import argparse
 import os
+import bcrypt
 
 if not os.path.exists("admin.json"):
     open("admin.json", "w").close()
@@ -13,8 +14,9 @@ def create_admin(username, password):
             if username == username1:
                 print("Error: The entered information is duplicate!")
                 return
+    encrypted_password = bcrypt.hashpw(password.encode("utf-8"),bcrypt.gensalt())
     with open("admin.json", "a") as file:
-        file.write(f"{username},{password}\n")
+        file.write(f"{username},{encrypted_password.decode("utf-8")}\n")
         print("The new admin was successfully registered :)")
 
 def main():
@@ -25,7 +27,7 @@ def main():
     parser_print.add_argument("--password", help="Password of the admin", required=True)
     args = parser.parse_args()
 
-    if args.command =="create-admin" :
+    if args.command == "create-admin" :
         create_admin(args.username, args.password)
     else:
         parser.print_help()
