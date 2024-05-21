@@ -4,25 +4,35 @@ import re
 import getpass
 import time
 import bcrypt
- 
+
 if not os.path.exists("user.json"):
     open("user.json", "w").close()
 
-def clear_consoule(time1):
+class User:
+    def __init__(self, email, username, password):
+        self.email = email
+        self.username = username
+        self.__password = password
+        self.projects_as_leader = []
+        self.projects_as_member = []
+        self.be_active = True
+
+def clear_console(time1):
     time.sleep(time1)
     os.system("cls" if os.name == "nt" else "clear")
+
 
 def is_valid_email(email):
     valid_email = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
     return re.fullmatch(valid_email, email)
 
-def signup():
+
+def sign_up():
     email = input("Enter your email: ")
     username = input("Enter your username: ")
     password = getpass.getpass("Enter your password: ")
-    encrypted_password = bcrypt.hashpw(password.encode("utf-8"),bcrypt.gensalt())
-    be_active = True
-
+    encrypted_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+    user_obj = User(email, username, encrypted_password)
     if not is_valid_email(email):
         print("Error: Invalid email format!")
         return
@@ -34,48 +44,33 @@ def signup():
 
                 if email == email1 or username == username1:
                     print("Error: The entered information is duplicate!")
-                    return   
+                    return
         with open("user.json", "a") as file:
-            file.write(f"{email},{username},{encrypted_password.decode("utf-8")},{be_active}\n")
-            print("Sign in successful :)")
+            file.write(f"{email},{username},{encrypted_password.decode("utf-8")},{user_obj.be_active}\n")
+            print("Your sign in was successful :)")
+    return user_obj
 
-def login():
+
+def log_in():
     username = input("Enter your username: ")
     password = getpass.getpass("Enter your password: ")
-    be_active = True
-    
+
     with open("user.json", "r") as file:
         for line in file:
             username1 = line.strip().split(",")[1]
             password1 = line.strip().split(",")[2]
             be_active1 = line.strip().split(",")[3]
-            
+            true_bool = True
             if username == username1:
                 if bcrypt.checkpw(password.encode("utf-8"), password1.encode("utf-8")):
-                    if be_active != bool(be_active1):
+                    if bool(be_active1) != true_bool:
                         print("Error: You don't have access to your account!")
                         return
                     else:
-                        print("Log in successful :)")
-                        return
+                        print("Your log in was successful :)")
+                        user_obj = User(line.strip().split(",")[0], username1, password1)
+                        return user_obj
                 else:
                     print("Error: The password is invalid!")
                     return
         print("Error: Username not found!")
-
-while True:
-    print("1. Sign up")
-    print("2. Log in")
-    choice = input("Enter your choice: ")
-    os.system("cls")
-
-    if choice == "1":
-        signup()
-        clear_consoule(2)
-    elif choice == "2":
-        login()
-        clear_consoule(2)
-    else:
-        print("Error: Invalid choice! Please try again.")
-        clear_consoule(2)
-       
