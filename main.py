@@ -8,6 +8,7 @@ import bcrypt
 if not os.path.exists("user.json"):
     open("user.json", "w").close()
 
+
 class User:
     def __init__(self, email, username, password):
         self.email = email
@@ -16,6 +17,7 @@ class User:
         self.projects_as_leader = []
         self.projects_as_member = []
         self.be_active = True
+
 
 def clear_console(time1):
     time.sleep(time1)
@@ -74,3 +76,4 @@ def log_in():
                     print("Error: The password is invalid!")
                     return
         print("Error: Username not found!")
+        
