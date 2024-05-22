@@ -41,10 +41,11 @@ while run:
                 clear_console(2)
 
     choice_1 = 0    # 1. New project  2. My projects  3. Exit
-    while choice_1 != 1 and choice_1 != 2:
+    while choice_1 != 3:
         try:
             clear_console(2)
-            choice_1 = int(input('Choose one of the following options.\n1. New project\n2. My projects\n'))
+            choice_1 = int(input('Choose one of the following options.'
+                                 '\n1. New project\n2. My projects\n3. Exit\n    >'))
         except ValueError:
             print('Invalid input.\nEnter either 1 or 2.')
         else:
@@ -73,6 +74,7 @@ while run:
                 clear_console(2)
                 if isinstance(projectsAndTasks.show_list_of_projects_and_choose(user), Project):
                     my_project = projectsAndTasks.show_list_of_projects_and_choose(user)
+                    projectsAndTasks.options_for_my_project(user, my_project)
                 else:
                     choice_1 = 0
 
