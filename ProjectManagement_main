@@ -9,6 +9,11 @@ import projectsAndTasks
 from projectsAndTasks import Project as Project
 
 
+def pr_cyan(skk): print("\033[36m {}\033[00m" .format(skk))
+def pr_green(skk): print("\033[32m {}\033[00m" .format(skk))
+def pr_red(skk): print("\033[31m {}\033[00m" .format(skk))
+
+
 user = User("", "", "")
 projects_file_path = 'projects.json'
 projects_list = projectsAndTasks.projects_list
@@ -27,7 +32,7 @@ while run:
             choice = int(input("Enter your choice: "))
             os.system("cls")
         except ValueError:
-            print('Error: Invalid value!')
+            pr_red('Error: Invalid value!')
             choice = 0
         else:
             if choice == 1:
@@ -37,17 +42,21 @@ while run:
                 user = main.log_in()
                 clear_console(2)
             else:
-                print("Error: Invalid choice! Please try again.")
+                pr_red("Error: Invalid choice! Please try again.")
                 clear_console(2)
 
     choice_1 = 0    # 1. New project  2. My projects  3. Exit
     while choice_1 != 3:
+
         try:
             clear_console(2)
-            choice_1 = int(input('Choose one of the following options.'
-                                 '\n1. New project\n2. My projects\n3. Exit\n    >'))
+            print('Choose one of the following options.')
+            pr_cyan('\n1. New project\n2. My projects\n3. Exit\n')
+            choice_1 = int(input())
+
         except ValueError:
             print('Invalid input.\nEnter either 1 or 2.')
+
         else:
             clear_console(1.5)
             if choice_1 == 1:
@@ -55,18 +64,21 @@ while run:
                 if project_object is not None:
                     project_object.to_dict_and_save_to_file(projects_file_path, user)
                     time.sleep(1)
-                    print('Creating a new project')
+                    pr_green('Creating a new project')
                     clear_console(1)
-                    print('Creating a new project.')
+                    pr_green('Creating a new project.')
                     clear_console(1)
-                    print('Creating a new project..')
+                    pr_green('Creating a new project..')
                     clear_console(1)
-                    print('Creating a new project...')
+                    pr_green('Creating a new project...')
                     clear_console(1)
                     projects_list = projectsAndTasks.load_projects_from_file(projects_file_path)  # List of dictionaries
-                    print(f"Project created successfully.\nYou are now the leader of "
-                          f"the project '{project_object.get_project_title()}'."
-                          f" \nProject ID: {project_object.get_project_id()}")
+                    print("\033[36m {}\033[32m {}\033[36m {}\033[00m".format
+                          ("Project created successfully.\nYou are now the "
+                           "leader of the project", f'{project_object.get_project_title()}', '.'))
+                    print("\033[36m {}\033[32m {}\033[00m".format
+                          ('Project ID: ', f'{project_object.get_project_id()}'))
+
                 else:
                     pass
 
@@ -88,5 +100,3 @@ while run:
             else:
                 print('Invalid choice.\nPlease try again.')
             clear_console(2)
-
-
