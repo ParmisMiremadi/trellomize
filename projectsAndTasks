@@ -21,7 +21,7 @@ class Project:
     def get_project_id(self):
         return self.__project_id
 
-    def to_dict_and_save_to_file(self, file_path):
+    def to_dict_and_save_to_file(self, file_path, leader: User):
         projects_dicts = load_projects_from_file(file_path)
         new_project_dict = {
             'project_title': self.__project_title,
@@ -31,9 +31,11 @@ class Project:
         }
         projects_dicts.append(new_project_dict)
         save_projects_to_file(file_path, projects_dicts)
+        leader.projects_as_leader.append(new_project_dict)
+        # Save user info to file right here
 
 
-def save_projects_to_file(file_path, project_dict):    # The project in the argument is an object
+def save_projects_to_file(file_path, project_dict):
     with open(file_path, 'w') as file:
         json.dump(project_dict, file, indent=4)
 
@@ -49,7 +51,7 @@ def load_projects_from_file(file_path):    # Returns a dictionary
 
 
 projects_file_path = 'projects.json'
-projects_list = load_projects_from_file(projects_file_path)    # List of dictionaries
+projects_list = load_projects_from_file(projects_file_path)   # List of dictionaries
 
 
 def create_a_project(leader: User):    # Returns an object of Project. It has to be saved!
@@ -63,8 +65,6 @@ def create_a_project(leader: User):    # Returns an object of Project. It has to
         return None
     project_1 = Project(project_title, project_id, leader)
     clear_console(2)
-    project_info_list = [project_title, project_id]
-    leader.projects_as_leader.append(project_info_list)
     return project_1
 
 
@@ -75,7 +75,61 @@ def is_project_unique(projects_list_1: list[dict], new_project_id):
     return True
 
 
-def show_list_of_projects(user_obj: User):
-    pass
+def show_list_of_projects_and_choose(user_obj: User):    # If Back, returns 0; else returns a Project obj
     projects_as_leader_list = user_obj.projects_as_leader
     projects_as_member_list = user_obj.projects_as_member
+
+    print(isinstance(projects_as_leader_list, list))#For debugging
+    # print(isinstance(projects_as_leader_list[1], str))
+    # print(projects_as_leader_list[1])
+    print(projects_as_leader_list)
+
+    it_leader = len(projects_as_leader_list)
+    it_member = len(projects_as_member_list)
+    ch = -1
+    it = 0
+    while ch not in range(it_member + it_leader + 1):
+        clear_console(2)
+        print('0. Back')
+        print('Your projects as the leader:')
+        if it_leader > 0:
+            for it in range(it_leader):
+                print(f'    {it + 1}. {projects_as_leader_list[it].get('project_title')}')
+                print(f'it: {it}')
+        else:
+            print('    No projects as leader.')
+        it = 0
+        print('\nYour projects as a member:')
+        if it_member > 0:
+            for it in range(it_member):
+                print(f'    {it_leader + it + 1}. {projects_as_member_list[it].get('project_title')}')
+                print(f'it: {it}')
+        else:
+            print('    No projects member.')
+
+        try:
+            ch = int(input('\nEnter your choice: '))
+        except ValueError:
+            clear_console(1)
+            print('Error: Invalid value!')
+            clear_console(2.5)
+
+        else:
+            if isinstance(ch, int) and (ch < 0 or ch > (it_leader + it_member)):
+                print('Error: Invalid value!')
+                print(f'Enter a number between 0 and {it_leader + it_member}')
+                clear_console(2)
+            elif ch == 0:    # Going back
+                clear_console(2)
+                return 0
+            elif it_leader > 0 and 1 <= ch <= it_leader:    # Valid choice: Choosing a project
+                print(f"{projects_as_leader_list[ch - 1].get('project_title')}")# For debugging
+                clear_console(2)
+                return Project(projects_as_leader_list[ch - 1].get('project_title'),
+                               projects_as_leader_list[ch - 1].get('project_id'), user_obj)
+            elif it_member > 0 and it_leader < ch <= it_member:
+                print(f"{projects_as_member_list[ch - 1].get('project_title')}")# For debugging
+                clear_console(2)
+                return Project(projects_as_member_list[ch - 1].get('project_title'),
+                               projects_as_member_list[ch - 1].get('project_id'), user_obj)
+
