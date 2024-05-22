@@ -2,101 +2,16 @@ import json
 import random
 import os
 import time
-from tabulate import tabulate
 import main
+from main import User as User
+from main import clear_console as clear_console
+import projectsAndTasks
+from projectsAndTasks import Project as Project
 
 
-def clear_console(time1):
-    time.sleep(time1)
-    os.system("cls" if os.name == "nt" else "clear")
-
-
-class User:
-    def __init__(self, email, username, password):
-        self.email = email
-        self.username = username
-        self.__password = password
-        self.projects_as_leader = []
-        self.projects_as_member = []
-        self.be_active = True
-
-
-class Project:
-    def __init__(self, project_title, project_id, leader: User):
-        self.__project_title = project_title
-        self.__project_id = project_id
-        self.leader_username = leader.username
-        self.members = []
-        self.tasks = []
-
-    def get_project_title(self):
-        return self.__project_title
-
-    def get_project_id(self):
-        return self.__project_id
-
-    def to_dict_and_save_to_file(self, file_path):
-        projects_dicts = load_projects_from_file(file_path)
-        new_project_dict = {
-            'project_title': self.__project_title,
-            'project_id': self.__project_id,
-            'leader': self.leader_username,
-            'members': self.members
-        }
-        projects_dicts.append(new_project_dict)
-        save_projects_to_file(file_path, projects_dicts)
-
-
-def save_projects_to_file(file_path, project_dict):    # The project in the argument is an object
-    with open(file_path, 'w') as file:
-        json.dump(project_dict, file, indent=4)
-
-
-def load_projects_from_file(file_path):    # Returns a dictionary
-    try:
-        with open(file_path, 'r') as file:
-            projects_1 = json.load(file)
-    except FileNotFoundError:
-        print(f'File not found: {file_path}')
-        projects_1 = []
-    return projects_1
-
-
+user = User("", "", "")
 projects_file_path = 'projects.json'
-projects_list = load_projects_from_file(projects_file_path)    # List of dictionaries
-# An example of the main program. Create multiple functions out of it
-# Presuming the user has just signed up (for now)
-user = User("parmis.mi83@gmail.com", "PM", "6202")
-
-
-def create_a_project(leader: User):    # Returns an object of Project. It has to be saved!
-    project_title = input('The title of your project: ')    # Needs to be checked in the projects file
-    project_id = input('The ID of your project: ')    # Needs to be checked in the projects file
-    is_unique = is_project_unique(projects_list, project_id)
-    if not is_unique:
-        print('This ID already exists for another project')
-        print('Failed to create a new project!')
-        clear_console(2)
-        return None
-    project_1 = Project(project_title, project_id, leader)
-    clear_console(2)
-    project_info_list = [project_title, project_id]
-    leader.projects_as_leader.append(project_info_list)
-    return project_1
-
-
-def is_project_unique(projects_list_1: list[dict], new_project_id):
-    for iterator in range(len(projects_list_1)):
-        if projects_list_1[iterator]['project_id'] == new_project_id:
-            return False
-    return True
-
-
-def show_list_of_projects(user_obj: User):
-    pass
-    projects_as_leader_list = user_obj.projects_as_leader
-    projects_as_member_list = user_obj.projects_as_member
-
+projects_list = projectsAndTasks.projects_list
 
 ##############################################################
 choice = 0
@@ -126,7 +41,7 @@ while choice_1 != 1 and choice_1 != 2:
     else:
         clear_console(1.5)
         if choice_1 == 1:
-            project_object = create_a_project(user)
+            project_object = projectsAndTasks.create_a_project(user)
             if project_object is not None:
                 project_object.to_dict_and_save_to_file(projects_file_path)
                 time.sleep(1)
@@ -138,7 +53,7 @@ while choice_1 != 1 and choice_1 != 2:
                 clear_console(1)
                 print('Creating a new project...')
                 clear_console(1)
-                projects_list = load_projects_from_file(projects_file_path)  # List of dictionaries
+                projects_list = projectsAndTasks.load_projects_from_file(projects_file_path)  # List of dictionaries
                 print(f"Project created successfully.\nYou are now the leader of "
                       f"the project '{project_object.get_project_title()}'."
                       f" \nProject ID: {project_object.get_project_id()}")
@@ -146,12 +61,12 @@ while choice_1 != 1 and choice_1 != 2:
                 pass
 
         elif choice_1 == 2:
-            show_list_of_projects(user)
+            projectsAndTasks.show_list_of_projects(user)
         else:
             print('Invalid choice.\nPlease try again.')
         clear_console(2)
 
-
+#
 print('\nThe list of all projects:')
 print('    Title:        ID:        Leader:')
 print(40 * '_')
