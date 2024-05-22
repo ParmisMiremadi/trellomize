@@ -7,6 +7,11 @@ from main import User as User
 from main import clear_console as clear_console
 
 
+def pr_cyan(skk): print("\033[36m {}\033[00m" .format(skk))
+def pr_green(skk): print("\033[32m {}\033[00m" .format(skk))
+def pr_red(skk): print("\033[31m {}\033[00m" .format(skk))
+
+
 class Project:
     def __init__(self, project_title, project_id, leader: User):
         self.__project_title = project_title
@@ -29,10 +34,22 @@ class Project:
             'leader': self.leader_username,
             'members': self.members
         }
+        print('projects_dicts: ', projects_dicts) #.For debugging
+        print('new_project_dict', new_project_dict) #.For debugging
         projects_dicts.append(new_project_dict)
         save_projects_to_file(file_path, projects_dicts)
         leader.projects_as_leader.append(new_project_dict)
-        # Save user info to file right here
+        print('leader.projects_as_leader', leader.projects_as_leader)  #.For debugging
+        # Save the new projects_as_leader list to 'user.json'
+        with open("user.json", "r") as file:
+            for line in file:
+                username1 = line.strip().split(" ; ")[1]
+                if leader.username == username1:
+                    print('is it a string?', isinstance(line.strip().split(" ; ")[5], str)) #.
+                    if line.strip().split(" ; ")[5] != '[]':
+                        line.replace(line.strip().split(" ; ")[5], str(leader.projects_as_leader))
+                    else:
+                        pass
 
 
 def save_projects_to_file(file_path, project_dict):
@@ -59,8 +76,8 @@ def create_a_project(leader: User):    # Returns an object of Project. It has to
     project_id = input('The ID of your project: ')    # Needs to be checked in the projects file
     is_unique = is_project_unique(projects_list, project_id)
     if not is_unique:
-        print('This ID already exists for another project')
-        print('Failed to create a new project!')
+        print('This ID already exists for another project.')
+        print('Action failed!')
         clear_console(2)
         return None
     project_1 = Project(project_title, project_id, leader)
@@ -79,10 +96,12 @@ def show_list_of_projects_and_choose(user_obj: User):    # If Back, returns 0; e
     projects_as_leader_list = user_obj.projects_as_leader
     projects_as_member_list = user_obj.projects_as_member
 
-    print(isinstance(projects_as_leader_list, list))#For debugging
-    # print(isinstance(projects_as_leader_list[1], str))
-    # print(projects_as_leader_list[1])
-    print(projects_as_leader_list)
+    print('is user_obj.projects_as_leader a list? ',
+          isinstance(projects_as_leader_list, list))#.For debugging
+    # print(isinstance(projects_as_leader_list[1], str))#.For debugging
+    # print(projects_as_leader_list[1])#.For debugging
+    print(projects_as_leader_list)#.For debugging
+    print('list from obj: ', user_obj.projects_as_leader) #.
 
     it_leader = len(projects_as_leader_list)
     it_member = len(projects_as_member_list)
@@ -119,17 +138,47 @@ def show_list_of_projects_and_choose(user_obj: User):    # If Back, returns 0; e
                 print('Error: Invalid value!')
                 print(f'Enter a number between 0 and {it_leader + it_member}')
                 clear_console(2)
+
             elif ch == 0:    # Going back
                 clear_console(2)
                 return 0
+
             elif it_leader > 0 and 1 <= ch <= it_leader:    # Valid choice: Choosing a project
-                print(f"{projects_as_leader_list[ch - 1].get('project_title')}")# For debugging
                 clear_console(2)
                 return Project(projects_as_leader_list[ch - 1].get('project_title'),
                                projects_as_leader_list[ch - 1].get('project_id'), user_obj)
+
             elif it_member > 0 and it_leader < ch <= it_member:
-                print(f"{projects_as_member_list[ch - 1].get('project_title')}")# For debugging
                 clear_console(2)
                 return Project(projects_as_member_list[ch - 1].get('project_title'),
                                projects_as_member_list[ch - 1].get('project_id'), user_obj)
+
+
+def options_for_my_project(user: User, my_project: Project):    # Called in the main program in the 2nd menu
+    clear_console(2)
+    ch = 0    # 1. Members  2. Tasks  3. Back
+    while ch != 1 and ch != 2 and ch != 3:
+        clear_console(1)
+        pr_cyan(f'        {my_project.get_project_title()}')
+        print('    1. Members\n    2. Tasks\n    3. Back')
+        try:
+            ch = int(input())
+        except ValueError:
+            print('Error: Invalid value!')
+            clear_console(2)
+        else:
+            if isinstance(ch, int) and (ch < 1 or ch > 3):
+                print('Error: Invalid value!')
+                print('Enter a number between 1 and 3')
+                clear_console(2)
+            elif ch == 1:
+                print("members' list and stuff.")#.members function
+                ch = 0    # To show the same options again
+            elif ch == 2:
+                print("tasks' list and stuff.")#.tasks function(s)
+                ch = 0    # To show the same options again
+            elif ch == 3:
+                print('3...') #.
+                pass
+
 
