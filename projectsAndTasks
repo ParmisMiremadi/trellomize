@@ -1,8 +1,8 @@
 import json
-import random
-import os
-import time
-import main
+# import random
+# import os
+# import time
+# import main
 from main import User as User
 from main import clear_console as clear_console
 
@@ -79,4 +79,3 @@ def show_list_of_projects(user_obj: User):
     pass
     projects_as_leader_list = user_obj.projects_as_leader
     projects_as_member_list = user_obj.projects_as_member
-
