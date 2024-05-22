@@ -9,14 +9,14 @@ if not os.path.exists("admin.json"):
 def create_admin(username, password):
     with open("admin.json", "r") as file:
         for line in file:
-            username1 = line.strip().split(",")[0]
+            username1 = line.strip().split(" ; ")[0]
 
             if username == username1:
                 print("Error: The entered information is duplicate!")
                 return
     encrypted_password = bcrypt.hashpw(password.encode("utf-8"),bcrypt.gensalt())
-    with open("admin.json", "a") as file:
-        file.write(f"{username},{encrypted_password.decode("utf-8")}\n")
+    with open("admin.json", "w") as file:
+        file.write(f"{username} ; {encrypted_password.decode("utf-8")}\n")
         print("The new admin was successfully registered :)")
 
 def main():
