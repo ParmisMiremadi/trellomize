@@ -12,64 +12,79 @@ from projectsAndTasks import Project as Project
 user = User("", "", "")
 projects_file_path = 'projects.json'
 projects_list = projectsAndTasks.projects_list
+my_project = Project("", "", user)
 
-##############################################################
-choice = 0
-while choice != 1 and choice != 2:
-    print("1. Sign up")
-    print("2. Log in")
-    choice = input("Enter your choice: ")
-    os.system("cls")
+########################################################################################
 
-    if choice == "1":
-        user = main.sign_up()
+run = True
+while run:
+    choice = 0    # 1. sign up  2. Log in
+    while choice != 1 and choice != 2:
         clear_console(2)
-    elif choice == "2":
-        user = main.log_in()
-        clear_console(2)
-    else:
-        print("Error: Invalid choice! Please try again.")
-        clear_console(2)
-
-
-choice_1 = 0
-while choice_1 != 1 and choice_1 != 2:
-    try:
-        choice_1 = int(input('Choose one of the following options.\n1. New Project\n2. My Projects\n'))
-    except ValueError:
-        print('Invalid input.\nEnter either 1 or 2.')
-    else:
-        clear_console(1.5)
-        if choice_1 == 1:
-            project_object = projectsAndTasks.create_a_project(user)
-            if project_object is not None:
-                project_object.to_dict_and_save_to_file(projects_file_path)
-                time.sleep(1)
-                print('Creating a new project')
-                clear_console(1)
-                print('Creating a new project.')
-                clear_console(1)
-                print('Creating a new project..')
-                clear_console(1)
-                print('Creating a new project...')
-                clear_console(1)
-                projects_list = projectsAndTasks.load_projects_from_file(projects_file_path)  # List of dictionaries
-                print(f"Project created successfully.\nYou are now the leader of "
-                      f"the project '{project_object.get_project_title()}'."
-                      f" \nProject ID: {project_object.get_project_id()}")
-            else:
-                pass
-
-        elif choice_1 == 2:
-            projectsAndTasks.show_list_of_projects(user)
+        print("1. Sign up")
+        print("2. Log in")
+        try:
+            choice = int(input("Enter your choice: "))
+            os.system("cls")
+        except ValueError:
+            print('Error: Invalid value!')
+            choice = 0
         else:
-            print('Invalid choice.\nPlease try again.')
-        clear_console(2)
+            if choice == 1:
+                user = main.sign_up()
+                clear_console(2)
+            elif choice == 2:
+                user = main.log_in()
+                clear_console(2)
+            else:
+                print("Error: Invalid choice! Please try again.")
+                clear_console(2)
 
-#
-print('\nThe list of all projects:')
-print('    Title:        ID:        Leader:')
-print(40 * '_')
-for i in range(len(projects_list)):
-    print(f'{i+1}. ', dict(projects_list[i]).get('project_title'), '  ',
-          dict(projects_list[i]).get('project_id'), '      ', dict(projects_list[i]).get('leader'))
+    choice_1 = 0    # 1. New project  2. My projects  3. Exit
+    while choice_1 != 1 and choice_1 != 2:
+        try:
+            clear_console(2)
+            choice_1 = int(input('Choose one of the following options.\n1. New project\n2. My projects\n'))
+        except ValueError:
+            print('Invalid input.\nEnter either 1 or 2.')
+        else:
+            clear_console(1.5)
+            if choice_1 == 1:
+                project_object = projectsAndTasks.create_a_project(user)
+                if project_object is not None:
+                    project_object.to_dict_and_save_to_file(projects_file_path, user)
+                    time.sleep(1)
+                    print('Creating a new project')
+                    clear_console(1)
+                    print('Creating a new project.')
+                    clear_console(1)
+                    print('Creating a new project..')
+                    clear_console(1)
+                    print('Creating a new project...')
+                    clear_console(1)
+                    projects_list = projectsAndTasks.load_projects_from_file(projects_file_path)  # List of dictionaries
+                    print(f"Project created successfully.\nYou are now the leader of "
+                          f"the project '{project_object.get_project_title()}'."
+                          f" \nProject ID: {project_object.get_project_id()}")
+                else:
+                    pass
+
+            elif choice_1 == 2:
+                clear_console(2)
+                if isinstance(projectsAndTasks.show_list_of_projects_and_choose(user), Project):
+                    my_project = projectsAndTasks.show_list_of_projects_and_choose(user)
+                else:
+                    choice_1 = 0
+
+            elif choice_1 == 3:
+                clear_console(1)
+                print('Exiting program...')
+                clear_console(2)
+                print('Exit code: 0')
+                run = not run
+
+            else:
+                print('Invalid choice.\nPlease try again.')
+            clear_console(2)
+
+
