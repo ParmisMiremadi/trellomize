@@ -23,6 +23,7 @@ my_project = Project("", "", user)
 
 run = True
 while run:
+    clear_console(2)
     choice = 0    # 1. sign up  2. Log in
     while choice != 1 and choice != 2:
         clear_console(2)
@@ -51,18 +52,21 @@ while run:
         try:
             clear_console(2)
             print('Choose one of the following options.')
-            pr_cyan('\n1. New project\n2. My projects\n3. Exit\n')
+            pr_cyan('1. New project\n 2. My projects\n 3. Exit\n')
             choice_1 = int(input())
 
         except ValueError:
-            print('Invalid input.\nEnter either 1 or 2.')
+            pr_red('Error: Invalid value!')
+        except AttributeError:
+            pr_red('Error: Failed attribute!')
 
         else:
             clear_console(1.5)
             if choice_1 == 1:
                 project_object = projectsAndTasks.create_a_project(user)
                 if project_object is not None:
-                    project_object.to_dict_and_save_to_file(projects_file_path, user)
+                    user = project_object.to_dict_and_save_to_file(projects_file_path, user)
+                    pr_cyan(f'project_object.projects_as_leader: {user.projects_as_leader} //in main')
                     time.sleep(1)
                     pr_green('Creating a new project')
                     clear_console(1)
@@ -87,16 +91,17 @@ while run:
                 if isinstance(projectsAndTasks.show_list_of_projects_and_choose(user), Project):
                     my_project = projectsAndTasks.show_list_of_projects_and_choose(user)
                     projectsAndTasks.options_for_my_project(user, my_project)
+                    print('in if // main') #.
                 else:
                     choice_1 = 0
 
             elif choice_1 == 3:
                 clear_console(1)
-                print('Exiting program...')
+                pr_green('Exiting program...')
                 clear_console(2)
-                print('Exit code: 0')
+                pr_green('Exit code: 0')
                 run = not run
 
             else:
                 print('Invalid choice.\nPlease try again.')
-            clear_console(2)
+
