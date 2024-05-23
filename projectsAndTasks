@@ -1,10 +1,6 @@
 import json
-# import random
-# import os
-# import time
-# import main
-from main import User as User
-from main import clear_console as clear_console
+from main_1 import User as User
+from main_1 import clear_console as clear_console
 
 
 def pr_cyan(skk): print("\033[36m {}\033[00m" .format(skk))
@@ -45,16 +41,15 @@ class Project:
                 f'{isinstance(leader.projects_as_leader, list)}')  #.For debugging
         # Save the new projects_as_leader list to 'user.json'
         with open("user.json", "r") as file:
-            for line in file:
-                username1 = line.strip().split(" ; ")[1]
-                if leader.username == username1:
-                    pr_red(f'username: {line.strip().split(" ; ")[1]}')
-                    print(f'old index=4 :{json.loads(line.strip().split(" ; ")[4])} is list?', isinstance(json.loads(line.strip().split(" ; ")[4]), list)) #.
-                    # if line.strip().split(" ; ")[4] != '[]':
-                    password1 = line.strip().split(" ; ")[2]
-                    be_active1 = line.strip().split(" ; ")[3]
-                    #. 2345^&*(876543245678987654567
-                    print(f'new obj in position index=4:{line.strip().split(" ; ")[4]}') #.
+            users_list = json.load(file)
+            pr_red(f'users_list before: {users_list}') #.
+            for iterate in range(len(users_list)):
+                if users_list[iterate]['username'] == leader.username:
+                    users_list[iterate]['projects_as_leader'] = leader.projects_as_leader
+            pr_red(f'users_list after: {users_list}') #.
+
+        save_projects_to_file('user.json', users_list)
+        print('   ** users_list saved **')
 
         return leader
 
@@ -64,7 +59,7 @@ def save_projects_to_file(file_path, project_dict):
         json.dump(project_dict, file, indent=4)
 
 
-def load_projects_from_file(file_path):    # Returns a dictionary
+def load_projects_from_file(file_path):    # Returns a list
     try:
         with open(file_path, 'r') as file:
             projects_1 = json.load(file)
@@ -86,7 +81,7 @@ def create_a_project(leader: User):    # Returns an object of Project. It has to
         print('This ID already exists for another project.')
         print('Action failed!')
         clear_console(2)
-        return None
+        return 1
     project_1 = Project(project_title, project_id, leader)
     clear_console(2)
     return project_1
@@ -188,5 +183,3 @@ def options_for_my_project(user: User, my_project: Project):    # Called in the 
             elif ch == 3:
                 print('3...') #.
                 pass
-
-
