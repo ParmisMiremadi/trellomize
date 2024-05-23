@@ -167,5 +167,86 @@ def options_for_my_project(user: User, my_project: Project):    # Called in the 
                 pass
 
 
-def check_admin(user: User):
-    pass #.
+def activate_users(users_list: [dict]):
+    true_bool = True
+    inactive_users = [dict]
+    for iterate in range(len(users_list)):
+        if users_list[iterate]['is_active'] == true_bool:
+            pass
+        else:
+            inactive_users.append(users_list[iterate])
+    if len(inactive_users) == 0:
+        print('    No inactive user.')
+        print('    Going back...')
+        clear_console(3)
+        return
+    else:
+        which_user = 0
+        while which_user < 1 or which_user > len(inactive_users):
+            clear_console(2)
+            print('Choose a user to activate their account:')
+            for iterate in range(len(inactive_users)):
+                pr_cyan(f'{iterate + 1}. {inactive_users[iterate]['username']}')
+            try:
+                which_user = int(input())
+            except ValueError:
+                pr_red('Error: Invalid value!')
+                which_user = 0
+            else:
+                if isinstance(which_user, int) and 0 < which_user <= len(inactive_users):
+                    this_username = inactive_users[which_user - 1]['username']
+                    for iterate in range(len(users_list)):
+                        if users_list[iterate]['username'] == this_username:
+                            users_list[iterate]['is_active'] = true_bool
+
+                    save_projects_to_file('user.json', users_list)
+                    print(f"{this_username}'s account has been activated.")
+                    print('Going back...')
+                    clear_console(3)
+
+                else:
+                    pr_red('Error: Invalid value!')
+                    which_user = 0
+
+
+def deactivate_users(users_list: [dict]):
+    true_bool = True
+    active_users = [dict]
+    for iterate in range(len(users_list)):
+        if users_list[iterate]['is_active'] != true_bool:
+            pass
+        else:
+            active_users.append(users_list[iterate])
+    if len(active_users) == 0:
+        print('    No active user.')
+        print('    Going back...')
+        clear_console(3)
+        return
+    else:
+        which_user = 0
+        while which_user < 1 or which_user > len(active_users):
+            clear_console(2)
+            print('Choose a user to deactivate their account:')
+            for iterate in range(len(active_users)):
+                pr_cyan(f'{iterate + 1}. {active_users[iterate]['username']}')
+            try:
+                which_user = int(input())
+            except ValueError:
+                pr_red('Error: Invalid value!')
+                which_user = 0
+            else:
+                if isinstance(which_user, int) and 0 < which_user <= len(active_users):
+                    this_username = active_users[which_user - 1]['username']
+                    for iterate in range(len(users_list)):
+                        if users_list[iterate]['username'] == this_username:
+                            users_list[iterate]['is_active'] = False
+
+                    save_projects_to_file('user.json', users_list)
+                    print(f"{this_username}'s account has been deactivated.")
+                    print('Going back...')
+                    clear_console(3)
+
+                else:
+                    pr_red('Error: Invalid value!')
+                    which_user = 0
+    
