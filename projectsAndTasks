@@ -30,27 +30,18 @@ class Project:
             'leader': self.leader_username,
             'members': self.members
         }
-        print('projects_dicts: ', projects_dicts) #.For debugging
-        print('new_project_dict', new_project_dict) #.For debugging
         projects_dicts.append(new_project_dict)
         save_projects_to_file(file_path, projects_dicts)
         # Appending the new project to the object's projects_as_leader list
-        pr_green(f'leader.projects_as_leader:  {leader.projects_as_leader}') #.
         leader.projects_as_leader.append(new_project_dict)
-        pr_cyan(f'leader.projects_as_leader: {leader.projects_as_leader} is a list: '
-                f'{isinstance(leader.projects_as_leader, list)}')  #.For debugging
         # Save the new projects_as_leader list to 'user.json'
         with open("user.json", "r") as file:
             users_list = json.load(file)
-            pr_red(f'users_list before: {users_list}') #.
             for iterate in range(len(users_list)):
                 if users_list[iterate]['username'] == leader.username:
                     users_list[iterate]['projects_as_leader'] = leader.projects_as_leader
-            pr_red(f'users_list after: {users_list}') #.
 
         save_projects_to_file('user.json', users_list)
-        print('   ** users_list saved **')
-
         return leader
 
 
@@ -98,13 +89,6 @@ def show_list_of_projects_and_choose(user_obj: User):    # If Back, returns 0; e
     projects_as_leader_list = user_obj.projects_as_leader
     projects_as_member_list = user_obj.projects_as_member
 
-    print('is user_obj.projects_as_leader a list? ',
-          isinstance(projects_as_leader_list, list))#.For debugging
-    # print(isinstance(projects_as_leader_list[1], str))#.For debugging
-    # print(projects_as_leader_list[1])#.For debugging
-    # print(projects_as_leader_list)#.For debugging
-    print('list from obj: ', user_obj.projects_as_leader) #.
-
     it_leader = len(projects_as_leader_list)
     it_member = len(projects_as_member_list)
     ch = -1
@@ -146,13 +130,11 @@ def show_list_of_projects_and_choose(user_obj: User):    # If Back, returns 0; e
 
             elif it_leader > 0 and 1 <= ch <= it_leader:    # Valid choice: Choosing a project
                 clear_console(2)
-                print('in elif 1') #.
                 return Project(projects_as_leader_list[ch - 1].get('project_title'),
                                projects_as_leader_list[ch - 1].get('project_id'), user_obj)
 
             elif it_member > 0 and it_leader < ch <= (it_member + it_leader):    # Valid choice: Choosing a project
                 clear_console(2)
-                print('in elif 2') #.
                 return Project(projects_as_member_list[ch - 1].get('project_title'),
                                projects_as_member_list[ch - 1].get('project_id'), user_obj)
 
@@ -183,3 +165,7 @@ def options_for_my_project(user: User, my_project: Project):    # Called in the 
             elif ch == 3:
                 print('3...') #.
                 pass
+
+
+def check_admin(user: User):
+    pass #.
