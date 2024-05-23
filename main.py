@@ -6,9 +6,13 @@ import time
 import bcrypt
 
 
-def pr_cyan(skk): print("\033[36m {}\033[00m" .format(skk))
-def pr_green(skk): print("\033[32m {}\033[00m" .format(skk))
-def pr_red(skk): print("\033[31m {}\033[00m" .format(skk))
+def pr_cyan(skk): print("\033[36m {}\033[00m".format(skk))
+
+
+def pr_green(skk): print("\033[32m {}\033[00m".format(skk))
+
+
+def pr_red(skk): print("\033[31m {}\033[00m".format(skk))
 
 
 def clear_console(time1):
@@ -28,7 +32,7 @@ class User:
         self.email = email
         self.username = username
         self.__password = password
-        self.be_active = True
+        self.is_active = True
         self.is_admin = False
         self.projects_as_leader = []
         self.projects_as_member = []
@@ -61,49 +65,60 @@ def sign_up():
     username = input("Enter your username: ")
     password = getpass.getpass("Enter your password: ")
     encrypted_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+    string_password = encrypted_password.decode('utf8')
     user_obj = User(email, username, encrypted_password)
 
-    with open("user.json", "r") as file:
-        for line in file:
-            email1 = line.strip().split(" ; ")[0]
-            username1 = line.strip().split(" ; ")[1]
+    try:
+        with open('user.json', 'r') as file:
+            users_list = json.load(file)
+    except FileNotFoundError:
+        print(f'File not found: user.json\nCreating file...')
+        clear_console(2)
+        users_list = []
 
-            if email == email1 or username == username1:
-                pr_red("Error: The entered information is duplicate!")
-                return
-    with open("user.json", "a") as file:
-        file.write(
-            f"{email} ; {username} ; {encrypted_password.decode("utf-8")} ; {user_obj.be_active} ; {user_obj.projects_as_leader} ; {user_obj.projects_as_member}\n")
+    new_user_dict = {
+        'email': email,
+        'username': username,
+        'password': string_password,
+        'is_active': user_obj.is_active,
+        'projects_as_leader': [],
+        'projects_as_member': []
+    }
+    users_list.append(new_user_dict)
+    with open('user.json', 'w') as file:
+        json.dump(users_list, file, indent=4)
         pr_green("Your sign in was successful :)")
     return user_obj
 
 
-def log_in():
+def log_in(users_list: list[dict]):
     os.system("cls")
     print("1. Log in as user")
     print("2. Log in as admin")
     choice1 = input("Enter your choice: ")
-    
+
     if choice1 == "1":
         os.system("cls")
         username = input("Enter your username: ")
         password = getpass.getpass("Enter your password: ")
+        true_bool = True
 
-        with open("user.json", "r") as file:
-            for line in file:
-                username1 = line.strip().split(" ; ")[1]
-                password1 = line.strip().split(" ; ")[2]
-                be_active1 = line.strip().split(" ; ")[3]
-                true_bool = True
-                if username == username1:
-                    found_user = true_bool
-                    if bcrypt.checkpw(password.encode("utf-8"), password1.encode("utf-8")):
-                        if bool(be_active1) != true_bool:
+        with open('user.json', 'r') as file:
+            users_list = json.load(file)
+            for iterate in range(len(users_list)):
+                if users_list[iterate]['username'] == username:
+                    email1 = users_list[iterate]['email']
+                    is_active1 = users_list[iterate]['is_active']
+                    string_password = users_list[iterate]['password']
+                    if bcrypt.checkpw(password.encode("utf-8"), string_password.encode("utf-8")):
+                        if bool(is_active1) != true_bool:
                             pr_red("Error: You don't have access to your account!")
                             return
                         else:
                             pr_green("Your log in was successful :)")
-                            user_obj = User(line.strip().split(" ; ")[0], username1, password1)
+                            user_obj = User(email1, username, string_password)
+                            user_obj.projects_as_leader = users_list[iterate]['projects_as_leader']
+                            user_obj.projects_as_member = users_list[iterate]['projects_as_member']
                             return user_obj
                     else:
                         pr_red("Error: The password is invalid!")
@@ -132,4 +147,3 @@ def log_in():
 
     else:
         pr_red("Error: Invalid value!")
-
