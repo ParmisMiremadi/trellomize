@@ -2,11 +2,11 @@ import json
 import random
 import os
 import time
-import main
-from main import User as User
-from main import clear_console as clear_console
-import projectsAndTasks
-from projectsAndTasks import Project as Project
+import main_1
+from main_1 import User as User
+from main_1 import clear_console as clear_console
+import projectsAndTasks_1
+from projectsAndTasks_1 import Project as Project
 
 
 def pr_cyan(skk): print("\033[36m {}\033[00m" .format(skk))
@@ -16,8 +16,9 @@ def pr_red(skk): print("\033[31m {}\033[00m" .format(skk))
 
 user = User("", "", "")
 projects_file_path = 'projects.json'
-projects_list = projectsAndTasks.projects_list
+projects_list = projectsAndTasks_1.projects_list
 my_project = Project("", "", user)
+users_list = projectsAndTasks_1.load_projects_from_file('user.json')
 
 ########################################################################################
 
@@ -37,10 +38,10 @@ while run:
             choice = 0
         else:
             if choice == 1:
-                user = main.sign_up()
+                user = main_1.sign_up()
                 clear_console(2)
             elif choice == 2:
-                user = main.log_in()
+                user = main_1.log_in(users_list)
                 clear_console(2)
             else:
                 pr_red("Error: Invalid choice! Please try again.")
@@ -63,8 +64,8 @@ while run:
         else:
             clear_console(1.5)
             if choice_1 == 1:
-                project_object = projectsAndTasks.create_a_project(user)
-                if project_object is not None:
+                project_object = projectsAndTasks_1.create_a_project(user)
+                if isinstance(project_object, Project):
                     user = project_object.to_dict_and_save_to_file(projects_file_path, user)
                     pr_cyan(f'project_object.projects_as_leader: {user.projects_as_leader} //in main')
                     time.sleep(1)
@@ -76,7 +77,7 @@ while run:
                     clear_console(1)
                     pr_green('Creating a new project...')
                     clear_console(1)
-                    projects_list = projectsAndTasks.load_projects_from_file(projects_file_path)  # List of dictionaries
+                    projects_list = projectsAndTasks_1.load_projects_from_file(projects_file_path)  # List of dictionaries
                     print("\033[36m {}\033[32m {}\033[36m {}\033[00m".format
                           ("Project created successfully.\nYou are now the "
                            "leader of the project", f'{project_object.get_project_title()}', '.'))
@@ -88,9 +89,9 @@ while run:
 
             elif choice_1 == 2:
                 clear_console(2)
-                if isinstance(projectsAndTasks.show_list_of_projects_and_choose(user), Project):
-                    my_project = projectsAndTasks.show_list_of_projects_and_choose(user)
-                    projectsAndTasks.options_for_my_project(user, my_project)
+                if isinstance(projectsAndTasks_1.show_list_of_projects_and_choose(user), Project):
+                    my_project = projectsAndTasks_1.show_list_of_projects_and_choose(user)
+                    projectsAndTasks_1.options_for_my_project(user, my_project)
                     print('in if // main') #.
                 else:
                     choice_1 = 0
@@ -104,4 +105,3 @@ while run:
 
             else:
                 print('Invalid choice.\nPlease try again.')
-
