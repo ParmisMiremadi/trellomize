@@ -67,7 +67,6 @@ while run:
                 project_object = projectsAndTasks_1.create_a_project(user)
                 if isinstance(project_object, Project):
                     user = project_object.to_dict_and_save_to_file(projects_file_path, user)
-                    pr_cyan(f'project_object.projects_as_leader: {user.projects_as_leader} //in main')
                     time.sleep(1)
                     pr_green('Creating a new project')
                     clear_console(1)
@@ -92,7 +91,6 @@ while run:
                 if isinstance(projectsAndTasks_1.show_list_of_projects_and_choose(user), Project):
                     my_project = projectsAndTasks_1.show_list_of_projects_and_choose(user)
                     projectsAndTasks_1.options_for_my_project(user, my_project)
-                    print('in if // main') #.
                 else:
                     choice_1 = 0
 
