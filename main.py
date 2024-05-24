@@ -20,8 +20,10 @@ def clear_console(time1):
     os.system("cls" if os.name == "nt" else "clear")
 
 
-if not os.path.exists("user.json"):
-    open("user.json", "w").close()
+if not os.path.exists('user.json'):
+    with open('user.json', 'w') as file:
+        json.dump([], file, indent=4)
+    file.close()
 
 if not os.path.exists("admin.json"):
     open("admin.json", "w").close()
@@ -68,13 +70,13 @@ def sign_up():
     string_password = encrypted_password.decode('utf8')
     user_obj = User(email, username, encrypted_password)
 
-    try:
-        with open('user.json', 'r') as file:
-            users_list = json.load(file)
-    except FileNotFoundError:
-        print(f'File not found: user.json\nCreating file...')
-        clear_console(2)
-        users_list = []
+    with open('user.json', 'r') as file:
+        users_list = json.load(file)
+    if len(users_list) > 0:
+        for iterate in range(len(users_list)):
+            if email == users_list[iterate]['email'] or username == users_list[iterate]['username']:
+                print("Error: The entered information is duplicate!")
+                return
 
     new_user_dict = {
         'email': email,
