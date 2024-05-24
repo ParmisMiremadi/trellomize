@@ -53,7 +53,7 @@ while run:
                 pr_red("Error: Invalid choice! Please try again.")
                 clear_console(2)
 
-    if user.is_admin == true_bool:
+    if user.is_admin != true_bool:
         choice_1 = 0    # 1. New project  2. My projects  3. Exit
         while choice_1 != 3:
 
@@ -111,7 +111,7 @@ while run:
                 else:
                     print('Invalid choice.\nPlease try again.')
 
-    elif user.is_admin != true_bool:
+    elif user.is_admin == true_bool:
         ch_1 = "-1"    # 1. New project  2. My projects  3. Activate users 4. Deactivate users 5. Exit
         while ch_1 != "0":
             print('Choose one of the following options.')
