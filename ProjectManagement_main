@@ -25,8 +25,10 @@ projects_list = projectsAndTasks_1.projects_list
 my_project = Project("", "", user)
 users_list = projectsAndTasks_1.load_projects_from_file('user.json')
 
-admin_projects_as_leader = projectsAndTasks_1.admin_projects_as_leader
-admin_projects_as_member = projectsAndTasks_1.admin_projects_as_member
+if len(projectsAndTasks_1.admin_list) > 0:
+    admin_projects_as_leader = projectsAndTasks_1.admin_projects_as_leader
+    admin_projects_as_member = projectsAndTasks_1.admin_projects_as_member
+
 
 ########################################################################################
 
@@ -89,7 +91,8 @@ while run == true_bool:
                         clear_console(1)
                         pr_green('Creating a new project...')
                         clear_console(1)
-                        projects_list = projectsAndTasks_1.load_projects_from_file(projects_file_path)  # List of dictionaries
+                        # List of dictionaries:
+                        projects_list = projectsAndTasks_1.load_projects_from_file(projects_file_path)
                         print("\033[36m {}\033[32m {}\033[36m {}\033[00m".format
                               ("Project created successfully.\nYou are now the "
                                "leader of the project", f'{project_object.get_project_title()}', '.'))
@@ -146,7 +149,6 @@ while run == true_bool:
                           ('Project ID: ', f'{project_object.get_project_id()}'))
 
             elif ch_1 == "2":  # 2. My projects
-                clear_console(2)
                 if isinstance(projectsAndTasks_1.show_list_of_projects_and_choose(user), Project):
                     my_project = projectsAndTasks_1.show_list_of_projects_and_choose(user)
                     projectsAndTasks_1.options_for_my_project(user, my_project)
@@ -154,10 +156,10 @@ while run == true_bool:
                     ch_1 = 0
 
             elif ch_1 == "3":  # 3. Activate users
-                projectsAndTasks_1.activate_users(users_list) #. debugging needed
+                projectsAndTasks_1.activate_users(users_list)
 
             elif ch_1 == "4":  # 4. Deactivate users
-                projectsAndTasks_1.deactivate_users(users_list) #. debugging needed
+                projectsAndTasks_1.deactivate_users(users_list)
 
             elif ch_1 == "5":  # 5. Exit
                 clear_console(1)
