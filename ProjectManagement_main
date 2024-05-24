@@ -30,7 +30,6 @@ users_list = projectsAndTasks_1.load_projects_from_file('user.json')
 run = True
 true_bool = True
 while run:
-    clear_console(2)
     choice = 0    # 1. sign up  2. Log in
     while choice != 1 and choice != 2:
         clear_console(2)
@@ -47,18 +46,22 @@ while run:
                 user = main_1.sign_up()
                 clear_console(2)
             elif choice == 2:
-                user = main_1.log_in(users_list)
+                user = main_1.log_in()
                 clear_console(2)
             else:
                 pr_red("Error: Invalid choice! Please try again.")
                 clear_console(2)
+    if isinstance(user, int) and user == 0:
+        print('Exiting program...')
+        clear_console(2)
+        pr_red('Exit code: 1')
+        run = not true_bool
 
-    if user.is_admin != true_bool:
+    elif user.is_admin != true_bool:
         choice_1 = 0    # 1. New project  2. My projects  3. Exit
         while choice_1 != 3:
 
             try:
-                clear_console(2)
                 print('Choose one of the following options.')
                 pr_cyan('1. New project\n 2. My projects\n 3. Exit\n')
                 choice_1 = int(input())
@@ -106,7 +109,7 @@ while run:
                     pr_green('Exiting program...')
                     clear_console(2)
                     pr_green('Exit code: 0')
-                    run = not run
+                    run = not true_bool
 
                 else:
                     print('Invalid choice.\nPlease try again.')
@@ -154,7 +157,11 @@ while run:
                 projectsAndTasks_1.deactivate_users(users_list) #. debugging needed
 
             elif ch_1 == "5":  # 5. Exit
-                run = not run
+                clear_console(1)
+                pr_green('Exiting program...')
+                clear_console(2)
+                pr_green('Exit code: 0')
+                run = not true_bool
 
             else:
                 pr_red("Error: Invalid value!")
