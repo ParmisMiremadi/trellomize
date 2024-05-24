@@ -91,18 +91,22 @@ def log_in():
         with open("user.json", "r") as file:
             for line in file:
                 username1 = line.strip().split(" ; ")[1]
-                password1 = line.strip().split(" ; ")[2]
-                be_active1 = line.strip().split(" ; ")[3]
-                true_bool = True
+                
                 if username == username1:
-                    found_user = true_bool
+                    password1 = line.strip().split(" ; ")[2]
+            
                     if bcrypt.checkpw(password.encode("utf-8"), password1.encode("utf-8")):
+                        be_active1 = line.strip().split(" ; ")[3]
+                        true_bool = True
+                        
                         if bool(be_active1) != true_bool:
                             pr_red("Error: You don't have access to your account!")
                             return
                         else:
+                            email1 = line.strip().split(" ; ")[0]
+                            
                             pr_green("Your log in was successful :)")
-                            user_obj = User(line.strip().split(" ; ")[0], username1, password1)
+                            user_obj = User(email1, username1, password1)
                             return user_obj
                     else:
                         pr_red("Error: The password is invalid!")
@@ -117,9 +121,10 @@ def log_in():
         with open("admin.json", "r") as file:
             for line in file:
                 admin_username1 = line.strip().split(" ; ")[0]
-                admin_password1 = line.strip().split(" ; ")[1]
 
                 if admin_username == admin_username1:
+                    admin_password1 = line.strip().split(" ; ")[1]
+
                     if bcrypt.checkpw(admin_password.encode("utf-8"), admin_password1.encode("utf-8")):
                         pr_green("Your log in was successful :)")
                         admin_obj = Admin(admin_username1, admin_password1)
@@ -131,3 +136,4 @@ def log_in():
 
     else:
         pr_red("Error: Invalid value!")
+
