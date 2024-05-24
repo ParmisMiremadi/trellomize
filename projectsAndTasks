@@ -169,7 +169,7 @@ def options_for_my_project(user: User, my_project: Project):    # Called in the 
 
 def activate_users(users_list: [dict]):
     true_bool = True
-    inactive_users = [dict]
+    inactive_users = []
     for iterate in range(len(users_list)):
         if users_list[iterate]['is_active'] == true_bool:
             pass
@@ -200,7 +200,7 @@ def activate_users(users_list: [dict]):
                             users_list[iterate]['is_active'] = true_bool
 
                     save_projects_to_file('user.json', users_list)
-                    print(f"{this_username}'s account has been activated.")
+                    pr_green(f"{this_username}'s account has been activated.")
                     print('Going back...')
                     clear_console(3)
 
@@ -211,7 +211,7 @@ def activate_users(users_list: [dict]):
 
 def deactivate_users(users_list: [dict]):
     true_bool = True
-    active_users = [dict]
+    active_users = []
     for iterate in range(len(users_list)):
         if users_list[iterate]['is_active'] != true_bool:
             pass
@@ -242,7 +242,7 @@ def deactivate_users(users_list: [dict]):
                             users_list[iterate]['is_active'] = False
 
                     save_projects_to_file('user.json', users_list)
-                    print(f"{this_username}'s account has been deactivated.")
+                    pr_green(f"{this_username}'s account has been deactivated.")
                     print('Going back...')
                     clear_console(3)
 
