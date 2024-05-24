@@ -70,8 +70,8 @@ def sign_up():
     string_password = encrypted_password.decode('utf8')
     user_obj = User(email, username, encrypted_password)
 
-    with open('user.json', 'r') as file:
-        users_list = json.load(file)
+    with open('user.json', 'r') as file_1:
+        users_list = json.load(file_1)
     if len(users_list) > 0:
         for iterate in range(len(users_list)):
             if email == users_list[iterate]['email'] or username == users_list[iterate]['username']:
@@ -87,8 +87,8 @@ def sign_up():
         'projects_as_member': []
     }
     users_list.append(new_user_dict)
-    with open('user.json', 'w') as file:
-        json.dump(users_list, file, indent=4)
+    with open('user.json', 'w') as file_1:
+        json.dump(users_list, file_1, indent=4)
         pr_green("Your sign in was successful :)")
     return user_obj
 
@@ -105,8 +105,8 @@ def log_in(users_list: list[dict]):
         password = getpass.getpass("Enter your password: ")
         true_bool = True
 
-        with open('user.json', 'r') as file:
-            users_list = json.load(file)
+        with open('user.json', 'r') as file_1:
+            users_list = json.load(file_1)
             for iterate in range(len(users_list)):
                 if users_list[iterate]['username'] == username:
                     email1 = users_list[iterate]['email']
@@ -132,8 +132,8 @@ def log_in(users_list: list[dict]):
         admin_username = input("Enter your username: ")
         admin_password = getpass.getpass("Enter your password: ")
 
-        with open("admin.json", "r") as file:
-            for line in file:
+        with open("admin.json", "r") as file_1:
+            for line in file_1:
                 admin_username1 = line.strip().split(" ; ")[0]
                 admin_password1 = line.strip().split(" ; ")[1]
 
