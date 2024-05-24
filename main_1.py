@@ -7,7 +7,11 @@ import bcrypt
 
 
 def pr_cyan(skk): print("\033[36m {}\033[00m".format(skk))
+
+
 def pr_green(skk): print("\033[32m {}\033[00m".format(skk))
+
+
 def pr_red(skk): print("\033[31m {}\033[00m".format(skk))
 
 
@@ -21,8 +25,10 @@ if not os.path.exists("user.json"):
         json.dump([], file, indent=4)
     file.close()
 
-if not os.path.exists("admin.json"):
-    open("admin.json", "w").close()
+if not os.path.exists("admin_1.json"):
+    with open("admin_1.json", "w") as file:
+        json.dump([], file, indent=4)
+    file.close()
 
 
 class User:
@@ -36,13 +42,12 @@ class User:
         self.projects_as_member = []
 
 
-class Admin:
-    def __init__(self, admin_username, admin_password):
-        self.admin_username = admin_username
-        self.__admin_password = admin_password
+class Admin(User):
+    def __init__(self, email, username, password):
+        super().__init__(email, username, password)
+        self.email = ""
+        self.is_active = ""
         self.is_admin = True
-        self.projects_as_leader = []
-        self.projects_as_member = []
 
 
 def is_valid_email(email):
@@ -96,7 +101,7 @@ def log_in():
     print("2. Log in as admin")
     choice1 = input("Enter your choice: ")
 
-    if choice1 == "1":
+    if choice1 == "1":    # 1. Log in as user
         os.system("cls")
         username = input("Enter your username: ")
         password = getpass.getpass("Enter your password: ")
@@ -106,16 +111,16 @@ def log_in():
             users_list = json.load(file_1)
             for iterate in range(len(users_list)):
                 username1 = users_list[iterate]["username"]
-                
+
                 if username == username1:
                     string_password = users_list[iterate]["password"]
-            
+
                     if bcrypt.checkpw(password.encode("utf-8"), string_password.encode("utf-8")):
                         is_active1 = users_list[iterate]["is_active"]
 
                         if bool(is_active1) != true_bool:
                             pr_red("Error: You don't have access to your account!")
-                            return
+                            return 0
                         else:
                             email1 = users_list[iterate]["email"]
 
@@ -129,26 +134,29 @@ def log_in():
                         return
             pr_red("Error: Username not found!")
 
-    elif choice1 == "2":
+    elif choice1 == "2":    # Log in as admin
         os.system("cls")
         admin_username = input("Enter your username: ")
         admin_password = getpass.getpass("Enter your password: ")
 
-        with open("admin.json", "r") as file_1:
-            for line in file_1:
-                admin_username1 = line.strip().split(" ; ")[0]
-                admin_password1 = line.strip().split(" ; ")[1]
+        with open("admin_1.json", "r") as file_1:
+            admin_list = json.load(file_1)
+            if len(admin_list) > 0:
+                admin_username1 = admin_list[0]["username"]
+                admin_password1 = admin_list[0]["password"]
 
                 if admin_username == admin_username1:
                     if bcrypt.checkpw(admin_password.encode("utf-8"), admin_password1.encode("utf-8")):
                         pr_green("Your log in was successful :)")
-                        admin_obj = Admin(admin_username1, admin_password1)
+                        admin_obj = Admin(" ", admin_username1, admin_password1)
+                        admin_obj.projects_as_leader = admin_list[0]["projects_as_leader"]
+                        admin_obj.projects_as_member = admin_list[0]["projects_as_member"]
                         return admin_obj
                     else:
                         pr_red("Error: The password is invalid!")
                         return
-            pr_red("Error: Username not found!")
 
+            pr_red("Error: Username not found!")
+            return 0
     else:
         pr_red("Error: Invalid value!")
-
