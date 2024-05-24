@@ -25,11 +25,14 @@ projects_list = projectsAndTasks_1.projects_list
 my_project = Project("", "", user)
 users_list = projectsAndTasks_1.load_projects_from_file('user.json')
 
+admin_projects_as_leader = projectsAndTasks_1.admin_projects_as_leader
+admin_projects_as_member = projectsAndTasks_1.admin_projects_as_member
+
 ########################################################################################
 
 run = True
 true_bool = True
-while run:
+while run == true_bool:
     choice = 0    # 1. sign up  2. Log in
     while choice != 1 and choice != 2:
         clear_console(2)
@@ -161,6 +164,7 @@ while run:
                 pr_green('Exiting program...')
                 clear_console(2)
                 pr_green('Exit code: 0')
+                ch_1 = "0"
                 run = not true_bool
 
             else:
