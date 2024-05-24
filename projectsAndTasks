@@ -1,4 +1,6 @@
 import json
+
+import main_1
 from main_1 import User as User
 from main_1 import clear_console as clear_console
 
@@ -23,26 +25,38 @@ class Project:
         return self.__project_id
 
     def to_dict_and_save_to_file(self, file_path, leader: User):
-        projects_dicts = load_projects_from_file(file_path)    # List of dictionaries
         new_project_dict = {
             'project_title': self.__project_title,
             'project_id': self.__project_id,
             'leader': self.leader_username,
             'members': self.members
         }
+
+        projects_dicts = load_projects_from_file(file_path)    # List of dictionaries
         projects_dicts.append(new_project_dict)
         save_projects_to_file(file_path, projects_dicts)
         # Appending the new project to the object's projects_as_leader list
         leader.projects_as_leader.append(new_project_dict)
-        # Save the new projects_as_leader list to 'user.json'
-        with open("user.json", "r") as file:
-            users_list = json.load(file)
-            for iterate in range(len(users_list)):
-                if users_list[iterate]['username'] == leader.username:
-                    users_list[iterate]['projects_as_leader'] = leader.projects_as_leader
 
-        save_projects_to_file('user.json', users_list)
+        # Save the new projects_as_leader list to file
+        if isinstance(leader, main_1.Admin):    # Saving to 'admin.json'
+            with open("admin_1.json", "r") as f:
+                users_list = json.load(f)
+                for iterate in range(len(users_list)):
+                    if users_list[iterate]['username'] == leader.username:
+                        users_list[iterate]['projects_as_leader'] = leader.projects_as_leader
+            save_projects_to_file("admin_1.json", users_list)
+
+        else:    # Saving to 'user.json'
+            with open("user.json", "r") as f:
+                users_list = json.load(f)
+                for iterate in range(len(users_list)):
+                    if users_list[iterate]['username'] == leader.username:
+                        users_list[iterate]['projects_as_leader'] = leader.projects_as_leader
+            save_projects_to_file("user.json", users_list)
+
         return leader
+
 
 
 def save_projects_to_file(file_path, project_dict):
@@ -63,16 +77,28 @@ def load_projects_from_file(file_path):    # Returns a list
 projects_file_path = 'projects.json'
 projects_list = load_projects_from_file(projects_file_path)   # List of dictionaries
 
+with open("admin_1.json", "r") as file:
+    admin_list = json.load(file)
+admin_projects_as_leader = admin_list[0]["projects_as_leader"]
+admin_projects_as_member = admin_list[0]["projects_as_member"]
+
 
 def create_a_project(leader: User):    # Returns an object of Project. It has to be saved!
     project_title = input('The title of your project: ')    # Needs to be checked in the projects file
     project_id = input('The ID of your project: ')    # Needs to be checked in the projects file
-    is_unique = is_project_unique(projects_list, project_id)
+    is_unique = True
+    if isinstance(leader, main_1.Admin):
+        is_unique = is_project_unique(admin_projects_as_leader, project_id)
+        if is_unique:
+            is_unique = is_project_unique(admin_projects_as_member,project_id)
+    else:
+        is_unique = is_project_unique(projects_list, project_id)
     if not is_unique:
         print('This ID already exists for another project.')
         print('Action failed!')
         clear_console(2)
         return 1
+
     project_1 = Project(project_title, project_id, leader)
     clear_console(2)
     return project_1
@@ -88,6 +114,7 @@ def is_project_unique(projects_list_1: list[dict], new_project_id):
 def show_list_of_projects_and_choose(user_obj: User):    # If Back, returns 0; else returns a Project obj
     projects_as_leader_list = user_obj.projects_as_leader
     projects_as_member_list = user_obj.projects_as_member
+    print('as leader: ', projects_as_leader_list)
 
     it_leader = len(projects_as_leader_list)
     it_member = len(projects_as_member_list)
@@ -257,4 +284,5 @@ def deactivate_users(users_list: [dict]):
                 else:
                     pr_red('Error: Invalid value!')
                     which_user = 0
-    
+
+
