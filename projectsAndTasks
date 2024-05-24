@@ -99,16 +99,14 @@ def show_list_of_projects_and_choose(user_obj: User):    # If Back, returns 0; e
         print('Your projects as the leader:')
         if it_leader > 0:
             for it in range(it_leader):
-                print(f'    {it + 1}. {projects_as_leader_list[it].get('project_title')}')
-                print(f'it: {it}')
+                pr_cyan(f'    {it + 1}. {projects_as_leader_list[it].get('project_title')}')
         else:
             print('    No projects as leader.')
         it = 0
         print('\nYour projects as a member:')
         if it_member > 0:
             for it in range(it_member):
-                print(f'    {it_leader + it + 1}. {projects_as_member_list[it].get('project_title')}')
-                print(f'it: {it}')
+                pr_cyan(f'    {it_leader + it + 1}. {projects_as_member_list[it].get('project_title')}')
         else:
             print('    No projects member.')
 
@@ -182,11 +180,12 @@ def activate_users(users_list: [dict]):
         return
     else:
         which_user = 0
-        while which_user < 1 or which_user > len(inactive_users):
+        while which_user < 1 or which_user > (len(inactive_users) + 1):
             clear_console(2)
             print('Choose a user to activate their account:')
             for iterate in range(len(inactive_users)):
                 pr_cyan(f'{iterate + 1}. {inactive_users[iterate]['username']}')
+            print(f' {len(inactive_users) + 1}. Back')
             try:
                 which_user = int(input())
             except ValueError:
@@ -203,6 +202,10 @@ def activate_users(users_list: [dict]):
                     pr_green(f"{this_username}'s account has been activated.")
                     print('Going back...')
                     clear_console(3)
+
+                elif isinstance(which_user, int) and which_user == len(inactive_users) + 1:
+                    print('Going back...')
+                    clear_console(2)
 
                 else:
                     pr_red('Error: Invalid value!')
@@ -224,11 +227,12 @@ def deactivate_users(users_list: [dict]):
         return
     else:
         which_user = 0
-        while which_user < 1 or which_user > len(active_users):
+        while which_user < 1 or which_user > (len(active_users) + 1):
             clear_console(2)
             print('Choose a user to deactivate their account:')
             for iterate in range(len(active_users)):
                 pr_cyan(f'{iterate + 1}. {active_users[iterate]['username']}')
+            print(f' {len(active_users) + 1}. Back')
             try:
                 which_user = int(input())
             except ValueError:
@@ -245,6 +249,10 @@ def deactivate_users(users_list: [dict]):
                     pr_green(f"{this_username}'s account has been deactivated.")
                     print('Going back...')
                     clear_console(3)
+
+                elif isinstance(which_user, int) and which_user == len(active_users) + 1:
+                    print('Going back...')
+                    clear_console(2)
 
                 else:
                     pr_red('Error: Invalid value!')
