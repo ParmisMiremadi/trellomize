@@ -5,8 +5,8 @@ import time
 import main_1
 from main_1 import User as User
 from main_1 import clear_console as clear_console
-import projectsAndTasks_1
-from projectsAndTasks_1 import Project as Project
+import projects_and_tasks
+from projects_and_tasks import Project as Project
 
 
 def pr_cyan(skk): print("\033[36m {}\033[00m" .format(skk))
@@ -21,13 +21,13 @@ if not os.path.exists('projects.json'):
 
 user = User("", "", "")
 projects_file_path = 'projects.json'
-projects_list = projectsAndTasks_1.projects_list
+projects_list = projects_and_tasks.projects_list
 my_project = Project("", "", user)
-users_list = projectsAndTasks_1.load_projects_from_file('user.json')
+users_list = projects_and_tasks.load_projects_from_file('user.json')
 
-if len(projectsAndTasks_1.admin_list) > 0:
-    admin_projects_as_leader = projectsAndTasks_1.admin_projects_as_leader    # List of dictionaries
-    admin_projects_as_member = projectsAndTasks_1.admin_projects_as_member    # List of dictionaries
+if len(projects_and_tasks.admin_list) > 0:
+    admin_projects_as_leader = projects_and_tasks.admin_projects_as_leader    # List of dictionaries
+    admin_projects_as_member = projects_and_tasks.admin_projects_as_member    # List of dictionaries
 
 
 ########################################################################################
@@ -79,7 +79,7 @@ while run == true_bool:
             else:
                 clear_console(1.5)
                 if choice_1 == 1:
-                    project_object = projectsAndTasks_1.create_a_project(user)
+                    project_object = projects_and_tasks.create_a_project(user)
                     if isinstance(project_object, Project):
                         user = project_object.to_dict_and_save_to_file(projects_file_path, user)
                         time.sleep(1)
@@ -92,7 +92,7 @@ while run == true_bool:
                         pr_green('Creating a new project...')
                         clear_console(1)
                         # List of dictionaries:
-                        projects_list = projectsAndTasks_1.load_projects_from_file(projects_file_path)
+                        projects_list = projects_and_tasks.load_projects_from_file(projects_file_path)
                         print("\033[36m {}\033[32m {}\033[36m {}\033[00m".format
                               ("Project created successfully.\nYou are now the "
                                "leader of the project", f'{project_object.get_project_title()}', '.'))
@@ -104,9 +104,9 @@ while run == true_bool:
 
                 elif choice_1 == 2:
                     clear_console(2)
-                    if isinstance(projectsAndTasks_1.show_list_of_projects_and_choose(user), Project):
-                        my_project = projectsAndTasks_1.show_list_of_projects_and_choose(user)
-                        user, my_project = projectsAndTasks_1.options_for_my_project(user, my_project)
+                    if isinstance(projects_and_tasks.show_list_of_projects_and_choose(user), Project):
+                        my_project = projects_and_tasks.show_list_of_projects_and_choose(user)
+                        user, my_project = projects_and_tasks.options_for_my_project(user, my_project)
                     else:
                         choice_1 = 0
 
@@ -128,7 +128,7 @@ while run == true_bool:
             ch_1 = input()
 
             if ch_1 == "1":  # 1. New project
-                project_object = projectsAndTasks_1.create_a_project(user)
+                project_object = projects_and_tasks.create_a_project(user)
                 if isinstance(project_object, Project):
                     user = project_object.to_dict_and_save_to_file(projects_file_path, user)
                     time.sleep(1)
@@ -140,7 +140,7 @@ while run == true_bool:
                     clear_console(1)
                     pr_green('Creating a new project...')
                     clear_console(1)
-                    projects_list = projectsAndTasks_1.load_projects_from_file(
+                    projects_list = projects_and_tasks.load_projects_from_file(
                         projects_file_path)  # List of dictionaries
                     print("\033[36m {}\033[32m {}\033[36m {}\033[00m".format
                           ("Project created successfully.\nYou are now the "
@@ -149,17 +149,17 @@ while run == true_bool:
                           ('Project ID: ', f'{project_object.get_project_id()}'))
 
             elif ch_1 == "2":  # 2. My projects
-                if isinstance(projectsAndTasks_1.show_list_of_projects_and_choose(user), Project):
-                    my_project = projectsAndTasks_1.show_list_of_projects_and_choose(user)
-                    projectsAndTasks_1.options_for_my_project(user, my_project)
+                if isinstance(projects_and_tasks.show_list_of_projects_and_choose(user), Project):
+                    my_project = projects_and_tasks.show_list_of_projects_and_choose(user)
+                    projects_and_tasks.options_for_my_project(user, my_project)
                 else:
                     ch_1 = 0
 
             elif ch_1 == "3":  # 3. Activate users
-                projectsAndTasks_1.activate_users(users_list)
+                projects_and_tasks.activate_users(users_list)
 
             elif ch_1 == "4":  # 4. Deactivate users
-                projectsAndTasks_1.deactivate_users(users_list)
+                projects_and_tasks.deactivate_users(users_list)
 
             elif ch_1 == "5":  # 5. Exit
                 clear_console(1)
