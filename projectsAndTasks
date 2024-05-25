@@ -154,41 +154,37 @@ def show_list_of_projects_and_choose(user_obj: User):    # If Back, returns 0; e
 
             elif it_leader > 0 and 1 <= ch <= it_leader:    # Valid choice: Choosing a project
                 clear_console(2)
-                return Project(projects_as_leader_list[ch - 1].get('project_title'),
-                               projects_as_leader_list[ch - 1].get('project_id'), user_obj)
+                return Project(projects_as_leader_list[ch - 1]["project_title"],
+                               projects_as_leader_list[ch - 1]["project_id"], user_obj)
 
             elif it_member > 0 and it_leader < ch <= (it_member + it_leader):    # Valid choice: Choosing a project
                 clear_console(2)
-                return Project(projects_as_member_list[ch - 1].get('project_title'),
-                               projects_as_member_list[ch - 1].get('project_id'), user_obj)
+                return Project(projects_as_member_list[ch - it_leader - 1]["project_title"],
+                               projects_as_member_list[ch - it_leader - 1]["project_id"], user_obj)
 
 
 def options_for_my_project(user: User, my_project: Project):    # Called in the main program in the 2nd menu
     clear_console(2)
-    ch = 0    # 1. Members  2. Tasks  3. Back
-    while ch != 1 and ch != 2 and ch != 3:
+    ch = "-1"    # 1. Members  2. Tasks  3. Back
+    while ch != "0":
         clear_console(1)
-        pr_cyan(f'        {my_project.get_project_title()}')
-        print('    1. Members\n    2. Tasks\n    3. Back')
-        try:
-            ch = int(input())
-        except ValueError:
-            print('Error: Invalid value!')
+        pr_cyan(f"        {my_project.get_project_title()}")
+        print("    1. Members\n    2. Tasks\n    3. Back")
+        ch = input()
+
+        if ch == "1":    # 1. Members
+            my_project_members(user, my_project) #.members function
+
+        elif ch == "2":    # 2. Tasks
+            print("tasks' list and stuff.") #.tasks function(s)
+
+        elif ch == "3":    # 3. Back
+            print("Going Back...")
             clear_console(2)
+            return user, my_project
+
         else:
-            if isinstance(ch, int) and (ch < 1 or ch > 3):
-                print('Error: Invalid value!')
-                print('Enter a number between 1 and 3')
-                clear_console(2)
-            elif ch == 1:
-                my_project_members(user, my_project) #.members function
-                ch = 0    # To show the same options again
-            elif ch == 2:
-                print("tasks' list and stuff.")#.tasks function(s)
-                ch = 0    # To show the same options again
-            elif ch == 3:
-                print('3...') #.
-                pass
+            pr_red("Error: Invalid value!")
 
 
 def activate_users(users_list: [dict]):
@@ -200,7 +196,7 @@ def activate_users(users_list: [dict]):
         else:
             inactive_users.append(users_list[iterate])
     if len(inactive_users) == 0:
-        print('    No inactive user.')
+        print('    No inactive users.')
         print('    Going back...')
         clear_console(3)
         return
@@ -247,7 +243,7 @@ def deactivate_users(users_list: [dict]):
         else:
             active_users.append(users_list[iterate])
     if len(active_users) == 0:
-        print('    No active user.')
+        print('    No active users.')
         print('    Going back...')
         clear_console(3)
         return
@@ -287,9 +283,9 @@ def deactivate_users(users_list: [dict]):
 
 def my_project_members(user: User, my_project: Project):
     ch = "-1"
-    while ch != "0":
+    while ch != "0":    # 1. Add members  2. Remove members  3. Back
         clear_console(2)
-        print("1. Add members\n2. Back")
+        print("1. Add members\n2. Remove members\n3. Back")
 
         print(f"\nMembers of project {my_project.get_project_title()}:")
         this_project = dict
@@ -302,7 +298,7 @@ def my_project_members(user: User, my_project: Project):
         my_project.members = project_members
 
         if len(project_members) == 0:
-            print('    No member')
+            print('    No members')
 
         elif len(all_projects) > 0:
             for iterate in range(len(all_projects)):
@@ -311,22 +307,41 @@ def my_project_members(user: User, my_project: Project):
                         pr_cyan(all_projects[iterate]["members"][it])
 
         else:
-            print('    No project')
+            print('    No projects')
 
         ch = input()
         if ch == "1":    # Add members
-            if my_project.get_project_id() in user.projects_as_leader:
-                add_members(user, my_project)
-            else:
+            print(f"{user.projects_as_leader}")
+            print(my_project.get_project_id())
+
+            is_leader = False
+            for iterate in range(len(user.projects_as_leader)):
+                if user.projects_as_leader[iterate]["project_id"] == my_project.get_project_id():
+                    add_members(user, my_project)
+                    is_leader = True
+                    break
+
+            if not is_leader:
                 clear_console(0)
-                pr_red(f"As a member of project {my_project.get_project_title()}, you can not add any members to it.")
+                pr_red(f"As a member of project {my_project.get_project_title()},"
+                       f" you can not add any members to it.")
                 print("Going Back...")
                 clear_console(2)
 
-        elif ch == "2":
+        elif ch == "2":    # 2. Remove members
+            if my_project.get_project_id() in user.projects_as_leader:
+                pass #.calling the function remove_members
+            else:
+                clear_console(0)
+                pr_red(f"As a member of project {my_project.get_project_title()},"
+                       f" you can not remove any members from it.")
+                print("Going Back...")
+                clear_console(2)
+
+        elif ch == "3":
             print("Going Back...")
             clear_console(2)
-            ch = "0"
+            return user, my_project
 
 
 def add_members(leader: User, my_project: Project):
@@ -366,7 +381,7 @@ def add_members(leader: User, my_project: Project):
                         username_to_add = adding_possible[ch - 1]
                         pr_green(f"username_to_add: {username_to_add}") #.
 
-                        #. adding user to member list + adding project to projects_as_mamber list
+                        #. adding user to member list + adding project to projects_as_member list
                         project_members.append(username_to_add)
                         my_project.members = project_members    # Updating the object
                         # Saving the new members list to 'projects.json' file
@@ -377,44 +392,77 @@ def add_members(leader: User, my_project: Project):
                                 if all_projects[iterate]["project_id"] == my_project.get_project_id():
                                     all_projects[iterate]["members"] = project_members
 
-                            with open(projects_file_path, "w") as write:
+                            with open(projects_file_path, "w") as write:    # Updating the projects file
                                 json.dump(all_projects, write, indent=4)
-
-                            with open(projects_file_path, "r") as read:
-                                all_projects = json.load(read)
 
                             if username_to_add in project_members:
                                 for iterate in range(len(all_projects)):
                                     if all_projects[iterate]["project_id"] == my_project.get_project_id():
                                         the_project_dict = all_projects[iterate]
 
-                                        with open(user_file_path, "r") as f:
-                                            all_users = json.load(f)
-
-                                        for it in range(len(all_users)):
-                                            if all_users[it]["username"] == username_to_add:
-                                                all_users[it]["projects_as_member"].append(all_projects[iterate])
-                                                print(f'***  user projects as m: {all_users[it]["projects_as_member"]}')
+                                        is_admin = True
+                                        for it in range(len(user_list)):
+                                            if user_list[it]["username"] == username_to_add:
+                                                is_admin = False
+                                                user_list[it]["projects_as_member"].append(all_projects[iterate])
+                                                print(f'***  user projects as m: {user_list[it]["projects_as_member"]}') #.
                                                 with open(user_file_path, "w") as write:
-                                                    json.dump(all_users, write, indent=4)
+                                                    json.dump(user_list, write, indent=4)
                                                 break
+                                        if is_admin:
+                                            if admin_list_1[0]["username"] == username_to_add:
+                                                admin_list_1[0]["projects_as_member"].append(all_projects[iterate])
+                                                print(
+                                                    f'***  user projects as m: {admin_list_1[0]["projects_as_member"]}')  # .
+                                                with open(admin_file_path, "w") as write:
+                                                    json.dump(admin_list_1, write, indent=4)
+
                                         break
+
 
                         adding_possible.pop(ch - 1)
                         print(f'after popping: {adding_possible}') #.
                         return my_project
                     elif isinstance(ch, int) and ch == len(adding_possible) + 1:
                         print("Going back...")
-                        ch = "0"
+                        clear_console(2)
+                        return leader, my_project
                     else:
                         print("Error: Invalid value!")
                         ch = "-1"
 
             else:
-                print("    No user to add")
-                ch = "0"
+                print("    No users to add")
+                clear_console(2)
+                return leader, my_project
 
         else:
-            print("    No user to add")
-            ch = "0"
+            print("    No users to add")
+            clear_console(2)
+            return leader, my_project
+
+
+def remove_members(leader: User, my_project: Project):
+    ch = "-1"
+    while ch != "0":
+        with open(projects_file_path, "r") as f:
+            all_projects = json.load(f)
+
+        with open(user_file_path, "r") as f:
+            all_users = json.load(f)
+
+        with open(admin_file_path, "r") as f:
+            admin_list_1 = json.load(f)
+
+        print(f"Choose one of the following members to remove them"
+              f" from project {my_project.get_project_title()}:")
+
+        if len(my_project.members) > 0:
+            for iterate in range(len(my_project.members)):
+                pr_cyan(f"    {iterate + 1}. {my_project.members[iterate]}") #..!!!!!!!!!!!!
+
+        else:
+            print("    No member")
+            clear_console(2)
+            return leader, my_project
 
