@@ -26,8 +26,8 @@ my_project = Project("", "", user)
 users_list = projectsAndTasks_1.load_projects_from_file('user.json')
 
 if len(projectsAndTasks_1.admin_list) > 0:
-    admin_projects_as_leader = projectsAndTasks_1.admin_projects_as_leader
-    admin_projects_as_member = projectsAndTasks_1.admin_projects_as_member
+    admin_projects_as_leader = projectsAndTasks_1.admin_projects_as_leader    # List of dictionaries
+    admin_projects_as_member = projectsAndTasks_1.admin_projects_as_member    # List of dictionaries
 
 
 ########################################################################################
