@@ -106,7 +106,7 @@ while run == true_bool:
                     clear_console(2)
                     if isinstance(projectsAndTasks_1.show_list_of_projects_and_choose(user), Project):
                         my_project = projectsAndTasks_1.show_list_of_projects_and_choose(user)
-                        projectsAndTasks_1.options_for_my_project(user, my_project)
+                        user, my_project = projectsAndTasks_1.options_for_my_project(user, my_project)
                     else:
                         choice_1 = 0
 
