@@ -132,7 +132,7 @@ def show_list_of_projects_and_choose(user_obj: User):    # If Back, returns 0; e
         print('\nYour projects as a member:')
         if it_member > 0:
             for it in range(it_member):
-                pr_cyan(f'    {it_leader + it + 1}. {projects_as_member_list[it].get('project_title')}')
+                pr_cyan(f'    {it_leader + it + 1}. {projects_as_member_list[it]["project_title"]}')
         else:
             print('    No projects as a member.')
 
@@ -358,7 +358,7 @@ def add_members(leader: User, my_project: Project):
                 else:
                     if isinstance(ch, int) and 1 <= ch <= (len(adding_possible)):
                         username_to_add = adding_possible[ch - 1]
-                        pr_green(f"username_to_add: {username_to_add}")
+                        pr_green(f"username_to_add: {username_to_add}") #.
 
                         #. adding user to member list + adding project to projects_as_mamber list
                         project_members.append(username_to_add)
@@ -370,16 +370,29 @@ def add_members(leader: User, my_project: Project):
                             for iterate in range(len(all_projects)):
                                 if all_projects[iterate]["project_id"] == my_project.get_project_id():
                                     all_projects[iterate]["members"] = project_members
-                                    # Saving project id to username_to_add's projects_as_member list
-                                    # for ite in range(len(user_list)): #. debug
-                                    #     if user_list[ite]["username"] == username_to_add: #.debug
-                                    #         username_to_add_projects_as_member = user_list[ite]["projects_as_member"]
-                                    #         print(f'username_to_add projects as member: {username_to_add_projects_as_member}') #.
 
                             with open(projects_file_path, "w") as write:
                                 json.dump(all_projects, write, indent=4)
 
+                            with open(projects_file_path, "r") as read:
+                                all_projects = json.load(read)
 
+                            if username_to_add in project_members:
+                                for iterate in range(len(all_projects)):
+                                    if all_projects[iterate]["project_id"] == my_project.get_project_id():
+                                        the_project_dict = all_projects[iterate]
+
+                                        with open(user_file_path, "r") as f:
+                                            all_users = json.load(f)
+
+                                        for it in range(len(all_users)):
+                                            if all_users[it]["username"] == username_to_add:
+                                                all_users[it]["projects_as_member"].append(all_projects[iterate])
+                                                print(f'***  user projects as m: {all_users[it]["projects_as_member"]}')
+                                                with open(user_file_path, "w") as write:
+                                                    json.dump(all_users, write, indent=4)
+                                                break
+                                        break
 
                         adding_possible.pop(ch - 1)
                         print(f'after popping: {adding_possible}') #.
