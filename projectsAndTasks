@@ -285,7 +285,7 @@ def deactivate_users(users_list: [dict]):
                     which_user = 0
 
 
-def my_project_members(leader: User, my_project: Project):
+def my_project_members(user: User, my_project: Project):
     ch = "-1"
     while ch != "0":
         clear_console(2)
@@ -315,7 +315,13 @@ def my_project_members(leader: User, my_project: Project):
 
         ch = input()
         if ch == "1":    # Add members
-            add_members(leader, my_project) #. add members function
+            if my_project.get_project_id() in user.projects_as_leader:
+                add_members(user, my_project)
+            else:
+                clear_console(0)
+                pr_red(f"As a member of project {my_project.get_project_title()}, you can not add any members to it.")
+                print("Going Back...")
+                clear_console(2)
 
         elif ch == "2":
             print("Going Back...")
