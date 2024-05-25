@@ -5,13 +5,19 @@ from main_1 import User as User
 from main_1 import clear_console as clear_console
 
 
-def pr_cyan(skk): print("\033[36m {}\033[00m" .format(skk))
-def pr_green(skk): print("\033[32m {}\033[00m" .format(skk))
-def pr_red(skk): print("\033[31m {}\033[00m" .format(skk))
+def pr_cyan(skk): print("\033[36m {}\033[00m".format(skk))
+
+
+def pr_green(skk): print("\033[32m {}\033[00m".format(skk))
+
+
+def pr_red(skk): print("\033[31m {}\033[00m".format(skk))
+
 
 user_file_path = "user.json"
 projects_file_path = "projects.json"
 admin_file_path = "admin_1.json"
+
 
 class Project:
     def __init__(self, project_title, project_id, leader: User):
@@ -35,14 +41,14 @@ class Project:
             'members': self.members
         }
 
-        projects_dicts = load_projects_from_file(file_path)    # List of dictionaries
+        projects_dicts = load_projects_from_file(file_path)  # List of dictionaries
         projects_dicts.append(new_project_dict)
         save_projects_to_file(file_path, projects_dicts)
         # Appending the new project to the object's projects_as_leader list
         leader.projects_as_leader.append(new_project_dict)
 
         # Save the new projects_as_leader list to file
-        if isinstance(leader, main_1.Admin):    # Saving to 'admin.json'
+        if isinstance(leader, main_1.Admin):  # Saving to 'admin.json'
             with open(admin_file_path, "r") as f:
                 users_list = json.load(f)
                 for iterate in range(len(users_list)):
@@ -50,7 +56,7 @@ class Project:
                         users_list[iterate]['projects_as_leader'] = leader.projects_as_leader
             save_projects_to_file(admin_file_path, users_list)
 
-        else:    # Saving to 'user.json'
+        else:  # Saving to 'user.json'
             with open(user_file_path, "r") as f:
                 users_list = json.load(f)
                 for iterate in range(len(users_list)):
@@ -61,37 +67,37 @@ class Project:
         return leader
 
 
-
 def save_projects_to_file(file_path, project_dict):
-    with open(file_path, 'w') as file:
-        json.dump(project_dict, file, indent=4)
+    with open(file_path, 'w') as file_1:
+        json.dump(project_dict, file_1, indent=4)
 
 
-def load_projects_from_file(file_path):    # Returns a list
+def load_projects_from_file(file_path):  # Returns a list
     try:
-        with open(file_path, 'r') as file:
-            projects_1 = json.load(file)
+        with open(file_path, 'r') as file_1:
+            projects_1 = json.load(file_1)
     except FileNotFoundError:
         projects_1 = []
     return projects_1
 
-projects_list = load_projects_from_file(projects_file_path)   # List of dictionaries
+
+projects_list = load_projects_from_file(projects_file_path)  # List of dictionaries
 
 with open(admin_file_path, "r") as file:
     admin_list = json.load(file)
 if len(admin_list) > 0:
-    admin_projects_as_leader = admin_list[0]["projects_as_leader"]    # List of dictionaries
-    admin_projects_as_member = admin_list[0]["projects_as_member"]    # List of dictionaries
+    admin_projects_as_leader = admin_list[0]["projects_as_leader"]  # List of dictionaries
+    admin_projects_as_member = admin_list[0]["projects_as_member"]  # List of dictionaries
 
 
-def create_a_project(leader: User):    # Returns an object of Project. It has to be saved!
-    project_title = input('The title of your project: ')    # Needs to be checked in the projects file
-    project_id = input('The ID of your project: ')    # Needs to be checked in the projects file
+def create_a_project(leader: User):  # Returns an object of Project. It has to be saved!
+    project_title = input('The title of your project: ')  # Needs to be checked in the projects file
+    project_id = input('The ID of your project: ')  # Needs to be checked in the projects file
     is_unique = True
     if isinstance(leader, main_1.Admin):
         is_unique = is_project_unique(admin_projects_as_leader, project_id)
         if is_unique:
-            is_unique = is_project_unique(admin_projects_as_member,project_id)
+            is_unique = is_project_unique(admin_projects_as_member, project_id)
     else:
         is_unique = is_project_unique(projects_list, project_id)
     if not is_unique:
@@ -112,7 +118,7 @@ def is_project_unique(projects_list_1: list[dict], new_project_id):
     return True
 
 
-def show_list_of_projects_and_choose(user_obj: User):    # If Back, returns 0; else returns a Project obj
+def show_list_of_projects_and_choose(user_obj: User):  # If Back, returns 0; else returns a Project obj
     projects_as_leader_list = user_obj.projects_as_leader
     projects_as_member_list = user_obj.projects_as_member
 
@@ -148,37 +154,37 @@ def show_list_of_projects_and_choose(user_obj: User):    # If Back, returns 0; e
                 print('Error: Invalid value!')
                 clear_console(2)
 
-            elif ch == 0:    # Going back
+            elif ch == 0:  # Going back
                 clear_console(2)
                 return 0
 
-            elif it_leader > 0 and 1 <= ch <= it_leader:    # Valid choice: Choosing a project
+            elif it_leader > 0 and 1 <= ch <= it_leader:  # Valid choice: Choosing a project
                 clear_console(2)
                 return Project(projects_as_leader_list[ch - 1]["project_title"],
                                projects_as_leader_list[ch - 1]["project_id"], user_obj)
 
-            elif it_member > 0 and it_leader < ch <= (it_member + it_leader):    # Valid choice: Choosing a project
+            elif it_member > 0 and it_leader < ch <= (it_member + it_leader):  # Valid choice: Choosing a project
                 clear_console(2)
                 return Project(projects_as_member_list[ch - it_leader - 1]["project_title"],
                                projects_as_member_list[ch - it_leader - 1]["project_id"], user_obj)
 
 
-def options_for_my_project(user: User, my_project: Project):    # Called in the main program in the 2nd menu
+def options_for_my_project(user: User, my_project: Project):  # Called in the main program in the 2nd menu
     clear_console(2)
-    ch = "-1"    # 1. Members  2. Tasks  3. Back
+    ch = "-1"  # 1. Members  2. Tasks  3. Back
     while ch != "0":
         clear_console(1)
         pr_cyan(f"        {my_project.get_project_title()}")
         print("    1. Members\n    2. Tasks\n    3. Back")
         ch = input()
 
-        if ch == "1":    # 1. Members
-            my_project_members(user, my_project) #.members function
+        if ch == "1":  # 1. Members
+            my_project_members(user, my_project)  #.members function
 
-        elif ch == "2":    # 2. Tasks
-            print("tasks' list and stuff.") #.tasks function(s)
+        elif ch == "2":  # 2. Tasks
+            print("tasks' list and stuff.")  #.tasks function(s)
 
-        elif ch == "3":    # 3. Back
+        elif ch == "3":  # 3. Back
             print("Going Back...")
             clear_console(2)
             return user, my_project
@@ -283,7 +289,7 @@ def deactivate_users(users_list: [dict]):
 
 def my_project_members(user: User, my_project: Project):
     ch = "-1"
-    while ch != "0":    # 1. Add members  2. Remove members  3. Back
+    while ch != "0":  # 1. Add members  2. Remove members  3. Back
         clear_console(2)
         print("1. Add members\n2. Remove members\n3. Back")
 
@@ -310,7 +316,7 @@ def my_project_members(user: User, my_project: Project):
             print('    No projects')
 
         ch = input()
-        if ch == "1":    # Add members
+        if ch == "1":  # Add members
             print(f"{user.projects_as_leader}")
             print(my_project.get_project_id())
 
@@ -328,9 +334,9 @@ def my_project_members(user: User, my_project: Project):
                 print("Going Back...")
                 clear_console(2)
 
-        elif ch == "2":    # 2. Remove members
+        elif ch == "2":  # 2. Remove members
             if my_project.get_project_id() in user.projects_as_leader:
-                pass #.calling the function remove_members
+                pass  #.calling the function remove_members
             else:
                 clear_console(0)
                 pr_red(f"As a member of project {my_project.get_project_title()},"
@@ -379,11 +385,11 @@ def add_members(leader: User, my_project: Project):
                 else:
                     if isinstance(ch, int) and 1 <= ch <= (len(adding_possible)):
                         username_to_add = adding_possible[ch - 1]
-                        pr_green(f"username_to_add: {username_to_add}") #.
+                        pr_green(f"username_to_add: {username_to_add}")  #.
 
                         #. adding user to member list + adding project to projects_as_member list
                         project_members.append(username_to_add)
-                        my_project.members = project_members    # Updating the object
+                        my_project.members = project_members  # Updating the object
                         # Saving the new members list to 'projects.json' file
                         with open(projects_file_path, "r") as read_projects:
                             all_projects = json.load(read_projects)
@@ -392,7 +398,7 @@ def add_members(leader: User, my_project: Project):
                                 if all_projects[iterate]["project_id"] == my_project.get_project_id():
                                     all_projects[iterate]["members"] = project_members
 
-                            with open(projects_file_path, "w") as write:    # Updating the projects file
+                            with open(projects_file_path, "w") as write:  # Updating the projects file
                                 json.dump(all_projects, write, indent=4)
 
                             if username_to_add in project_members:
@@ -405,7 +411,8 @@ def add_members(leader: User, my_project: Project):
                                             if user_list[it]["username"] == username_to_add:
                                                 is_admin = False
                                                 user_list[it]["projects_as_member"].append(all_projects[iterate])
-                                                print(f'***  user projects as m: {user_list[it]["projects_as_member"]}') #.
+                                                print(
+                                                    f'***  user projects as m: {user_list[it]["projects_as_member"]}')  #.
                                                 with open(user_file_path, "w") as write:
                                                     json.dump(user_list, write, indent=4)
                                                 break
@@ -419,9 +426,8 @@ def add_members(leader: User, my_project: Project):
 
                                         break
 
-
                         adding_possible.pop(ch - 1)
-                        print(f'after popping: {adding_possible}') #.
+                        print(f'after popping: {adding_possible}')  #.
                         return my_project
                     elif isinstance(ch, int) and ch == len(adding_possible) + 1:
                         print("Going back...")
@@ -459,10 +465,9 @@ def remove_members(leader: User, my_project: Project):
 
         if len(my_project.members) > 0:
             for iterate in range(len(my_project.members)):
-                pr_cyan(f"    {iterate + 1}. {my_project.members[iterate]}") #..!!!!!!!!!!!!
+                pr_cyan(f"    {iterate + 1}. {my_project.members[iterate]}")  #..!!!!!!!!!!!!
 
         else:
             print("    No member")
             clear_console(2)
             return leader, my_project
-
