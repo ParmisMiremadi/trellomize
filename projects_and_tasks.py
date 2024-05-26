@@ -316,7 +316,8 @@ def my_project_members(user: User, my_project: Project):
             print('    No projects')
 
         ch = input()
-        if ch == "1":  # Add members
+        if ch == "1":  # 1. Add members
+            print("In ch == 1")  #.
             print(f"{user.projects_as_leader}")
             print(my_project.get_project_id())
 
@@ -335,16 +336,25 @@ def my_project_members(user: User, my_project: Project):
                 clear_console(2)
 
         elif ch == "2":  # 2. Remove members
-            if my_project.get_project_id() in user.projects_as_leader:
-                pass  #.calling the function remove_members
-            else:
+            print("Here")  #.
+            is_leader = False
+            print(f"length: {len(user.projects_as_leader)}")  #.
+            for iterate in range(len(user.projects_as_leader)):
+                print(f"iterate: {iterate}")  #.
+                if user.projects_as_leader[iterate]["project_id"] == my_project.get_project_id():
+                    remove_members(user, my_project)
+                    is_leader = True
+                    print("in if")  #.
+                    break
+
+            if not is_leader:
                 clear_console(0)
                 pr_red(f"As a member of project {my_project.get_project_title()},"
                        f" you can not remove any members from it.")
                 print("Going Back...")
                 clear_console(2)
 
-        elif ch == "3":
+        elif ch == "3":  # 3. Back
             print("Going Back...")
             clear_console(2)
             return user, my_project
@@ -376,8 +386,8 @@ def add_members(leader: User, my_project: Project):
 
             if len(adding_possible) > 0:
                 for iterate in range(len(adding_possible)):
-                    pr_cyan(f"{iterate + 1}. {adding_possible[iterate]}")
-                print(f"{len(adding_possible) + 1}. Back")
+                    pr_cyan(f"    {iterate + 1}. {adding_possible[iterate]}")
+                print(f"     {len(adding_possible) + 1}. Back")
                 try:
                     ch = int(input())
                 except ValueError:
@@ -438,12 +448,12 @@ def add_members(leader: User, my_project: Project):
                         ch = "-1"
 
             else:
-                print("    No users to add")
+                print(" This   No users to add")
                 clear_console(2)
                 return leader, my_project
 
         else:
-            print("    No users to add")
+            print("  That  No users to add")
             clear_console(2)
             return leader, my_project
 
@@ -465,9 +475,93 @@ def remove_members(leader: User, my_project: Project):
 
         if len(my_project.members) > 0:
             for iterate in range(len(my_project.members)):
-                pr_cyan(f"    {iterate + 1}. {my_project.members[iterate]}")  #..!!!!!!!!!!!!
+                pr_cyan(f"    {iterate + 1}. {my_project.members[iterate]}")
+            print(f"    {len(my_project.members) + 1}. Back")
+
+            try:
+                choice = int(input())
+            except ValueError:
+                pr_red("Error: Invalid value!")
+            else:
+                if isinstance(choice, int) and 1 <= choice <= (len(my_project.members)):
+                    username_to_remove = my_project.members[choice - 1]
+                    print("Removing the chosen member..")  #. removing the member !!!!!!!!!!
+                    # Updating the project object
+                    print(f"before pop: {my_project.members}")  #.
+                    my_project.members.pop(my_project.members.index(username_to_remove))
+                    print(f"after pop: {my_project.members}")  #.
+                    # Remove the user from the project's members (projects.json)
+                    for it in range(len(all_projects)):
+                        if all_projects[it]["project_id"] == my_project.get_project_id():
+                            all_projects[it]["members"] = my_project.members
+                            break
+                    with open(projects_file_path, "w") as f:
+                        json.dump(all_projects, f, indent=4)
+                    # Updating leader's object
+                    for it in range(len(leader.projects_as_leader)):
+                        if leader.projects_as_leader[it]["project_id"] == my_project.get_project_id():
+                            leader.projects_as_leader[it]["members"] = my_project.members
+                            break
+                    # Updating leader in 'user.json' !!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    if not isinstance(leader, main_1.Admin):  # Leader is not the admin
+                        for it in range(len(all_users)):
+                            if all_users[it]["username"] == leader.username:
+                                leader_projects_as_leader = all_users[it]["projects_as_leader"]
+                                for iterate in range(len(leader_projects_as_leader)):
+                                    if leader_projects_as_leader[iterate]["project_id"] == my_project.get_project_id():
+                                        leader_projects_as_leader[iterate]["members"] = my_project.members
+                                        all_users[it]["projects_as_leader"] = leader_projects_as_leader
+                                        break
+
+                    else:  # Leader is the admin
+                        if admin_list_1[0]["username"] == leader.username:
+                            leader_projects_as_leader = admin_list_1[0]["projects_as_leader"]
+                            for iterate in range(len(leader_projects_as_leader)):
+                                if leader_projects_as_leader[iterate]["project_id"] == my_project.get_project_id():
+                                    leader_projects_as_leader[iterate]["members"] = my_project.members
+                                    all_projects[0]["projects_as_leader"] = leader_projects_as_leader
+                                    break
+
+                    # Updating username_to_remove in 'user.json'
+                    if admin_list_1[0]["username"] != username_to_remove:
+                        for it in range(len(all_users)):
+                            if all_users[it]["username"] == username_to_remove:
+                                user_projects_as_member = all_users[it]["projects_as_member"]
+                                for iterate in range(len(user_projects_as_member)):
+                                    if user_projects_as_member[iterate]["project_id"] == my_project.get_project_id():
+                                        print(f"before pop2: {user_projects_as_member}")
+                                        user_projects_as_member.pop(iterate)
+                                        print(f"after pop2: {user_projects_as_member}")
+                                        all_users[it]["projects_as_member"] = user_projects_as_member
+                                        break
+                    else:
+                        user_projects_as_member = all_users[0]["projects_as_member"]
+                        for iterate in range(len(user_projects_as_member)):
+                            if user_projects_as_member[iterate]["project_id"] == my_project.get_project_id():
+                                print(f"before pop2: {user_projects_as_member}")
+                                user_projects_as_member.pop(iterate)
+                                print(f"after pop2: {user_projects_as_member}")
+                                admin_list_1[0]["projects_as_member"] = user_projects_as_member
+                                break
+
+                    with open(user_file_path, "w") as w:
+                        json.dump(all_users, w, indent=4)
+
+                    with open(admin_file_path, "w") as w:
+                        json.dump(admin_list_1, w, indent=4)
+
+                    clear_console(2)
+                    return leader, my_project
+
+                elif choice == len(my_project.members) + 1:  # Back
+                    print("Going Back...")
+                    clear_console(2)
+                    return leader, my_project
+
+                else:
+                    pr_red("Error: Invalid value!")
 
         else:
-            print("    No member")
+            print("    No members to remove")
             clear_console(2)
             return leader, my_project
