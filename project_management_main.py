@@ -9,9 +9,13 @@ import projects_and_tasks
 from projects_and_tasks import Project as Project
 
 
-def pr_cyan(skk): print("\033[36m {}\033[00m" .format(skk))
-def pr_green(skk): print("\033[32m {}\033[00m" .format(skk))
-def pr_red(skk): print("\033[31m {}\033[00m" .format(skk))
+def pr_cyan(skk): print("\033[36m {}\033[00m".format(skk))
+
+
+def pr_green(skk): print("\033[32m {}\033[00m".format(skk))
+
+
+def pr_red(skk): print("\033[31m {}\033[00m".format(skk))
 
 
 if not os.path.exists('projects.json'):
@@ -26,36 +30,31 @@ my_project = Project("", "", user)
 users_list = projects_and_tasks.load_projects_from_file('user.json')
 
 if len(projects_and_tasks.admin_list) > 0:
-    admin_projects_as_leader = projects_and_tasks.admin_projects_as_leader    # List of dictionaries
-    admin_projects_as_member = projects_and_tasks.admin_projects_as_member    # List of dictionaries
-
+    admin_projects_as_leader = projects_and_tasks.admin_projects_as_leader  # List of dictionaries
+    admin_projects_as_member = projects_and_tasks.admin_projects_as_member  # List of dictionaries
 
 ########################################################################################
 
 run = True
 true_bool = True
 while run == true_bool:
-    choice = 0    # 1. sign up  2. Log in
-    while choice != 1 and choice != 2:
+    choice = "0"  # 1. sign up  2. Log in
+    while choice != "1" and choice != "2":
         clear_console(2)
         print("1. Sign up")
         print("2. Log in")
-        try:
-            choice = int(input("Enter your choice: "))
-            os.system("cls")
-        except ValueError:
-            pr_red('Error: Invalid value!')
-            choice = 0
+        choice = input("Enter your choice: ")
+        os.system("cls")
+
+        if choice == "1":
+            user = main_1.sign_up()
+            clear_console(2)
+        elif choice == "2":
+            user = main_1.log_in()
+            clear_console(2)
         else:
-            if choice == 1:
-                user = main_1.sign_up()
-                clear_console(2)
-            elif choice == 2:
-                user = main_1.log_in()
-                clear_console(2)
-            else:
-                pr_red("Error: Invalid choice! Please try again.")
-                clear_console(2)
+            pr_red("Error: Invalid choice! Please try again.")
+            clear_console(2)
     if isinstance(user, int) and user == 0:
         print('Exiting program...')
         clear_console(2)
@@ -63,65 +62,57 @@ while run == true_bool:
         run = not true_bool
 
     elif user.is_admin != true_bool:
-        choice_1 = 0    # 1. New project  2. My projects  3. Exit
-        while choice_1 != 3:
+        choice_1 = "0"  # 1. New project  2. My projects  3. Exit
+        while choice_1 != "3":
+            print('Choose one of the following options.')
+            pr_cyan('1. New project\n 2. My projects\n 3. Exit\n')
+            choice_1 = (input())
+            clear_console(1.5)
 
-            try:
-                print('Choose one of the following options.')
-                pr_cyan('1. New project\n 2. My projects\n 3. Exit\n')
-                choice_1 = int(input())
-
-            except ValueError:
-                pr_red('Error: Invalid value!')
-            except AttributeError:
-                pr_red('Error: Failed attribute!')
-
-            else:
-                clear_console(1.5)
-                if choice_1 == 1:
-                    project_object = projects_and_tasks.create_a_project(user)
-                    if isinstance(project_object, Project):
-                        user = project_object.to_dict_and_save_to_file(projects_file_path, user)
-                        time.sleep(1)
-                        pr_green('Creating a new project')
-                        clear_console(1)
-                        pr_green('Creating a new project.')
-                        clear_console(1)
-                        pr_green('Creating a new project..')
-                        clear_console(1)
-                        pr_green('Creating a new project...')
-                        clear_console(1)
-                        # List of dictionaries:
-                        projects_list = projects_and_tasks.load_projects_from_file(projects_file_path)
-                        print("\033[36m {}\033[32m {}\033[36m {}\033[00m".format
-                              ("Project created successfully.\nYou are now the "
-                               "leader of the project", f'{project_object.get_project_title()}', '.'))
-                        print("\033[36m {}\033[32m {}\033[00m".format
-                              ('Project ID: ', f'{project_object.get_project_id()}'))
-
-                    else:
-                        pass
-
-                elif choice_1 == 2:
-                    clear_console(2)
-                    if isinstance(projects_and_tasks.show_list_of_projects_and_choose(user), Project):
-                        my_project = projects_and_tasks.show_list_of_projects_and_choose(user)
-                        user, my_project = projects_and_tasks.options_for_my_project(user, my_project)
-                    else:
-                        choice_1 = 0
-
-                elif choice_1 == 3:
+            if choice_1 == "1":
+                project_object = projects_and_tasks.create_a_project(user)
+                if isinstance(project_object, Project):
+                    user = project_object.to_dict_and_save_to_file(projects_file_path, user)
+                    time.sleep(1)
+                    pr_green('Creating a new project')
                     clear_console(1)
-                    pr_green('Exiting program...')
-                    clear_console(2)
-                    pr_green('Exit code: 0')
-                    run = not true_bool
+                    pr_green('Creating a new project.')
+                    clear_console(1)
+                    pr_green('Creating a new project..')
+                    clear_console(1)
+                    pr_green('Creating a new project...')
+                    clear_console(1)
+                    # List of dictionaries:
+                    projects_list = projects_and_tasks.load_projects_from_file(projects_file_path)
+                    print("\033[36m {}\033[32m {}\033[36m {}\033[00m".format
+                          ("Project created successfully.\nYou are now the "
+                           "leader of the project", f'{project_object.get_project_title()}', '.'))
+                    print("\033[36m {}\033[32m {}\033[00m".format
+                          ('Project ID: ', f'{project_object.get_project_id()}'))
 
                 else:
-                    print('Invalid choice.\nPlease try again.')
+                    pass
+
+            elif choice_1 == "2":
+                clear_console(2)
+                if isinstance(projects_and_tasks.show_list_of_projects_and_choose(user), Project):
+                    my_project = projects_and_tasks.show_list_of_projects_and_choose(user)
+                    user, my_project = projects_and_tasks.options_for_my_project(user, my_project)
+                else:
+                    choice_1 = "0"
+
+            elif choice_1 == "3":
+                clear_console(1)
+                pr_green('Exiting program...')
+                clear_console(2)
+                pr_green('Exit code: 0')
+                run = not true_bool
+
+            else:
+                print('Invalid choice.\nPlease try again.')
 
     elif user.is_admin == true_bool:
-        ch_1 = "-1"    # 1. New project  2. My projects  3. Activate users 4. Deactivate users 5. Exit
+        ch_1 = "-1"  # 1. New project  2. My projects  3. Activate users 4. Deactivate users 5. Exit
         while ch_1 != "0":
             print('Choose one of the following options.')
             pr_cyan('1. New project\n 2. My projects\n 3. Activate users\n 4. Deactivate users\n 5. Exit\n')
@@ -172,4 +163,3 @@ while run == true_bool:
             else:
                 pr_red("Error: Invalid value!")
                 ch_1 = "-1"
-
