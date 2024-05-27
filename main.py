@@ -57,7 +57,11 @@ while run == true_bool:
         else:
             pr_red("Error: Invalid choice! Please try again.")
             clear_console(2)
-    if isinstance(user, int) and user == 0:
+    if user is None:
+        pr_red("Error: Invalid input! Please try again.")
+        clear_console(2)
+
+    elif isinstance(user, int) and user == 0:
         print('Exiting program...')
         clear_console(2)
         pr_red('Exit code: 1')
