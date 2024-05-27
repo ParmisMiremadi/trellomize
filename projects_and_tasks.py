@@ -551,9 +551,12 @@ def remove_members(leader: User, my_project: Project):
                                 if leader_projects_as_leader[iterate]["project_id"] == my_project.get_project_id():
                                     leader_projects_as_leader[iterate]["members"] = my_project.members
                                     all_users[it]["projects_as_leader"] = leader_projects_as_leader
+                                    print(f"debug___3___{leader_projects_as_leader}")
                                     break
                         projects_as_member = all_users[it]["projects_as_member"]
+                        print(f"debug__1___{projects_as_member}") #.
                         if projects_as_member:
+                            print(f"debug__2___{projects_as_member}")  # .
                             for i in range(len(projects_as_member)):  # Updating other members
                                 if projects_as_member[i]["project_id"] == my_project.get_project_id(): #. !!!!!!??????
                                     projects_as_member[i]["members"] = my_project.members
