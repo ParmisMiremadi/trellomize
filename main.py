@@ -2,9 +2,11 @@ import json
 import random
 import os
 import time
-import main_1
-from main_1 import User as User
-from main_1 import clear_console as clear_console
+import user
+from user import User as User
+from user import clear_console as clear_console
+from user import log_in
+from user import sign_up
 import projects_and_tasks
 from projects_and_tasks import Project as Project
 
@@ -47,10 +49,10 @@ while run == true_bool:
         os.system("cls")
 
         if choice == "1":
-            user = main_1.sign_up()
+            user = sign_up()
             clear_console(2)
         elif choice == "2":
-            user = main_1.log_in()
+            user = log_in()
             clear_console(2)
         else:
             pr_red("Error: Invalid choice! Please try again.")
