@@ -1,8 +1,7 @@
 import json
-
-import main_1
-from main_1 import User as User
-from main_1 import clear_console as clear_console
+from user import User
+from user import clear_console
+from user import Admin
 
 
 def pr_cyan(skk): print("\033[36m {}\033[00m".format(skk))
@@ -48,7 +47,7 @@ class Project:
         leader.projects_as_leader.append(new_project_dict)
 
         # Save the new projects_as_leader list to file
-        if isinstance(leader, main_1.Admin):  # Saving to 'admin.json'
+        if isinstance(leader, Admin):  # Saving to 'admin.json'
             with open(admin_file_path, "r") as f:
                 users_list = json.load(f)
                 for iterate in range(len(users_list)):
@@ -94,7 +93,7 @@ def create_a_project(leader: User):  # Returns an object of Project. It has to b
     project_title = input('The title of your project: ')  # Needs to be checked in the projects file
     project_id = input('The ID of your project: ')  # Needs to be checked in the projects file
     is_unique = True
-    if isinstance(leader, main_1.Admin):
+    if isinstance(leader, Admin):
         is_unique = is_project_unique(admin_projects_as_leader, project_id)
         if is_unique:
             is_unique = is_project_unique(admin_projects_as_member, project_id)
@@ -379,7 +378,7 @@ def add_members(leader: User, my_project: Project):
                     if user_list[iterate]["username"] != leader.username:
                         print('appended to adding_possible')
                         adding_possible.append(user_list[iterate]["username"])
-            if not isinstance(leader, main_1.Admin):
+            if not isinstance(leader, Admin):
                 if len(admin_list_1) > 0:
                     if admin_list_1[0]["username"] not in project_members:
                         adding_possible.append(admin_list_1[0]["username"])
@@ -410,31 +409,63 @@ def add_members(leader: User, my_project: Project):
 
                             with open(projects_file_path, "w") as write:  # Updating the projects file
                                 json.dump(all_projects, write, indent=4)
-
+                            #. !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                             if username_to_add in project_members:
                                 for iterate in range(len(all_projects)):
                                     if all_projects[iterate]["project_id"] == my_project.get_project_id():
                                         the_project_dict = all_projects[iterate]
 
-                                        is_admin = True
                                         for it in range(len(user_list)):
+                                            # Adding project for the new member in file 'user.json'
                                             if user_list[it]["username"] == username_to_add:
-                                                is_admin = False
-                                                user_list[it]["projects_as_member"].append(all_projects[iterate])
+                                                user_list[it]["projects_as_member"].append(the_project_dict)
                                                 print(
-                                                    f'***  user projects as m: {user_list[it]["projects_as_member"]}')  #.
+                                                    f'***  user projects as m: {user_list[it]["projects_as_member"]}') #.
                                                 with open(user_file_path, "w") as write:
                                                     json.dump(user_list, write, indent=4)
-                                                break
-                                        if is_admin:
+                                            # Updating project's members for the leader in file 'user.json'
+                                            if user_list[it]["username"] == leader.username:
+                                                leader_projects_as_leader = user_list[it]["projects_as_leader"]
+                                                for i in range(len(leader_projects_as_leader)):
+                                                    if (leader_projects_as_leader[i]["project_id"] ==
+                                                            my_project.get_project_id()):
+                                                        leader_projects_as_leader[i]["members"] = my_project.members
+                                            # Updating project's members for other members in file 'user.json'
+                                            projects_as_member = user_list[it]["projects_as_member"]
+                                            for i in range(len(projects_as_member)):
+                                                if projects_as_member[i]["project_id"] == my_project.get_project_id():
+                                                    projects_as_member[i]["members"] = my_project.members
+                                            user_list[it]["projects_as_member"] = projects_as_member
+                                            with open(user_file_path, "w") as f:
+                                                json.dump(user_list, f, indent=4)
+
+                                        # Three cases concerning the admin: 1. Admin is the new member
+                                        # 2. Admin is the leader 3. Admin is merely a member of the project
+                                        if admin_list_1:    # 1. Admin is the new member
                                             if admin_list_1[0]["username"] == username_to_add:
                                                 admin_list_1[0]["projects_as_member"].append(all_projects[iterate])
                                                 print(
                                                     f'***  user projects as m: {admin_list_1[0]["projects_as_member"]}')  # .
-                                                with open(admin_file_path, "w") as write:
-                                                    json.dump(admin_list_1, write, indent=4)
 
-                                        break
+                                            if admin_list_1[0]["username"] == leader.username:    # 2. Admin is the leader
+                                                leader_projects_as_leader = admin_list_1[0]["projects_as_leader"]
+                                                if leader_projects_as_leader:
+                                                    for i in range(len(leader_projects_as_leader)):
+                                                        if (leader_projects_as_leader[i]["project_id"] ==
+                                                                my_project.get_project_id()):
+                                                            leader_projects_as_leader[i]["members"] = my_project.members
+                                                    admin_list_1[0]["projects_as_leader"] = leader_projects_as_leader
+
+                                            projects_as_member = admin_list_1[0]["projects_as_member"]
+                                            if projects_as_member:    # 3. Admin is merely a member of the project
+                                                for i in range(len(projects_as_member)):
+                                                    if projects_as_member[i]["project_id"] == my_project.get_project_id():
+                                                        projects_as_member[i]["members"] = my_project.members
+                                                admin_list_1[0]["projects_as_member"] = projects_as_member
+
+                                            with open(admin_file_path, "w") as write:
+                                                json.dump(admin_list_1, write, indent=4)
+                                        break    # Break the loop after finding the unique project from file
 
                         adding_possible.pop(ch - 1)
                         print(f'after popping: {adding_possible}')  #.
@@ -448,12 +479,12 @@ def add_members(leader: User, my_project: Project):
                         ch = "-1"
 
             else:
-                print(" This   No users to add")
+                print(" This   No users to add") #.
                 clear_console(2)
                 return leader, my_project
 
         else:
-            print("  That  No users to add")
+            print("  That  No users to add") #.
             clear_console(2)
             return leader, my_project
 
@@ -503,7 +534,7 @@ def remove_members(leader: User, my_project: Project):
                             leader.projects_as_leader[it]["members"] = my_project.members
                             break
                     # Updating leader in 'user.json' !!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    if not isinstance(leader, main_1.Admin):  # Leader is not the admin
+                    if not isinstance(leader, Admin):  # Leader is not the admin
                         for it in range(len(all_users)):
                             if all_users[it]["username"] == leader.username:
                                 leader_projects_as_leader = all_users[it]["projects_as_leader"]
@@ -513,7 +544,7 @@ def remove_members(leader: User, my_project: Project):
                                         all_users[it]["projects_as_leader"] = leader_projects_as_leader
                                         break
 
-                    else:  # Leader is the admin
+                    else:  # Leader is the admin !!!!!!!!!!
                         if admin_list_1[0]["username"] == leader.username:
                             leader_projects_as_leader = admin_list_1[0]["projects_as_leader"]
                             for iterate in range(len(leader_projects_as_leader)):
@@ -521,9 +552,9 @@ def remove_members(leader: User, my_project: Project):
                                     leader_projects_as_leader[iterate]["members"] = my_project.members
                                     all_projects[0]["projects_as_leader"] = leader_projects_as_leader
                                     break
-
-                    # Updating username_to_remove in 'user.json'
-                    if admin_list_1[0]["username"] != username_to_remove:
+                    # Updating username_to_remove in 'user.json' !!!!!!!!!!!!!!!!!!!!!!!!!!
+                    # The member is not the admin
+                    if not admin_list_1 or admin_list_1[0]["username"] != username_to_remove:
                         for it in range(len(all_users)):
                             if all_users[it]["username"] == username_to_remove:
                                 user_projects_as_member = all_users[it]["projects_as_member"]
@@ -534,7 +565,7 @@ def remove_members(leader: User, my_project: Project):
                                         print(f"after pop2: {user_projects_as_member}")
                                         all_users[it]["projects_as_member"] = user_projects_as_member
                                         break
-                    else:
+                    else:    # The member is the admin !!!!!!!!!!!!!!!!!!!!!!!!!
                         user_projects_as_member = all_users[0]["projects_as_member"]
                         for iterate in range(len(user_projects_as_member)):
                             if user_projects_as_member[iterate]["project_id"] == my_project.get_project_id():
