@@ -659,15 +659,41 @@ def remove_members(leader: User, my_project: Project):
 
 def delete_project(user: User, my_project: Project):
     print(f"This is my_project id: {my_project.get_project_id()}")  #.
-    print(f"my_project leader: {my_project.leader_username}")
-    print(f"The user: {user.username}")
+    print(f"my_project leader: {my_project.leader_username}") #.
+    print(f"The user: {user.username}") #.
     if user.username != my_project.leader_username:  # The user is not the leader
         pr_red(f"As a member of project {my_project.get_project_title()}, you can not delete it!")
         clear_console(2)
         return user, my_project
     else:  # The user is the leader
         #....................
+        # Updating leader object
+        leader_projects_as_leader = user.projects_as_leader
+        for iterate in range(len(leader_projects_as_leader)):
+            if leader_projects_as_leader[iterate]["project_id"] == my_project.get_project_id():
+                print(f"1___before pop: {leader_projects_as_leader}") #.
+                leader_projects_as_leader.pop(iterate)
+                print(f"1___after pop: {leader_projects_as_leader}") #.
+                user.projects_as_leader = leader_projects_as_leader
+                break
+
+        # Removing project from projects file
+        with open(projects_file_path, "r") as f:
+            all_projects = json.load(f)
+
+        for iterate in range(len(all_projects)):
+            if all_projects[iterate]["project_id"] == my_project.get_project_id():
+                all_projects.pop(iterate)
+                with open(projects_file_path, "w") as f:
+                    json.dump(all_projects, f, indent=4)
+                break
+
+        # Implementing changes in 'user.json'
+        
+        
+        
         print(f"my_project before: {my_project.get_project_id()}")  #.
+        # Updating the project object
         my_project = Project("", "", User("", "", ""))
         print(f"my_project after: {my_project.get_project_id()}")  #.
         return user, my_project
