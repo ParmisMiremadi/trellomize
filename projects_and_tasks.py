@@ -746,3 +746,5 @@ def delete_project(user: User, my_project: Project):
         my_project = Project("", "", User("", "", ""))
         print(f"my_project after: {my_project.get_project_id()}")  #.
         return user, my_project
+    
+    
