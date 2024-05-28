@@ -519,7 +519,7 @@ def remove_members(leader: User, my_project: Project):
             else:
                 if isinstance(choice, int) and 1 <= choice <= (len(my_project.members)):
                     username_to_remove = my_project.members[choice - 1]
-                    print("Removing the chosen member..")  #. removing the member !!!!!!!!!!
+                    print("Removing the chosen member..")  #.
                     # Updating the project object
                     print(f"before pop: {my_project.members}")  #.
                     my_project.members.pop(my_project.members.index(username_to_remove))
@@ -534,56 +534,67 @@ def remove_members(leader: User, my_project: Project):
                     # Updating leader's object
                     for it in range(len(leader.projects_as_leader)):
                         if leader.projects_as_leader[it]["project_id"] == my_project.get_project_id():
+                            print(f"__leader) project before: {leader.projects_as_leader[it]}") #.
                             leader.projects_as_leader[it]["members"] = my_project.members
+                            print(f"__leader) project after: {leader.projects_as_leader[it]}") #.
                             break
                     # Implementing changes in 'user.json'
                     for it in range(len(all_users)):
-                        if all_users[it]["username"] == username_to_remove:  # Updating the removed member
+                        if all_users[it]["username"] == username_to_remove:  # Updating the removed member in file
                             user_projects_as_member = all_users[it]["projects_as_member"]
+                            print(f"%%%user_projects_as_member before: {user_projects_as_member}") #.
                             for iterate in range(len(user_projects_as_member)):
                                 if user_projects_as_member[iterate]["project_id"] == my_project.get_project_id():
-                                    all_users[it]["projects_as_member"] = my_project.members
+                                    user_projects_as_member.pop(iterate)
+                                    all_users[it]["projects_as_member"] = user_projects_as_member
+                                    print(f"%%%user_projects_as_member after: {user_projects_as_member}") #.
                                     break
 
-                        if all_users[it]["username"] == leader.username:  # Updating the leader
+                        if all_users[it]["username"] == leader.username:  # Updating the leader in file
                             leader_projects_as_leader = all_users[it]["projects_as_leader"]
                             for iterate in range(len(leader_projects_as_leader)):
                                 if leader_projects_as_leader[iterate]["project_id"] == my_project.get_project_id():
                                     leader_projects_as_leader[iterate]["members"] = my_project.members
                                     all_users[it]["projects_as_leader"] = leader_projects_as_leader
-                                    print(f"debug___3___{leader_projects_as_leader}")
+                                    print(f"debug___3___{leader_projects_as_leader}") #.
                                     break
                         projects_as_member = all_users[it]["projects_as_member"]
                         print(f"debug__1___{projects_as_member}") #.
                         if projects_as_member:
-                            print(f"debug__2___{projects_as_member}")  # .
+                            print(f"debug__2___{projects_as_member}")  #.
                             for i in range(len(projects_as_member)):  # Updating other members
-                                if projects_as_member[i]["project_id"] == my_project.get_project_id(): #. !!!!!!??????
+                                if projects_as_member[i]["project_id"] == my_project.get_project_id():
                                     projects_as_member[i]["members"] = my_project.members
+                                    all_users[it]["projects_as_member"] = projects_as_member
+                                    print(f"debug__2_after__{projects_as_member}")  # .
                                     break
-                            all_users[it]["projects_as_member"] = projects_as_member
-                            with open(user_file_path, "w") as f:
-                                json.dump(all_users, f, indent=4)
-
 
                     # Three cases concerning the admin: 1. Admin is the removed member
                     # 2. Admin is the leader 3. Admin is merely a member of the project
                     if admin_list_1:
                         projects_as_member = admin_list_1[0]["projects_as_member"]
-                        if projects_as_member:    # Admin as a member of the project
+                        if admin_list_1[0]["username"] == username_to_remove:    # 1. Admin is the removed member
+                            print(f"%%%  Admin_projects_as_member before: {projects_as_member}")  #.
+                            for iterate in range(len(projects_as_member)):
+                                if projects_as_member[iterate]["project_id"] == my_project.get_project_id():
+                                    projects_as_member.pop(iterate)
+                                    admin_list_1[0]["projects_as_member"] = projects_as_member
+                                    print(f"%%%  Admin_projects_as_member after: {projects_as_member}")  #.
+                                    break
+
+                        if admin_list_1[0]["username"] == leader.username:  # 2. Admin is the leader
+                            leader_projects_as_leader = admin_list_1[0]["projects_as_leader"]
+                            for iterate in range(len(leader_projects_as_leader)):
+                                if leader_projects_as_leader[iterate]["project_id"] == my_project.get_project_id():
+                                    leader_projects_as_leader[iterate]["members"] = my_project.members
+                                    admin_list_1[0]["projects_as_leader"] = leader_projects_as_leader
+                                    break
+
+                        if projects_as_member:    # 3. Admin is merely a member of the project
                             for iterate in range(len(projects_as_member)):
                                 if projects_as_member[iterate]["project_id"] == my_project.get_project_id():
                                     projects_as_member[iterate]["members"] = my_project.members
-                        admin_list_1[0]["projects_as_member"] = projects_as_member
-
-                        if admin_list_1[0]["username"] == leader.username:  # Admin as the leader of the project
-                            leader_projects_as_leader = admin_list_1[0]["projects_as_leader"]
-                            if leader_projects_as_leader:
-                                for iterate in range(len(leader_projects_as_leader)):
-                                    if leader_projects_as_leader[iterate]["project_id"] == my_project.get_project_id():
-                                        leader_projects_as_leader[iterate]["members"] = my_project.members
-                                        all_projects[0]["projects_as_leader"] = leader_projects_as_leader
-                                        break
+                                    admin_list_1[0]["projects_as_member"] = projects_as_member
 
                     with open(user_file_path, "w") as w:
                         json.dump(all_users, w, indent=4)
