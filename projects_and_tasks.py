@@ -170,7 +170,7 @@ def show_list_of_projects_and_choose(user_obj: User):  # If Back, returns 0; els
 
 def options_for_my_project(user: User, my_project: Project):  # Called in the main program in the 2nd menu
     clear_console(2)
-    ch = "-1"  # 1. Members  2. Tasks  3. Back
+    ch = "-1"  # 1. Members  2. Tasks  3. Delete project  4. Back
     while ch != "0":
         clear_console(1)
         pr_cyan(f"        {my_project.get_project_title()}")
@@ -183,7 +183,10 @@ def options_for_my_project(user: User, my_project: Project):  # Called in the ma
         elif ch == "2":  # 2. Tasks
             print("tasks' list and stuff.")  #.tasks function(s)
 
-        elif ch == "3":  # 3. Back
+        elif ch == "3":    # 3. Delete project
+            user, my_project = delete_project(user, my_project) #. Delete project
+
+        elif ch == "4":  # 4. Back
             print("Going Back...")
             clear_console(2)
             return user, my_project
@@ -323,7 +326,7 @@ def my_project_members(user: User, my_project: Project):
             is_leader = False
             for iterate in range(len(user.projects_as_leader)):
                 if user.projects_as_leader[iterate]["project_id"] == my_project.get_project_id():
-                    add_members(user, my_project)
+                    user, my_project = add_members(user, my_project)
                     is_leader = True
                     break
 
@@ -341,7 +344,7 @@ def my_project_members(user: User, my_project: Project):
             for iterate in range(len(user.projects_as_leader)):
                 print(f"iterate: {iterate}")  #.
                 if user.projects_as_leader[iterate]["project_id"] == my_project.get_project_id():
-                    remove_members(user, my_project)
+                    user, my_project = remove_members(user, my_project)
                     is_leader = True
                     print("in if")  #.
                     break
@@ -472,7 +475,7 @@ def add_members(leader: User, my_project: Project):
 
                         adding_possible.pop(ch - 1)
                         print(f'after popping: {adding_possible}')  #.
-                        return my_project
+                        return leader, my_project
                     elif isinstance(ch, int) and ch == len(adding_possible) + 1:
                         print("Going back...")
                         clear_console(2)
@@ -617,3 +620,13 @@ def remove_members(leader: User, my_project: Project):
             print("    No members to remove")
             clear_console(2)
             return leader, my_project
+
+
+def delete_project(leader: User, my_project: Project):
+    if leader.username != my_project.leader_username:    # The user is not the leader
+        pr_red(f"As a member of project {my_project.get_project_title()}, you can not delete it!")
+        clear_console(2)
+        return leader, my_project
+    else:    # The user is the leader
+        #....................
+        return leader, my_project
