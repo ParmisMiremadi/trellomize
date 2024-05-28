@@ -148,7 +148,7 @@ while run == true_bool:
             elif ch_1 == "2":  # 2. My projects
                 if isinstance(projects_and_tasks.show_list_of_projects_and_choose(user), Project):
                     my_project = projects_and_tasks.show_list_of_projects_and_choose(user)
-                    projects_and_tasks.options_for_my_project(user, my_project)
+                    user, project_object = projects_and_tasks.options_for_my_project(user, my_project)
                 else:
                     ch_1 = 0
 
