@@ -75,7 +75,7 @@ while run == true_bool:
             choice_1 = (input())
             clear_console(1.5)
 
-            if choice_1 == "1":
+            if choice_1 == "1":    # 1. New project
                 project_object = projects_and_tasks.create_a_project(user)
                 if isinstance(project_object, Project):
                     user = project_object.to_dict_and_save_to_file(projects_file_path, user)
@@ -99,15 +99,21 @@ while run == true_bool:
                 else:
                     pass
 
-            elif choice_1 == "2":
+            elif choice_1 == "2":    # 2. My projects
                 clear_console(2)
                 if isinstance(projects_and_tasks.show_list_of_projects_and_choose(user), Project):
+                    print(f"2 __ The user: {user.username}")  #.
+                    print(f"2 __ The leader: {my_project.leader_username}")  #.
                     my_project = projects_and_tasks.show_list_of_projects_and_choose(user)
+                    print(f"3 __ The user: {user.username}")  #.
+                    print(f"3 __ The leader: {my_project.leader_username}")  #.
                     user, my_project = projects_and_tasks.options_for_my_project(user, my_project)
+                    print(f"4 __ The user: {user.username}")  #.
+                    print(f"4 __ The leader: {my_project.leader_username}")  #.
                 else:
                     choice_1 = "0"
 
-            elif choice_1 == "3":
+            elif choice_1 == "3":    # 3. Exit
                 clear_console(1)
                 pr_green('Exiting program...')
                 clear_console(2)
