@@ -597,7 +597,6 @@ def remove_members(leader: User, my_project: Project):
                                     print(f"debug___3___{leader_projects_as_leader}")  #.
                                     break
                         projects_as_member = all_users[it]["projects_as_member"]
-                        print(f"debug__1___{projects_as_member}")  #.
                         if projects_as_member:
                             print(f"debug__2___{projects_as_member}")  #.
                             for i in range(len(projects_as_member)):  # Updating other members
@@ -606,6 +605,7 @@ def remove_members(leader: User, my_project: Project):
                                     all_users[it]["projects_as_member"] = projects_as_member
                                     print(f"debug__2_after__{projects_as_member}")  # .
                                     break
+                        print(f"debug__1___{projects_as_member}")  #.
 
                     # Three cases concerning the admin: 1. Admin is the removed member
                     # 2. Admin is the leader 3. Admin is merely a member of the project
@@ -689,9 +689,58 @@ def delete_project(user: User, my_project: Project):
                 break
 
         # Implementing changes in 'user.json'
-        
-        
-        
+        with open(user_file_path, "r") as f:
+            all_users = json.load(f)
+
+        for it in range(len(all_users)):
+            # Updating the leader in file
+            if all_users[it]["username"] == my_project.leader_username:
+                leader_projects_as_leader = all_users[it]["projects_as_leader"]
+                for iterate in range(len(leader_projects_as_leader)):
+                    if leader_projects_as_leader[iterate]["project_id"] == my_project.get_project_id():
+                        leader_projects_as_leader.pop(iterate)
+                        all_users[it]["projects_as_leader"] = leader_projects_as_leader
+                        break
+
+            # Updating other members of the project in file
+            projects_as_member = all_users[it]["projects_as_member"]
+            print(f"debug__11___{projects_as_member}")  #.
+            if projects_as_member:
+                print(f"debug__22___{projects_as_member}")  #.
+                for i in range(len(projects_as_member)):
+                    if projects_as_member[i]["project_id"] == my_project.get_project_id():
+                        projects_as_member.pop(i)
+                        all_users[it]["projects_as_member"] = projects_as_member
+                        break
+
+        with open(user_file_path, "w") as w:
+            json.dump(all_users, w, indent=4)
+
+        # Cases involving the admin
+        with open(admin_file_path, "r") as f:
+            admin_list_1 = json.load(f)
+
+        if admin_list_1:
+            # Admin is the leader
+            if admin_list_1[0]["username"] == my_project.leader_username:
+                leader_projects_as_leader = admin_list_1[0]["projects_as_leader"]
+                for iterate in range(len(leader_projects_as_leader)):
+                    if leader_projects_as_leader[iterate]["project_id"] == my_project.get_project_id():
+                        leader_projects_as_leader.pop(iterate)
+                        admin_list_1[0]["projects_as_leader"] = leader_projects_as_leader
+                        break
+
+            # Admin is merely a member of the project
+            projects_as_member = admin_list_1[0]["projects_as_member"]
+            if projects_as_member:
+                for iterate in range(len(projects_as_member)):
+                    if projects_as_member[iterate]["project_id"] == my_project.get_project_id():
+                        projects_as_member.pop(iterate)
+                        admin_list_1[0]["projects_as_member"] = projects_as_member
+
+            with open(admin_file_path, "w") as w:
+                json.dump(admin_list_1, w, indent=4)
+
         print(f"my_project before: {my_project.get_project_id()}")  #.
         # Updating the project object
         my_project = Project("", "", User("", "", ""))
