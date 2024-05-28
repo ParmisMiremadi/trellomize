@@ -185,6 +185,9 @@ def options_for_my_project(user: User, my_project: Project):  # Called in the ma
 
         elif ch == "3":    # 3. Delete project
             user, my_project = delete_project(user, my_project) #. Delete project
+            print("Going Back...")
+            clear_console(2)
+            return user, my_project
 
         elif ch == "4":  # 4. Back
             print("Going Back...")
