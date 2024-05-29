@@ -3,8 +3,15 @@ import argparse
 import os
 import bcrypt
 
+
+def pr_cyan(skk): print("\033[36m {}\033[00m".format(skk))
+def pr_green(skk): print("\033[32m {}\033[00m".format(skk))
+def pr_red(skk): print("\033[31m {}\033[00m".format(skk))
+
+
 if not os.path.exists("admin.json"):
     open("admin.json", "w").close()
+
 
 def create_admin(username, password):
     with open("admin.json", "r") as file:
@@ -12,12 +19,13 @@ def create_admin(username, password):
             username1 = line.strip().split(" ; ")[0]
 
             if username == username1:
-                print("Error: The entered information is duplicate!")
+                pr_red("Error: The entered information is duplicate!")
                 return
     encrypted_password = bcrypt.hashpw(password.encode("utf-8"),bcrypt.gensalt())
     with open("admin.json", "w") as file:
         file.write(f"{username} ; {encrypted_password.decode("utf-8")}\n")
-        print("The new admin was successfully registered :)")
+        pr_green("Your sign up as admin was successful :)")
+
 
 def main():
     parser = argparse.ArgumentParser(description="Create system admin")
@@ -32,5 +40,7 @@ def main():
     else:
         parser.print_help()
 
+
 if __name__ == "__main__":
     main()
+
