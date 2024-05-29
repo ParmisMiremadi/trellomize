@@ -3,7 +3,16 @@ import argparse
 import os
 import bcrypt
 from loguru import logger
- 
+
+
+def pr_cyan(skk): print("\033[36m {}\033[00m".format(skk))
+
+
+def pr_green(skk): print("\033[32m {}\033[00m".format(skk))
+
+
+def pr_red(skk): print("\033[31m {}\033[00m".format(skk))
+
 
 if not os.path.exists("admin.json"):
     with open("admin.json", "w") as file:
@@ -11,7 +20,8 @@ if not os.path.exists("admin.json"):
     file.close()
 
 
-logger.add("logfile.log", rotation="500 MB", compression="zip")
+logger.remove()
+logger.add("logfile.log", rotation="500 MB", format="{time} - {level} - {file} - {message}")
 
 
 def log_info(massage):
@@ -24,7 +34,7 @@ def log_warning(massage):
 
 def log_error(massage):
     logger.error(massage)
-    
+
 
 def create_admin(username, password):
     with open("admin.json", "r") as file_1:
@@ -33,7 +43,8 @@ def create_admin(username, password):
         username1 = admin_list[0]["username"]
 
         if username == username1:
-            print("Error: The entered information is duplicate!")
+            log_error("Error: The entered information is duplicate!")
+            pr_red("Error: The entered information is duplicate!")
             return
 
     encrypted_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
@@ -52,6 +63,8 @@ def create_admin(username, password):
     with open("admin.json", "w") as file_1:
         json.dump(new_admin_list, file_1, indent=4)
         log_info("Your sign up as admin was successful :)")
+        pr_green("Your sign up as admin was successful :)")
+
 
 
 def main():
