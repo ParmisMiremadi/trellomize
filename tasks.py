@@ -1,12 +1,13 @@
 import json
-import rich
 import uuid
 from enum import Enum
 from user import User
 import time
 from projects import Project
 from user import clear_console
-from user import pr_red
+from user import pr_red, pr_green, pr_cyan
+from rich.console import Console
+from rich.table import Table
 
 
 a = time.time()
@@ -26,11 +27,16 @@ class Task:
         self.assignees = []
         self.priority = "LOW"
         self.status = "BACKLOG"
+        self.comments = {
+            "comment": "",
+            "user": "",
+            "date": ""
+        }  # . adding them later (manually)
 
     def get_unique_identifier(self):
         return self.__task_id
 
-    def to_dict_and_save_to_file(self, leader: User, my_project: Project):    # Returns my_project after updates
+    def to_dict_and_save_to_file(self, my_project: Project):    # Returns my_project after updates
         new_task_dict = {
             "task_id": self.__task_id,
             "task_title": self.task_title,
@@ -39,7 +45,8 @@ class Task:
             "due_date": self.due_date,
             "assignees": self.assignees,
             "priority": self.priority,
-            "status": self.status
+            "status": self.status,
+            "comments": self.comments
         }
 
         # Updating the project object
@@ -123,23 +130,64 @@ def show_tasks_and_options(user: User, my_project: Project):
     ch = "-1"  # New task   Back  ...table of tasks...
     while ch != "0":
         clear_console(2)
-        # pr_cyan(f"        {my_project.get_project_title()}")
-        # print("    1. Members\n    2. Tasks\n    3. Delete project\n    4. Back")
-        ch = input()
+        all_tasks = my_project.tasks
+        if all_tasks:
+            backlog_tasks = []
+            todo_tasks = []
+            doing_tasks = []
+            done_tasks = []
+            archived_tasks = []
 
-        if ch == "1":  # 1.
-            pass #.
+            for it in range(len(all_tasks)):
+                if all_tasks[it]["status"] == "BACKLOG":
+                    backlog_tasks.append(all_tasks[it])
 
-        elif ch == "2":  # 2.
-            pass #.
+                elif all_tasks[it]["status"] == "TODO":
+                    todo_tasks.append(all_tasks[it])
 
-        elif ch == "3":  # 3.
-            pass #.
+                elif all_tasks[it]["status"] == "DOING":
+                    doing_tasks.append(all_tasks[it])
 
-        elif ch == "4":  # 4. Back
-            print("Going Back...")
-            clear_console(2)
-            return user, my_project
+                elif all_tasks[it]["status"] == "DONE":
+                    done_tasks.append(all_tasks[it])
+
+                elif all_tasks[it]["status"] == "ARCHIVED":
+                    archived_tasks.append(all_tasks[it])
+
+            # Table the project's tasks
+            table = Table(title=f"ID of tasks in project {my_project.get_project_title()}:")
+            table.add_column("BACKLOG", justify="right", style="cyan", no_wrap=True) #.
+            table.add_column("TODO", style="magenta") #.
+            table.add_column("DOING", justify="right", style="green") #.
+            table.add_column("DONE", justify="right", style="cyan") #.
+            table.add_column("ARCHIVED", justify="right", style="magenta") #.
+
+            table.add_row("Dec 20, 2019", "Star Wars: The Rise of Skywalker", "$952,110,690") #.
+            table.add_row("May 25, 2018", "Solo: A Star Wars Story", "$393,151,347") #.
+            table.add_row("Dec 15, 2017", "Star Wars Ep. V111: The Last Jedi", "$1,332,539,889") #.
+            table.add_row("Dec 16, 2016", "Rogue One: A Star Wars Story", "$1,332,439,889") #.
+
+            console = Console()
+            console.print(table)
 
         else:
-            pr_red("Error: Invalid value!")
+            print("    No tasks")
+            print("1. New task\n2. Back")
+            ch = input()
+            if ch == "1":  # 1. New task
+                if user.username == my_project.leader_username:
+                    my_task = create_a_task(my_project) #.
+
+                else:
+                    pr_red(f"As a member of project {my_project.get_project_title()}, You can not create a task!")
+                    print("Going Back...")
+                    clear_console(2)
+
+            elif ch == "2":  # 4. Back
+                print("Going Back...")
+                clear_console(2)
+                return user, my_project
+
+            else:
+                pr_red("Error: Invalid value!")
+
