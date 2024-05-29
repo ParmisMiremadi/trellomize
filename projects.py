@@ -26,11 +26,6 @@ class Project:
         self.leader_username = leader.username
         self.members = []
         self.tasks = []
-        self.comments = {
-            "comment": "",
-            "user": "",
-            "date": ""
-        }  #. adding them later (manually)
 
     def get_project_title(self):
         return self.__project_title
@@ -44,8 +39,7 @@ class Project:
             "project_id": self.__project_id,
             "leader": self.leader_username,
             "members": self.members,
-            "tasks": self.tasks,
-            "comments": self.comments
+            "tasks": self.tasks
         }
 
         projects_dicts = load_projects_from_file(file_path)  # List of dictionaries
@@ -769,6 +763,3 @@ def delete_project(user: User, my_project: Project):
             else:
                 pr_red("Invalid input! Please try again.")
 
-
-def comments_and_options(user: User, my_project: Project):
-    pass #. !!!!!!!!
