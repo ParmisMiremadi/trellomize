@@ -66,7 +66,6 @@ def create_admin(username, password):
         pr_green("Your sign up as admin was successful :)")
 
 
-
 def main():
     parser = argparse.ArgumentParser(description="Create system admin")
     subparsers = parser.add_subparsers(dest="command", help="command help")
