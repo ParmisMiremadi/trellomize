@@ -2,6 +2,7 @@ import json
 from user import User
 from user import clear_console
 from user import Admin
+import tasks
 
 
 def pr_cyan(skk): print("\033[36m {}\033[00m".format(skk))
@@ -34,15 +35,17 @@ class Project:
 
     def to_dict_and_save_to_file(self, file_path, leader: User):
         new_project_dict = {
-            'project_title': self.__project_title,
-            'project_id': self.__project_id,
-            'leader': self.leader_username,
-            'members': self.members
+            "project_title": self.__project_title,
+            "project_id": self.__project_id,
+            "leader": self.leader_username,
+            "members": self.members,
+            "tasks": self.tasks
         }
 
         projects_dicts = load_projects_from_file(file_path)  # List of dictionaries
         projects_dicts.append(new_project_dict)
         save_projects_to_file(file_path, projects_dicts)
+
         # Appending the new project to the object's projects_as_leader list
         leader.projects_as_leader.append(new_project_dict)
 
@@ -51,29 +54,29 @@ class Project:
             with open(admin_file_path, "r") as f:
                 users_list = json.load(f)
                 for iterate in range(len(users_list)):
-                    if users_list[iterate]['username'] == leader.username:
-                        users_list[iterate]['projects_as_leader'] = leader.projects_as_leader
+                    if users_list[iterate]["username"] == leader.username:
+                        users_list[iterate]["projects_as_leader"] = leader.projects_as_leader
             save_projects_to_file(admin_file_path, users_list)
 
         else:  # Saving to 'user.json'
             with open(user_file_path, "r") as f:
                 users_list = json.load(f)
                 for iterate in range(len(users_list)):
-                    if users_list[iterate]['username'] == leader.username:
-                        users_list[iterate]['projects_as_leader'] = leader.projects_as_leader
+                    if users_list[iterate]["username"] == leader.username:
+                        users_list[iterate]["projects_as_leader"] = leader.projects_as_leader
             save_projects_to_file(user_file_path, users_list)
 
         return leader
 
 
 def save_projects_to_file(file_path, project_dict):
-    with open(file_path, 'w') as file_1:
+    with open(file_path, "w") as file_1:
         json.dump(project_dict, file_1, indent=4)
 
 
 def load_projects_from_file(file_path):  # Returns a list
     try:
-        with open(file_path, 'r') as file_1:
+        with open(file_path, "r") as file_1:
             projects_1 = json.load(file_1)
     except FileNotFoundError:
         projects_1 = []
@@ -90,8 +93,8 @@ if len(admin_list) > 0:
 
 
 def create_a_project(leader: User):  # Returns an object of Project. It has to be saved!
-    project_title = input('The title of your project: ')  # Needs to be checked in the projects file
-    project_id = input('The ID of your project: ')  # Needs to be checked in the projects file
+    project_title = input("The title of your project: ")  # Needs to be checked in the projects file
+    project_id = input("The ID of your project: ")  # Needs to be checked in the projects file
     is_unique = True
     if isinstance(leader, Admin):
         is_unique = is_project_unique(admin_projects_as_leader, project_id)
@@ -100,8 +103,8 @@ def create_a_project(leader: User):  # Returns an object of Project. It has to b
     else:
         is_unique = is_project_unique(projects_list, project_id)
     if not is_unique:
-        print('This ID already exists for another project.')
-        print('Action failed!')
+        print("This ID already exists for another project.")
+        print("Action failed!")
         clear_console(2)
         return 1
 
@@ -112,7 +115,7 @@ def create_a_project(leader: User):  # Returns an object of Project. It has to b
 
 def is_project_unique(projects_list_1: list[dict], new_project_id):
     for iterator in range(len(projects_list_1)):
-        if projects_list_1[iterator]['project_id'] == new_project_id:
+        if projects_list_1[iterator]["project_id"] == new_project_id:
             return False
     return True
 
@@ -126,31 +129,31 @@ def show_list_of_projects_and_choose(user_obj: User):  # If Back, returns 0; els
     ch = -1
     it = 0
     while ch not in range(it_member + it_leader + 1):
-        print('0. Back')
-        print('Your projects as the leader:')
+        print("0. Back")
+        print("Your projects as the leader:")
         if it_leader > 0:
             for it in range(it_leader):
-                pr_cyan(f'    {it + 1}. {projects_as_leader_list[it].get('project_title')}')
+                pr_cyan(f"    {it + 1}. {projects_as_leader_list[it].get("project_title")}")
         else:
-            print('    No projects as leader.')
+            print("    No projects as leader.")
         it = 0
-        print('\nYour projects as a member:')
+        print("\nYour projects as a member:")
         if it_member > 0:
             for it in range(it_member):
-                pr_cyan(f'    {it_leader + it + 1}. {projects_as_member_list[it]["project_title"]}')
+                pr_cyan(f"    {it_leader + it + 1}. {projects_as_member_list[it]["project_title"]}")
         else:
-            print('    No projects as a member.')
+            print("    No projects as a member.")
 
         try:
-            ch = int(input('\nEnter your choice: '))
+            ch = int(input("\nEnter your choice: "))
         except ValueError:
             clear_console(1)
-            print('Error: Invalid value!')
+            print("Error: Invalid value!")
             clear_console(2.5)
 
         else:
             if isinstance(ch, int) and (ch < 0 or ch > (it_leader + it_member)):
-                print('Error: Invalid value!')
+                print("Error: Invalid value!")
                 clear_console(2)
 
             elif ch == 0:  # Going back
@@ -206,6 +209,7 @@ def options_for_my_project(user: User, my_project: Project):  # Called in the ma
 
         elif ch == "2":  # 2. Tasks
             print("tasks' list and stuff.")  #.tasks function(s)
+            user, my_project = tasks.show_tasks_and_options(user, my_project)
 
         elif ch == "3":  # 3. Delete project
             project_title = my_project.get_project_title()
@@ -231,46 +235,46 @@ def activate_users(users_list: [dict]):
     true_bool = True
     inactive_users = []
     for iterate in range(len(users_list)):
-        if users_list[iterate]['is_active'] == true_bool:
+        if users_list[iterate]["is_active"] == true_bool:
             pass
         else:
             inactive_users.append(users_list[iterate])
     if len(inactive_users) == 0:
-        print('    No inactive users.')
-        print('    Going back...')
+        print("    No inactive users.")
+        print("    Going back...")
         clear_console(3)
         return
     else:
         which_user = 0
         while which_user < 1 or which_user > (len(inactive_users) + 1):
             clear_console(2)
-            print('Choose a user to activate their account:')
+            print("Choose a user to activate their account:")
             for iterate in range(len(inactive_users)):
-                pr_cyan(f'{iterate + 1}. {inactive_users[iterate]['username']}')
-            print(f' {len(inactive_users) + 1}. Back')
+                pr_cyan(f"{iterate + 1}. {inactive_users[iterate]["username"]}")
+            print(f" {len(inactive_users) + 1}. Back")
             try:
                 which_user = int(input())
             except ValueError:
-                pr_red('Error: Invalid value!')
+                pr_red("Error: Invalid value!")
                 which_user = 0
             else:
                 if isinstance(which_user, int) and 0 < which_user <= len(inactive_users):
-                    this_username = inactive_users[which_user - 1]['username']
+                    this_username = inactive_users[which_user - 1]["username"]
                     for iterate in range(len(users_list)):
-                        if users_list[iterate]['username'] == this_username:
-                            users_list[iterate]['is_active'] = true_bool
+                        if users_list[iterate]["username"] == this_username:
+                            users_list[iterate]["is_active"] = true_bool
 
                     save_projects_to_file(user_file_path, users_list)
                     pr_green(f"{this_username}'s account has been activated.")
-                    print('Going back...')
+                    print("Going back...")
                     clear_console(3)
 
                 elif isinstance(which_user, int) and which_user == len(inactive_users) + 1:
-                    print('Going back...')
+                    print("Going back...")
                     clear_console(2)
 
                 else:
-                    pr_red('Error: Invalid value!')
+                    pr_red("Error: Invalid value!")
                     which_user = 0
 
 
@@ -278,46 +282,46 @@ def deactivate_users(users_list: [dict]):
     true_bool = True
     active_users = []
     for iterate in range(len(users_list)):
-        if users_list[iterate]['is_active'] != true_bool:
+        if users_list[iterate]["is_active"] != true_bool:
             pass
         else:
             active_users.append(users_list[iterate])
     if len(active_users) == 0:
-        print('    No active users.')
-        print('    Going back...')
+        print("    No active users.")
+        print("    Going back...")
         clear_console(3)
         return
     else:
         which_user = 0
         while which_user < 1 or which_user > (len(active_users) + 1):
             clear_console(2)
-            print('Choose a user to deactivate their account:')
+            print("Choose a user to deactivate their account:")
             for iterate in range(len(active_users)):
-                pr_cyan(f'{iterate + 1}. {active_users[iterate]['username']}')
-            print(f' {len(active_users) + 1}. Back')
+                pr_cyan(f"{iterate + 1}. {active_users[iterate]['username']}")
+            print(f" {len(active_users) + 1}. Back")
             try:
                 which_user = int(input())
             except ValueError:
-                pr_red('Error: Invalid value!')
+                pr_red("Error: Invalid value!")
                 which_user = 0
             else:
                 if isinstance(which_user, int) and 0 < which_user <= len(active_users):
-                    this_username = active_users[which_user - 1]['username']
+                    this_username = active_users[which_user - 1]["username"]
                     for iterate in range(len(users_list)):
-                        if users_list[iterate]['username'] == this_username:
-                            users_list[iterate]['is_active'] = False
+                        if users_list[iterate]["username"] == this_username:
+                            users_list[iterate]["is_active"] = False
 
                     save_projects_to_file(user_file_path, users_list)
                     pr_green(f"{this_username}'s account has been deactivated.")
-                    print('Going back...')
+                    print("Going back...")
                     clear_console(3)
 
                 elif isinstance(which_user, int) and which_user == len(active_users) + 1:
-                    print('Going back...')
+                    print("Going back...")
                     clear_console(2)
 
                 else:
-                    pr_red('Error: Invalid value!')
+                    pr_red("Error: Invalid value!")
                     which_user = 0
 
 
@@ -338,7 +342,7 @@ def my_project_members(user: User, my_project: Project):
         my_project.members = project_members
 
         if len(project_members) == 0:
-            print('    No members')
+            print("    No members")
 
         elif len(all_projects) > 0:
             for iterate in range(len(all_projects)):
@@ -347,7 +351,7 @@ def my_project_members(user: User, my_project: Project):
                         pr_cyan(all_projects[iterate]["members"][it])
 
         else:
-            print('    No projects')
+            print("    No projects")
 
         ch = input()
         if ch == "1":  # 1. Add members
@@ -411,7 +415,7 @@ def add_members(leader: User, my_project: Project):
             for iterate in range(len(user_list)):
                 if user_list[iterate]["username"] not in project_members:
                     if user_list[iterate]["username"] != leader.username:
-                        print('appended to adding_possible')
+                        print("appended to adding_possible") #.
                         adding_possible.append(user_list[iterate]["username"])
             if not isinstance(leader, Admin):
                 if len(admin_list_1) > 0:
@@ -469,8 +473,8 @@ def add_members(leader: User, my_project: Project):
                                             projects_as_member = user_list[it]["projects_as_member"]
                                             if projects_as_member:
                                                 for i in range(len(projects_as_member)):
-                                                    if projects_as_member[i][
-                                                        "project_id"] == my_project.get_project_id():
+                                                    if (projects_as_member[i]["project_id"]
+                                                            == my_project.get_project_id()):
                                                         projects_as_member[i]["members"] = my_project.members
                                                 user_list[it]["projects_as_member"] = projects_as_member
 
@@ -483,8 +487,8 @@ def add_members(leader: User, my_project: Project):
                                             projects_as_member = admin_list_1[0]["projects_as_member"]
                                             if projects_as_member:
                                                 for i in range(len(projects_as_member)):
-                                                    if projects_as_member[i][
-                                                        "project_id"] == my_project.get_project_id():
+                                                    if (projects_as_member[i]["project_id"]
+                                                            == my_project.get_project_id()):
                                                         projects_as_member[i]["members"] = my_project.members
 
                                                 admin_list_1[0]["projects_as_member"] = projects_as_member
@@ -660,8 +664,8 @@ def remove_members(leader: User, my_project: Project):
 def delete_project(user: User, my_project: Project):
     clear_console(2)
     print(f"This is my_project id: {my_project.get_project_id()}")  #.
-    print(f"my_project leader: {my_project.leader_username}") #.
-    print(f"The user: {user.username}") #.
+    print(f"my_project leader: {my_project.leader_username}")  #.
+    print(f"The user: {user.username}")  #.
     if user.username != my_project.leader_username:  # The user is not the leader
         pr_red(f"As a member of project {my_project.get_project_title()}, you can not delete it!")
         clear_console(2)
@@ -680,9 +684,9 @@ def delete_project(user: User, my_project: Project):
                 leader_projects_as_leader = user.projects_as_leader
                 for iterate in range(len(leader_projects_as_leader)):
                     if leader_projects_as_leader[iterate]["project_id"] == my_project.get_project_id():
-                        print(f"1___before pop: {leader_projects_as_leader}") #.
+                        print(f"1___before pop: {leader_projects_as_leader}")  #.
                         leader_projects_as_leader.pop(iterate)
-                        print(f"1___after pop: {leader_projects_as_leader}") #.
+                        print(f"1___after pop: {leader_projects_as_leader}")  #.
                         user.projects_as_leader = leader_projects_as_leader
                         break
 
@@ -758,7 +762,4 @@ def delete_project(user: User, my_project: Project):
 
             else:
                 pr_red("Invalid input! Please try again.")
-
-
-
 
