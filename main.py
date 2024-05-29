@@ -73,7 +73,7 @@ def sign_up():
                 return
     with open("user.json", "a") as file:
         file.write(f"{email} ; {username} ; {encrypted_password.decode("utf-8")} ; {user_obj.be_active} ; {user_obj.projects_as_leader} ; {user_obj.projects_as_member}\n")
-        pr_green("Your sign in was successful :)")
+        pr_green("Your sign up as user was successful :)")
     return user_obj
 
 
@@ -105,7 +105,7 @@ def log_in():
                         else:
                             email1 = line.strip().split(" ; ")[0]
                             
-                            pr_green("Your log in was successful :)")
+                            pr_green("Your log in as user was successful :)")
                             user_obj = User(email1, username1, password1)
                             return user_obj
                     else:
@@ -126,7 +126,7 @@ def log_in():
                     admin_password1 = line.strip().split(" ; ")[1]
 
                     if bcrypt.checkpw(admin_password.encode("utf-8"), admin_password1.encode("utf-8")):
-                        pr_green("Your log in was successful :)")
+                        pr_green("Your log in as admin was successful :)")
                         admin_obj = Admin(admin_username1, admin_password1)
                         return admin_obj
                     else:
