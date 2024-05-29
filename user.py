@@ -32,7 +32,8 @@ if not os.path.exists("admin.json"):
     file.close()
 
 
-logger.add("logfile.log", rotation="500 MB", compression="zip")
+logger.remove()
+logger.add("logfile.log", rotation="500 MB", format="{time} - {level} - {file} - {message}")
 
 
 def log_info(massage):
@@ -76,6 +77,7 @@ def sign_up():
     while True:
         email = input("Enter your email: ")
         if not is_valid_email(email):
+            log_error("Error: Invalid email format!")
             pr_red("Error: Invalid email format!")
             clear_console(2)
         else:
@@ -92,6 +94,7 @@ def sign_up():
     if len(users_list) > 0:
         for iterate in range(len(users_list)):
             if email == users_list[iterate]["email"] or username == users_list[iterate]["username"]:
+                log_error("Error: The entered information is duplicate!")
                 pr_red("Error: The entered information is duplicate!")
                 return
 
@@ -108,6 +111,7 @@ def sign_up():
     with open("user.json", "w") as file_1:
         json.dump(users_list, file_1, indent=4)
         log_info("Your sign up as user was successful :)")
+        pr_green("Your sign up as user was successful :)")
     return user_obj
 
 
@@ -135,20 +139,24 @@ def log_in():
                         is_active1 = users_list[iterate]["is_active"]
 
                         if bool(is_active1) != true_bool:
+                            log_error("Error: You don't have access to your account!")
                             pr_red("Error: You don't have access to your account!")
                             return 0
                         else:
                             email1 = users_list[iterate]["email"]
 
                             log_info("Your log in as user was successful :)")
+                            pr_green("Your log in as user was successful :)")
                             user_obj = User(email1, username, string_password)
                             user_obj.projects_as_leader = users_list[iterate]["projects_as_leader"]
                             user_obj.projects_as_member = users_list[iterate]["projects_as_member"]
                             return user_obj
                     else:
+                        log_error("Error: The password is invalid!")
                         pr_red("Error: The password is invalid!")
                         return
                     
+            log_error("Error: Username not found!")
             pr_red("Error: Username not found!")
 
     elif choice1 == "2":    # Log in as admin
@@ -166,14 +174,17 @@ def log_in():
 
                     if bcrypt.checkpw(admin_password.encode("utf-8"), admin_password1.encode("utf-8")):
                         log_info("Your log in as admin was successful :)")
+                        pr_green("Your log in as admin was successful :)")
                         admin_obj = Admin(" ", admin_username1, admin_password1)
                         admin_obj.projects_as_leader = admin_list[0]["projects_as_leader"]
                         admin_obj.projects_as_member = admin_list[0]["projects_as_member"]
                         return admin_obj
                     else:
+                        log_error("Error: The password is invalid!")
                         pr_red("Error: The password is invalid!")
                         return
 
+            log_error("Error: Username not found!")
             pr_red("Error: Username not found!")
             return 0
     else:
