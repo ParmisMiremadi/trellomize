@@ -3,9 +3,11 @@ import rich
 import uuid
 from enum import Enum
 from user import User
-from user import Admin
 import time
 from projects import Project
+from user import clear_console
+from user import pr_red
+
 
 a = time.time()
 user_file_path = "user.json"
@@ -14,10 +16,10 @@ admin_file_path = "admin_1.json"
 
 
 class Task:
-    def __init__(self, my_project: Project, task_title):
+    def __init__(self, my_project: Project):
         self.project_id = my_project.get_project_id()
         self.__task_id = uuid.uuid1()
-        self.task_title = task_title
+        self.task_title = "" #. optional/ adding later (manually)
         self.description = "" #. optional/ adding later (manually)
         self.start_date = time.ctime(time.time())
         self.due_date = time.ctime(time.time() + 24 * 60 * 60)
@@ -28,7 +30,7 @@ class Task:
     def get_unique_identifier(self):
         return self.__task_id
 
-    def to_dict_and_save_to_file(self, my_project: Project):    # Returns my_project after updates
+    def to_dict_and_save_to_file(self, leader: User, my_project: Project):    # Returns my_project after updates
         new_task_dict = {
             "task_id": self.__task_id,
             "task_title": self.task_title,
@@ -111,5 +113,33 @@ class Task:
     def change_details(self): #. change obj data and save to files
         pass
 
+
 def create_a_task(my_project: Project):
-    
+    task = Task(my_project)
+    return task
+
+
+def show_tasks_and_options(user: User, my_project: Project):
+    ch = "-1"  # New task   Back  ...table of tasks...
+    while ch != "0":
+        clear_console(2)
+        # pr_cyan(f"        {my_project.get_project_title()}")
+        # print("    1. Members\n    2. Tasks\n    3. Delete project\n    4. Back")
+        ch = input()
+
+        if ch == "1":  # 1.
+            pass #.
+
+        elif ch == "2":  # 2.
+            pass #.
+
+        elif ch == "3":  # 3.
+            pass #.
+
+        elif ch == "4":  # 4. Back
+            print("Going Back...")
+            clear_console(2)
+            return user, my_project
+
+        else:
+            pr_red("Error: Invalid value!")
