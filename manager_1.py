@@ -2,15 +2,32 @@ import json
 import argparse
 import os
 import bcrypt
+from loguru import logger
+ 
 
-if not os.path.exists("admin_1.json"):
-    with open("admin_1.json", "w") as file:
+if not os.path.exists("admin.json"):
+    with open("admin.json", "w") as file:
         json.dump([], file, indent=4)
     file.close()
 
 
+logger.add("logfile.log", rotation="500 MB", compression="zip")
+
+
+def log_info(massage):
+    logger.info(massage)
+
+
+def log_warning(massage):
+    logger.warning(massage)
+
+
+def log_error(massage):
+    logger.error(massage)
+    
+
 def create_admin(username, password):
-    with open("admin_1.json", "r") as file_1:
+    with open("admin.json", "r") as file_1:
         admin_list = json.load(file_1)
     if len(admin_list) > 0:
         username1 = admin_list[0]["username"]
@@ -32,9 +49,9 @@ def create_admin(username, password):
     }
     new_admin_list = [new_admin_dict]
 
-    with open("admin_1.json", "w") as file_1:
+    with open("admin.json", "w") as file_1:
         json.dump(new_admin_list, file_1, indent=4)
-        print("The new admin was successfully registered :)")
+        log_info("Your sign up as admin was successful :)")
 
 
 def main():
