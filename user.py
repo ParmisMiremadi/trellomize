@@ -4,6 +4,7 @@ import re
 import getpass
 import time
 import bcrypt
+from loguru import logger
 
 
 def pr_cyan(skk): print("\033[36m {}\033[00m".format(skk))
@@ -25,11 +26,26 @@ if not os.path.exists("user.json"):
         json.dump([], file, indent=4)
     file.close()
 
-if not os.path.exists("admin_1.json"):
-    with open("admin_1.json", "w") as file:
+if not os.path.exists("admin.json"):
+    with open("admin.json", "w") as file:
         json.dump([], file, indent=4)
     file.close()
 
+
+logger.add("logfile.log", rotation="500 MB", compression="zip")
+
+
+def log_info(massage):
+    logger.info(massage)
+
+
+def log_warning(massage):
+    logger.warning(massage)
+
+
+def log_error(massage):
+    logger.error(massage)
+ 
 
 class User:
     def __init__(self, email, username, password):
@@ -91,7 +107,7 @@ def sign_up():
 
     with open("user.json", "w") as file_1:
         json.dump(users_list, file_1, indent=4)
-        pr_green("Your sign in was successful :)")
+        log_info("Your sign up as user was successful :)")
     return user_obj
 
 
@@ -124,7 +140,7 @@ def log_in():
                         else:
                             email1 = users_list[iterate]["email"]
 
-                            pr_green("Your log in was successful :)")
+                            log_info("Your log in as user was successful :)")
                             user_obj = User(email1, username, string_password)
                             user_obj.projects_as_leader = users_list[iterate]["projects_as_leader"]
                             user_obj.projects_as_member = users_list[iterate]["projects_as_member"]
@@ -132,6 +148,7 @@ def log_in():
                     else:
                         pr_red("Error: The password is invalid!")
                         return
+                    
             pr_red("Error: Username not found!")
 
     elif choice1 == "2":    # Log in as admin
@@ -139,15 +156,16 @@ def log_in():
         admin_username = input("Enter your username: ")
         admin_password = getpass.getpass("Enter your password: ")
 
-        with open("admin_1.json", "r") as file_1:
+        with open("admin.json", "r") as file_1:
             admin_list = json.load(file_1)
             if len(admin_list) > 0:
                 admin_username1 = admin_list[0]["username"]
-                admin_password1 = admin_list[0]["password"]
 
                 if admin_username == admin_username1:
+                    admin_password1 = admin_list[0]["password"]
+
                     if bcrypt.checkpw(admin_password.encode("utf-8"), admin_password1.encode("utf-8")):
-                        pr_green("Your log in was successful :)")
+                        log_info("Your log in as admin was successful :)")
                         admin_obj = Admin(" ", admin_username1, admin_password1)
                         admin_obj.projects_as_leader = admin_list[0]["projects_as_leader"]
                         admin_obj.projects_as_member = admin_list[0]["projects_as_member"]
@@ -160,3 +178,4 @@ def log_in():
             return 0
     else:
         pr_red("Error: Invalid value!")
+
