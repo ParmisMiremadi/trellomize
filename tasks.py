@@ -3,17 +3,23 @@ import uuid
 from enum import Enum
 from user import User
 import time
-from projects import Project
 from user import clear_console
 from user import pr_red, pr_green, pr_cyan
 from rich.console import Console
 from rich.table import Table
 
 
-a = time.time()
+class Project:
+    def __init__(self, project_title, project_id, leader: User):
+        self.__project_title = project_title
+        self.__project_id = project_id
+        self.leader_username = leader.username
+        self.members = []
+        self.tasks = []
+
 user_file_path = "user.json"
 projects_file_path = "projects.json"
-admin_file_path = "admin_1.json"
+admin_file_path = "admin.json"
 
 
 class Task:
@@ -33,12 +39,12 @@ class Task:
             "date": ""
         }  # . adding them later (manually)
 
-    def get_unique_identifier(self):
+    def get_task_id(self):
         return self.__task_id
 
     def to_dict_and_save_to_file(self, my_project: Project):    # Returns my_project after updates
         new_task_dict = {
-            "task_id": self.__task_id,
+            "task_id": str(self.__task_id),
             "task_title": self.task_title,
             "description": self.description,
             "start_date": self.start_date,
@@ -162,13 +168,33 @@ def show_tasks_and_options(user: User, my_project: Project):
             table.add_column("DONE", justify="right", style="cyan") #.
             table.add_column("ARCHIVED", justify="right", style="magenta") #.
 
-            table.add_row("Dec 20, 2019", "Star Wars: The Rise of Skywalker", "$952,110,690") #.
-            table.add_row("May 25, 2018", "Solo: A Star Wars Story", "$393,151,347") #.
-            table.add_row("Dec 15, 2017", "Star Wars Ep. V111: The Last Jedi", "$1,332,539,889") #.
-            table.add_row("Dec 16, 2016", "Rogue One: A Star Wars Story", "$1,332,439,889") #.
+            for it in range(max(len(backlog_tasks), len(todo_tasks),
+                                len(doing_tasks), len(done_tasks), len(archived_tasks))):
+                if it >= len(backlog_tasks):
+                    backlog_tasks[it]["task_id"] = ""
+
+                if it >= len(todo_tasks):
+                    todo_tasks[it]["task_id"] = ""
+
+                if it >= len(doing_tasks):
+                    doing_tasks[it]["task_id"] = ""
+
+                if it >= len(done_tasks):
+                    done_tasks[it]["task_id"] = ""
+
+                if it >= len(archived_tasks):
+                    archived_tasks[it]["task_id"] = ""
+
+                table.add_row(f"{backlog_tasks[it]["task_id"]}", f"{todo_tasks[it]["task_id"]}",
+                              f"{doing_tasks[it]["task_id"]}", f"{done_tasks[it]["task_id"]}",
+                              f"{archived_tasks[it]["task_id"]}")
 
             console = Console()
             console.print(table)
+
+            print("\n1. New task\n2. Back")
+            print("Enter the task's ID to see and change the details.")
+            ch = input()
 
         else:
             print("    No tasks")
@@ -177,6 +203,11 @@ def show_tasks_and_options(user: User, my_project: Project):
             if ch == "1":  # 1. New task
                 if user.username == my_project.leader_username:
                     my_task = create_a_task(my_project) #.
+                    my_project = my_task.to_dict_and_save_to_file(my_project)
+                    pr_green("Task created successfully!")
+                    pr_green(f"task {my_task.get_task_id()} has been added"
+                             f" to project {my_project.get_project_title()}.")
+                    clear_console(3)
 
                 else:
                     pr_red(f"As a member of project {my_project.get_project_title()}, You can not create a task!")
