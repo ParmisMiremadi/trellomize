@@ -78,62 +78,65 @@ def sign_up():
 
 
 def log_in():
-    os.system("cls")
-    print("1. Log in as user")
-    print("2. Log in as admin")
-    choice1 = input("Enter your choice: ")
-    
-    if choice1 == "1":
+    choice1 = "0"
+    while choice1 != "1" and choice1 != "2":
         os.system("cls")
-        username = input("Enter your username: ")
-        password = getpass.getpass("Enter your password: ")
+        print("1. Log in as user")
+        print("2. Log in as admin")
+        choice1 = input("Enter your choice: ")
+        
+        if choice1 == "1":
+            os.system("cls")
+            username = input("Enter your username: ")
+            password = getpass.getpass("Enter your password: ")
 
-        with open("user.json", "r") as file:
-            for line in file:
-                username1 = line.strip().split(" ; ")[1]
+            with open("user.json", "r") as file:
+                for line in file:
+                    username1 = line.strip().split(" ; ")[1]
+                    
+                    if username == username1:
+                        password1 = line.strip().split(" ; ")[2]
                 
-                if username == username1:
-                    password1 = line.strip().split(" ; ")[2]
-            
-                    if bcrypt.checkpw(password.encode("utf-8"), password1.encode("utf-8")):
-                        be_active1 = line.strip().split(" ; ")[3]
-                        true_bool = True
-                        
-                        if bool(be_active1) != true_bool:
-                            pr_red("Error: You don't have access to your account!")
-                            return
-                        else:
-                            email1 = line.strip().split(" ; ")[0]
+                        if bcrypt.checkpw(password.encode("utf-8"), password1.encode("utf-8")):
+                            be_active1 = line.strip().split(" ; ")[3]
+                            true_bool = True
                             
-                            pr_green("Your log in as user was successful :)")
-                            user_obj = User(email1, username1, password1)
-                            return user_obj
-                    else:
-                        pr_red("Error: The password is invalid!")
-                        return
-            pr_red("Error: Username not found!")
+                            if bool(be_active1) != true_bool:
+                                pr_red("Error: You don't have access to your account!")
+                                return
+                            else:
+                                email1 = line.strip().split(" ; ")[0]
+                                
+                                pr_green("Your log in as user was successful :)")
+                                user_obj = User(email1, username1, password1)
+                                return user_obj
+                        else:
+                            pr_red("Error: The password is invalid!")
+                            return
+                pr_red("Error: Username not found!")
 
-    elif choice1 == "2":
-        os.system("cls")
-        admin_username = input("Enter your username: ")
-        admin_password = getpass.getpass("Enter your password: ")
+        elif choice1 == "2":
+            os.system("cls")
+            admin_username = input("Enter your username: ")
+            admin_password = getpass.getpass("Enter your password: ")
 
-        with open("admin.json", "r") as file:
-            for line in file:
-                admin_username1 = line.strip().split(" ; ")[0]
+            with open("admin.json", "r") as file:
+                for line in file:
+                    admin_username1 = line.strip().split(" ; ")[0]
 
-                if admin_username == admin_username1:
-                    admin_password1 = line.strip().split(" ; ")[1]
+                    if admin_username == admin_username1:
+                        admin_password1 = line.strip().split(" ; ")[1]
 
-                    if bcrypt.checkpw(admin_password.encode("utf-8"), admin_password1.encode("utf-8")):
-                        pr_green("Your log in as admin was successful :)")
-                        admin_obj = Admin(admin_username1, admin_password1)
-                        return admin_obj
-                    else:
-                        pr_red("Error: The password is invalid!")
-                        return
-            pr_red("Error: Username not found!")
+                        if bcrypt.checkpw(admin_password.encode("utf-8"), admin_password1.encode("utf-8")):
+                            pr_green("Your log in as admin was successful :)")
+                            admin_obj = Admin(admin_username1, admin_password1)
+                            return admin_obj
+                        else:
+                            pr_red("Error: The password is invalid!")
+                            return
+                pr_red("Error: Username not found!")
 
-    else:
-        pr_red("Error: Invalid value!")
+        else:
+            pr_red("Error: Invalid choice! Please try again.")
+            clear_console(2)
 
