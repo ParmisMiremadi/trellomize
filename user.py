@@ -116,77 +116,79 @@ def sign_up():
 
 
 def log_in():
-    os.system("cls")
-    print("1. Log in as user")
-    print("2. Log in as admin")
-    choice1 = input("Enter your choice: ")
-
-    if choice1 == "1":    # 1. Log in as user
+    choice1 = "0"
+    while choice1 != "1" and choice1 != "2":
         os.system("cls")
-        username = input("Enter your username: ")
-        password = getpass.getpass("Enter your password: ")
-        true_bool = True
+        print("1. Log in as user")
+        print("2. Log in as admin")
+        choice1 = input("Enter your choice: ")
 
-        with open("user.json", "r") as file_1:
-            users_list = json.load(file_1)
-            for iterate in range(len(users_list)):
-                username1 = users_list[iterate]["username"]
+        if choice1 == "1":    # 1. Log in as user
+            os.system("cls")
+            username = input("Enter your username: ")
+            password = getpass.getpass("Enter your password: ")
+            true_bool = True
 
-                if username == username1:
-                    string_password = users_list[iterate]["password"]
+            with open("user.json", "r") as file_1:
+                users_list = json.load(file_1)
+                for iterate in range(len(users_list)):
+                    username1 = users_list[iterate]["username"]
 
-                    if bcrypt.checkpw(password.encode("utf-8"), string_password.encode("utf-8")):
-                        is_active1 = users_list[iterate]["is_active"]
+                    if username == username1:
+                        string_password = users_list[iterate]["password"]
 
-                        if bool(is_active1) != true_bool:
-                            log_error("Error: You don't have access to your account!")
-                            pr_red("Error: You don't have access to your account!")
-                            return 0
+                        if bcrypt.checkpw(password.encode("utf-8"), string_password.encode("utf-8")):
+                            is_active1 = users_list[iterate]["is_active"]
+
+                            if bool(is_active1) != true_bool:
+                                log_error("Error: You don't have access to your account!")
+                                pr_red("Error: You don't have access to your account!")
+                                return 0
+                            else:
+                                email1 = users_list[iterate]["email"]
+
+                                log_info("Your log in as user was successful :)")
+                                pr_green("Your log in as user was successful :)")
+                                user_obj = User(email1, username, string_password)
+                                user_obj.projects_as_leader = users_list[iterate]["projects_as_leader"]
+                                user_obj.projects_as_member = users_list[iterate]["projects_as_member"]
+                                return user_obj
                         else:
-                            email1 = users_list[iterate]["email"]
+                            log_error("Error: The password is invalid!")
+                            pr_red("Error: The password is invalid!")
+                            return
+                        
+                log_error("Error: Username not found!")
+                pr_red("Error: Username not found!")
 
-                            log_info("Your log in as user was successful :)")
-                            pr_green("Your log in as user was successful :)")
-                            user_obj = User(email1, username, string_password)
-                            user_obj.projects_as_leader = users_list[iterate]["projects_as_leader"]
-                            user_obj.projects_as_member = users_list[iterate]["projects_as_member"]
-                            return user_obj
-                    else:
-                        log_error("Error: The password is invalid!")
-                        pr_red("Error: The password is invalid!")
-                        return
-                    
-            log_error("Error: Username not found!")
-            pr_red("Error: Username not found!")
+        elif choice1 == "2":    # Log in as admin
+            os.system("cls")
+            admin_username = input("Enter your username: ")
+            admin_password = getpass.getpass("Enter your password: ")
 
-    elif choice1 == "2":    # Log in as admin
-        os.system("cls")
-        admin_username = input("Enter your username: ")
-        admin_password = getpass.getpass("Enter your password: ")
+            with open("admin.json", "r") as file_1:
+                admin_list = json.load(file_1)
+                if len(admin_list) > 0:
+                    admin_username1 = admin_list[0]["username"]
 
-        with open("admin.json", "r") as file_1:
-            admin_list = json.load(file_1)
-            if len(admin_list) > 0:
-                admin_username1 = admin_list[0]["username"]
+                    if admin_username == admin_username1:
+                        admin_password1 = admin_list[0]["password"]
 
-                if admin_username == admin_username1:
-                    admin_password1 = admin_list[0]["password"]
+                        if bcrypt.checkpw(admin_password.encode("utf-8"), admin_password1.encode("utf-8")):
+                            log_info("Your log in as admin was successful :)")
+                            pr_green("Your log in as admin was successful :)")
+                            admin_obj = Admin(" ", admin_username1, admin_password1)
+                            admin_obj.projects_as_leader = admin_list[0]["projects_as_leader"]
+                            admin_obj.projects_as_member = admin_list[0]["projects_as_member"]
+                            return admin_obj
+                        else:
+                            log_error("Error: The password is invalid!")
+                            pr_red("Error: The password is invalid!")
+                            return
 
-                    if bcrypt.checkpw(admin_password.encode("utf-8"), admin_password1.encode("utf-8")):
-                        log_info("Your log in as admin was successful :)")
-                        pr_green("Your log in as admin was successful :)")
-                        admin_obj = Admin(" ", admin_username1, admin_password1)
-                        admin_obj.projects_as_leader = admin_list[0]["projects_as_leader"]
-                        admin_obj.projects_as_member = admin_list[0]["projects_as_member"]
-                        return admin_obj
-                    else:
-                        log_error("Error: The password is invalid!")
-                        pr_red("Error: The password is invalid!")
-                        return
-
-            log_error("Error: Username not found!")
-            pr_red("Error: Username not found!")
-            return 0
-    else:
-        pr_red("Error: Invalid value!")
-
+                log_error("Error: Username not found!")
+                pr_red("Error: Username not found!")
+                return 0
+        else:
+            pr_red("Error: Invalid choice! Please try again.")
+            clear_console(2)
