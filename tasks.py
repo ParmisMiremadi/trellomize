@@ -5,6 +5,7 @@ from user import User
 import time
 from user import clear_console
 from user import pr_red, pr_green, pr_cyan
+from user import Admin
 from rich.console import Console
 from rich.table import Table
 
@@ -58,6 +59,18 @@ class Project:
 
         return leader
 
+def save_projects_to_file(file_path, project_dict):
+    with open(file_path, "w") as file_1:
+        json.dump(project_dict, file_1, indent=4)
+
+
+def load_projects_from_file(file_path):  # Returns a list
+    try:
+        with open(file_path, "r") as file_1:
+            projects_1 = json.load(file_1)
+    except FileNotFoundError:
+        projects_1 = []
+    return projects_1
 
 
 user_file_path = "user.json"
@@ -85,6 +98,9 @@ class Task:
 
     def get_task_id(self):
         return self.__task_id
+
+    def set_task_id(self, task_id):
+        self.__task_id = task_id
 
     def to_dict_and_save_to_file(self, my_project: Project):    # Returns my_project after updates
         new_task_dict = {
@@ -204,8 +220,8 @@ def show_tasks_and_options(user: User, my_project: Project):
                 elif all_tasks[it]["status"] == "ARCHIVED":
                     archived_tasks.append(all_tasks[it])
 
-            # Table the project's tasks
-            table = Table(title=f"ID of tasks in project {my_project.get_project_title()}:")
+            # Table of the project's tasks
+            table = Table(title=f"IDs of tasks in project {my_project.get_project_title()}:")
             table.add_column("BACKLOG", justify="right", style="cyan", no_wrap=True) #.
             table.add_column("TODO", style="magenta") #.
             table.add_column("DOING", justify="right", style="green") #.
@@ -276,11 +292,62 @@ def show_tasks_and_options(user: User, my_project: Project):
         else:
             for it in range(len(all_tasks)):
                 if ch == all_tasks[it]["task_id"]:
+                    my_task = Task(my_project)
+                    my_task.set_task_id(all_tasks[it]["task_id"])
+                    my_task.task_title = all_tasks[it]["task_title"]
+                    my_task.description = all_tasks[it]["description"]
+                    my_task.start_date = all_tasks[it]["start_date"]
+                    my_task.due_date = all_tasks[it]["due_date"]
+                    my_task.assignees = all_tasks[it]["assignees"]
+                    my_task.priority = all_tasks[it]["priority"]
+                    my_task.status = all_tasks[it]["status"]
+                    my_task.comments = all_tasks[it]["comments"]
+
+                    user, my_project, my_task = task_details(user, my_project, my_task)
+
                     print("function to see and change the chosen task's details.")#. function to see and change the chosen task's details
                     clear_console(2)
                     ch = "-1"
+                    break
+
             if ch != "-1":
                 pr_red("Error: Invalid value!")
                 ch = "-1"
+
+
+def task_details(user: User, my_project: Project, my_task: Task):
+    ch = "-1"
+    while ch != "0":
+        table = Table(title="Task details")
+
+        table.add_column("ID", justify="right", style="cyan", no_wrap=True)
+        table.add_column("Title", justify="right", style="cyan", no_wrap=True)
+        table.add_column("Description", justify="right", style="cyan", no_wrap=True)
+        table.add_column("Start Date", justify="right", style="cyan", no_wrap=True)
+        table.add_column("Due Date", justify="right", style="cyan", no_wrap=True)
+        table.add_column("Assignees", justify="right", style="cyan", no_wrap=True)
+        table.add_column("Priority", justify="right", style="cyan", no_wrap=True)
+        table.add_column("Status", justify="right", style="cyan", no_wrap=True)
+        table.add_column("Comments", justify="right", style="cyan", no_wrap=True)
+
+        table.add_row(f"{my_task.get_task_id()}", f"{my_task.task_title}", f"{my_task.description}",
+                      f"{my_task.start_date}", f"{my_task.due_date}", f"{my_task.assignees}", f"{my_task.priority}",
+                      f"{my_task.status}", f"{my_task.comments}")
+
+        print("\n1. Change details\n2. Back")
+        ch = input()
+        if ch == "1":    # 1. Change details
+            if user.username == my_project.leader_username or user.username in my_task.assignees:
+                print("function for changing details") #.
+            else:
+                pr_red("As neither the leader of this project nor an "
+                       "assignee of the task, you can not change its details.")
+                clear_console(2)
+                ch = "-1"
+
+        elif ch == "2":    # 2. Back
+            print("Going Back...")
+            clear_console(2)
+            return user, my_project, my_task
 
 
