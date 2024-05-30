@@ -76,11 +76,12 @@ class Task:
         self.assignees = []
         self.priority = "LOW"
         self.status = "BACKLOG"
-        self.comments = {
-            "comment": "",
-            "user": "",
-            "date": ""
-        }  # . adding them later (manually)
+        self.comments = []
+        #     {
+        #     "comment": "",
+        #     "user": "",
+        #     "date": ""
+        # }  # . adding them later (manually)
 
     def get_task_id(self):
         return self.__task_id
