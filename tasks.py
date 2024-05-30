@@ -223,10 +223,10 @@ def show_tasks_and_options(user: User, my_project: Project):
             # Table of the project's tasks
             table = Table(title=f"IDs of tasks in project {my_project.get_project_title()}:")
             table.add_column("BACKLOG", justify="right", style="cyan", no_wrap=True) #.
-            table.add_column("TODO", style="magenta") #.
-            table.add_column("DOING", justify="right", style="green") #.
-            table.add_column("DONE", justify="right", style="cyan") #.
-            table.add_column("ARCHIVED", justify="right", style="magenta") #.
+            table.add_column("TODO", style="magenta", no_wrap=True) #.
+            table.add_column("DOING", justify="right", style="green", no_wrap=True) #.
+            table.add_column("DONE", justify="right", style="cyan", no_wrap=True) #.
+            table.add_column("ARCHIVED", justify="right", style="magenta", no_wrap=True) #.
 
             for it in range(max(len(backlog_tasks), len(todo_tasks),
                                 len(doing_tasks), len(done_tasks), len(archived_tasks))):
@@ -320,15 +320,15 @@ def task_details(user: User, my_project: Project, my_task: Task):
     while ch != "0":
         table = Table(title="Task details")
 
-        table.add_column("ID", justify="right", style="cyan", no_wrap=True)
-        table.add_column("Title", justify="right", style="cyan", no_wrap=True)
-        table.add_column("Description", justify="right", style="cyan", no_wrap=True)
-        table.add_column("Start Date", justify="right", style="cyan", no_wrap=True)
-        table.add_column("Due Date", justify="right", style="cyan", no_wrap=True)
-        table.add_column("Assignees", justify="right", style="cyan", no_wrap=True)
-        table.add_column("Priority", justify="right", style="cyan", no_wrap=True)
-        table.add_column("Status", justify="right", style="cyan", no_wrap=True)
-        table.add_column("Comments", justify="right", style="cyan", no_wrap=True)
+        table.add_column("ID", justify="right", style="cyan", no_wrap=True, width=150)
+        table.add_column("Title", justify="right", style="cyan", no_wrap=True, width=150)
+        table.add_column("Description", justify="right", style="cyan", no_wrap=True, width=150)
+        table.add_column("Start Date", justify="right", style="cyan", no_wrap=True, width=150)
+        table.add_column("Due Date", justify="right", style="cyan", no_wrap=True, width=150)
+        table.add_column("Assignees", justify="right", style="cyan", no_wrap=True, width=150)
+        table.add_column("Priority", justify="right", style="cyan", no_wrap=True, width=150)
+        table.add_column("Status", justify="right", style="cyan", no_wrap=True, width=150)
+        table.add_column("Comments", justify="right", style="cyan", no_wrap=True, width=150)
 
         table.add_row(f"{my_task.get_task_id()}", f"{my_task.task_title}", f"{my_task.description}",
                       f"{my_task.start_date}", f"{my_task.due_date}", f"{my_task.assignees}", f"{my_task.priority}",
@@ -351,3 +351,6 @@ def task_details(user: User, my_project: Project, my_task: Task):
             return user, my_project, my_task
 
 
+# def change_task_details(user: User, my_project: Project, my_task: Task):
+#     ch = "-1"
+#     while ch != "0":
