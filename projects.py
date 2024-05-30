@@ -16,7 +16,7 @@ def pr_red(skk): print("\033[31m {}\033[00m".format(skk))
 
 user_file_path = "user.json"
 projects_file_path = "projects.json"
-admin_file_path = "admin_1.json"
+admin_file_path = "admin.json"
 
 
 class Project:
@@ -162,8 +162,10 @@ def show_list_of_projects_and_choose(user_obj: User):  # If Back, returns 0; els
 
             elif it_leader > 0 and 1 <= ch <= it_leader:  # Valid choice: Choosing a project
                 clear_console(2)
-                return Project(projects_as_leader_list[ch - 1]["project_title"],
-                               projects_as_leader_list[ch - 1]["project_id"], user_obj)
+                my_project = Project(projects_as_leader_list[ch - 1]["project_title"],
+                                     projects_as_leader_list[ch - 1]["project_id"], user_obj)
+                my_project.tasks = projects_as_leader_list[ch - 1]["tasks"]
+                return my_project
 
             elif it_member > 0 and it_leader < ch <= (it_member + it_leader):  # Valid choice: Choosing a project
                 clear_console(2)
@@ -181,8 +183,12 @@ def show_list_of_projects_and_choose(user_obj: User):  # If Back, returns 0; els
                                 leader_dict = all_users[iterate]
                                 leader_obj = User(leader_dict["email"],
                                                   leader_dict["username"], leader_dict["password"])
-                                return Project(projects_as_member_list[ch - it_leader - 1]["project_title"],
-                                               projects_as_member_list[ch - it_leader - 1]["project_id"], leader_obj)
+
+                                my_project = Project(projects_as_member_list[ch - it_leader - 1]["project_title"],
+                                                     projects_as_member_list[ch - it_leader - 1]["project_id"],
+                                                     leader_obj)
+                                my_project.tasks = all_projects[it]["tasks"]
+                                return my_project
 
                         with open(admin_file_path, "r") as f_1:
                             admin_list_1 = json.load(f_1)
@@ -191,8 +197,10 @@ def show_list_of_projects_and_choose(user_obj: User):  # If Back, returns 0; els
                             leader_dict = admin_list_1[0]
                             leader_obj = User(leader_dict["email"],
                                               leader_dict["username"], leader_dict["password"])
-                            return Project(projects_as_member_list[ch - it_leader - 1]["project_title"],
-                                           projects_as_member_list[ch - it_leader - 1]["project_id"], leader_obj)
+                            my_project = Project(projects_as_member_list[ch - it_leader - 1]["project_title"],
+                                                 projects_as_member_list[ch - it_leader - 1]["project_id"], leader_obj)
+                            my_project.tasks = projects_as_member_list[ch - it_leader - 1]["tasks"]
+                            return my_project
 
 
 def options_for_my_project(user: User, my_project: Project):  # Called in the main program in the 2nd menu
