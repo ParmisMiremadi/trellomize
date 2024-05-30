@@ -17,6 +17,49 @@ class Project:
         self.members = []
         self.tasks = []
 
+    def get_project_title(self):
+        return self.__project_title
+
+    def get_project_id(self):
+        return self.__project_id
+
+    def to_dict_and_save_to_file(self, file_path, leader: User):
+        new_project_dict = {
+            "project_title": self.__project_title,
+            "project_id": self.__project_id,
+            "leader": self.leader_username,
+            "members": self.members,
+            "tasks": self.tasks
+        }
+
+        projects_dicts = load_projects_from_file(file_path)  # List of dictionaries
+        projects_dicts.append(new_project_dict)
+        save_projects_to_file(file_path, projects_dicts)
+
+        # Appending the new project to the object's projects_as_leader list
+        leader.projects_as_leader.append(new_project_dict)
+
+        # Save the new projects_as_leader list to file
+        if isinstance(leader, Admin):  # Saving to 'admin.json'
+            with open(admin_file_path, "r") as f:
+                users_list = json.load(f)
+                for iterate in range(len(users_list)):
+                    if users_list[iterate]["username"] == leader.username:
+                        users_list[iterate]["projects_as_leader"] = leader.projects_as_leader
+            save_projects_to_file(admin_file_path, users_list)
+
+        else:  # Saving to 'user.json'
+            with open(user_file_path, "r") as f:
+                users_list = json.load(f)
+                for iterate in range(len(users_list)):
+                    if users_list[iterate]["username"] == leader.username:
+                        users_list[iterate]["projects_as_leader"] = leader.projects_as_leader
+            save_projects_to_file(user_file_path, users_list)
+
+        return leader
+
+
+
 user_file_path = "user.json"
 projects_file_path = "projects.json"
 admin_file_path = "admin.json"
@@ -25,7 +68,7 @@ admin_file_path = "admin.json"
 class Task:
     def __init__(self, my_project: Project):
         self.project_id = my_project.get_project_id()
-        self.__task_id = uuid.uuid1()
+        self.__task_id = str(uuid.uuid1())
         self.task_title = "" #. optional/ adding later (manually)
         self.description = "" #. optional/ adding later (manually)
         self.start_date = time.ctime(time.time())
@@ -44,7 +87,7 @@ class Task:
 
     def to_dict_and_save_to_file(self, my_project: Project):    # Returns my_project after updates
         new_task_dict = {
-            "task_id": str(self.__task_id),
+            "task_id": self.__task_id,
             "task_title": self.task_title,
             "description": self.description,
             "start_date": self.start_date,
@@ -171,23 +214,33 @@ def show_tasks_and_options(user: User, my_project: Project):
             for it in range(max(len(backlog_tasks), len(todo_tasks),
                                 len(doing_tasks), len(done_tasks), len(archived_tasks))):
                 if it >= len(backlog_tasks):
-                    backlog_tasks[it]["task_id"] = ""
+                    backlog_tasks_id = ""
+                else:
+                    backlog_tasks_id = backlog_tasks[it]["task_id"]
 
                 if it >= len(todo_tasks):
-                    todo_tasks[it]["task_id"] = ""
+                    todo_tasks_id = ""
+                else:
+                    todo_tasks_id = todo_tasks[it]["task_id"]
 
                 if it >= len(doing_tasks):
-                    doing_tasks[it]["task_id"] = ""
+                    doing_tasks_id = ""
+                else:
+                    doing_tasks_id = doing_tasks[it]["task_id"]
 
                 if it >= len(done_tasks):
-                    done_tasks[it]["task_id"] = ""
+                    done_tasks_id = ""
+                else:
+                    done_tasks_id = done_tasks[it]["task_id"]
 
                 if it >= len(archived_tasks):
-                    archived_tasks[it]["task_id"] = ""
+                    archived_tasks_id = ""
+                else:
+                    archived_tasks_id = archived_tasks[it]["task_id"]
 
-                table.add_row(f"{backlog_tasks[it]["task_id"]}", f"{todo_tasks[it]["task_id"]}",
-                              f"{doing_tasks[it]["task_id"]}", f"{done_tasks[it]["task_id"]}",
-                              f"{archived_tasks[it]["task_id"]}")
+                table.add_row(f"{backlog_tasks_id}", f"{todo_tasks_id}",
+                              f"{doing_tasks_id}", f"{done_tasks_id}",
+                              f"{archived_tasks_id}")
 
             console = Console()
             console.print(table)
@@ -198,27 +251,35 @@ def show_tasks_and_options(user: User, my_project: Project):
 
         else:
             print("    No tasks")
-            print("1. New task\n2. Back")
-            ch = input()
-            if ch == "1":  # 1. New task
-                if user.username == my_project.leader_username:
-                    my_task = create_a_task(my_project) #.
-                    my_project = my_task.to_dict_and_save_to_file(my_project)
-                    pr_green("Task created successfully!")
-                    pr_green(f"task {my_task.get_task_id()} has been added"
-                             f" to project {my_project.get_project_title()}.")
-                    clear_console(3)
 
-                else:
-                    pr_red(f"As a member of project {my_project.get_project_title()}, You can not create a task!")
-                    print("Going Back...")
-                    clear_console(2)
-
-            elif ch == "2":  # 4. Back
-                print("Going Back...")
-                clear_console(2)
-                return user, my_project
+        print("1. New task\n2. Back")
+        ch = input()
+        if ch == "1":  # 1. New task
+            if user.username == my_project.leader_username:
+                my_task = create_a_task(my_project) #.
+                my_project = my_task.to_dict_and_save_to_file(my_project)
+                pr_green("Task created successfully!")
+                pr_green(f"task {my_task.get_task_id()} has been added to project {my_project.get_project_title()}.")
+                clear_console(3)
 
             else:
+                pr_red(f"As a member of project {my_project.get_project_title()}, You can not create a task!")
+                print("Going Back...")
+                clear_console(2)
+
+        elif ch == "2":  # 4. Back
+            print("Going Back...")
+            clear_console(2)
+            return user, my_project
+
+        else:
+            for it in range(len(all_tasks)):
+                if ch == all_tasks[it]["task_id"]:
+                    print("function to see and change the chosen task's details.")#. function to see and change the chosen task's details
+                    clear_console(2)
+                    ch = "-1"
+            if ch != "-1":
                 pr_red("Error: Invalid value!")
+                ch = "-1"
+
 
