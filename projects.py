@@ -590,9 +590,8 @@ def remove_members(leader: User, my_project: Project):
                                 if projects_as_member[i]["project_id"] == my_project.get_project_id():
                                     projects_as_member[i]["members"] = my_project.members
                                     all_users[it]["projects_as_member"] = projects_as_member
-                                    print(f"debug__2_after__{projects_as_member}")  # .
                                     break
-                                    
+
                     # Three cases concerning the admin: 1. Admin is the removed member
                     # 2. Admin is the leader 3. Admin is merely a member of the project
                     if admin_list_1:
