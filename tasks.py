@@ -10,7 +10,6 @@ from rich.console import Console
 from rich.table import Table
 from loguru import logger
 
-
 logger.remove()
 logger.add("logfile.log", rotation="500 MB", format="{time} - {level} - {file} - {message}")
 
@@ -25,7 +24,7 @@ def log_warning(massage):
 
 def log_error(massage):
     logger.error(massage)
- 
+
 
 class Project:
     def __init__(self, project_title, project_id, leader: User):
@@ -239,11 +238,11 @@ def show_tasks_and_options(user: User, my_project: Project):
 
                     # Table of the project's tasks
                     table = Table(title=f"IDs of tasks in project {my_project.get_project_title()}:")
-                    table.add_column("BACKLOG", justify="right", style="cyan", no_wrap=True)  #.
-                    table.add_column("TODO", style="magenta", no_wrap=True)  #.
-                    table.add_column("DOING", justify="right", style="green", no_wrap=True)  #.
-                    table.add_column("DONE", justify="right", style="cyan", no_wrap=True)  #.
-                    table.add_column("ARCHIVED", justify="right", style="magenta", no_wrap=True)  #.
+                    table.add_column("BACKLOG", justify="right", style="cyan", no_wrap=True)
+                    table.add_column("TODO", style="magenta", no_wrap=True)
+                    table.add_column("DOING", justify="right", style="green", no_wrap=True)
+                    table.add_column("DONE", justify="right", style="cyan", no_wrap=True)
+                    table.add_column("ARCHIVED", justify="right", style="magenta", no_wrap=True)
 
                     for it in range(max(len(backlog_tasks), len(todo_tasks),
                                         len(doing_tasks), len(done_tasks), len(archived_tasks))):
@@ -290,16 +289,19 @@ def show_tasks_and_options(user: User, my_project: Project):
                 ch = input()
                 if ch == "1":  # 1. New task
                     if user.username == my_project.leader_username:
-                        my_task = create_a_task(my_project)  #.
+                        my_task = create_a_task(my_project)
                         my_project = my_task.to_dict_and_save_to_file(my_project)
                         log_info("Task created successfully!")
-                        log_info(f"task {my_task.get_task_id()} has been added to project {my_project.get_project_title()}.")
+                        log_info(
+                            f"task {my_task.get_task_id()} has been added to project {my_project.get_project_title()}.")
                         pr_green("Task created successfully!")
-                        pr_green(f"task {my_task.get_task_id()} has been added to project {my_project.get_project_title()}.")
+                        pr_green(
+                            f"task {my_task.get_task_id()} has been added to project {my_project.get_project_title()}.")
                         clear_console(3)
 
                     else:
-                        log_error(f"As a member of project {my_project.get_project_title()}, You can not create a task!")
+                        log_error(
+                            f"As a member of project {my_project.get_project_title()}, You can not create a task!")
                         pr_red(f"As a member of project {my_project.get_project_title()}, You can not create a task!")
                         print("Going Back...")
                         clear_console(2)
@@ -335,8 +337,6 @@ def show_tasks_and_options(user: User, my_project: Project):
                         ch = "-1"
 
 
-
-
 def task_details(user: User, my_project: Project, my_task: Task):
     ch = "-1"
     while ch != "0":
@@ -366,7 +366,7 @@ def task_details(user: User, my_project: Project, my_task: Task):
                 user, my_project, my_task = change_task_details(user, my_project, my_task)
             else:
                 log_error("As neither the leader of this project nor an "
-                       "assignee of the task, you can not change its details.")
+                          "assignee of the task, you can not change its details.")
                 pr_red("As neither the leader of this project nor an "
                        "assignee of the task, you can not change its details.")
                 clear_console(2)
@@ -446,7 +446,6 @@ def change_title(title, user: User, my_project: Project, my_task: Task):
             if all_projects[item]["project_id"] == my_project.get_project_id():
                 project_members = all_projects[item]["members"]
                 if user_list[iterate]["username"] in project_members:  # Updating the members in file
-                    print(" IS IN MEMBERS")  #.
                     member_projects_as_member = user_list[iterate]["projects_as_member"]
                     for it in range(len(member_projects_as_member)):
                         if member_projects_as_member[it]["project_id"] == my_project.get_project_id():
@@ -1402,4 +1401,3 @@ def change_task_details(user: User, my_project: Project, my_task: Task):
             pr_red("Error: Invalid value!")
             clear_console(2.5)
             ch = "-1"
-
