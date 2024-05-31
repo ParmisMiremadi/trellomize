@@ -197,9 +197,6 @@ class Task:
     def change_details(self): #. change obj data and save to files
         pass
 
-    def add_comment(self, user: User, comment):    # The user is either the leader or an assignee
-        self.comments.append((comment, user.username, time.ctime(time.time())))
-
     def set_title(self, title):
         self.task_title = title
 
@@ -228,10 +225,11 @@ class Task:
         elif status == "ARCHIVED":
             self.status = Status.ARCHIVED
 
-    # def add_assignee(self, user: User):
+    def add_comment(self, user: User, comment):    # The user is either the leader or an assignee
+        self.comments.append((comment, user.username, time.ctime(time.time())))
 
-
-
+    def add_assignee(self, user: User, my_project: Project):
+        project_members = my_project.members
 
 
 def create_a_task(my_project: Project):
