@@ -194,123 +194,129 @@ def show_tasks_and_options(user: User, my_project: Project):
     ch = "-1"  # New task   Back  ...table of tasks...
     while ch != "0":
         clear_console(2)
-        all_tasks = my_project.tasks
-        if all_tasks:
-            backlog_tasks = []
-            todo_tasks = []
-            doing_tasks = []
-            done_tasks = []
-            archived_tasks = []
+        with open(projects_file_path, "r") as file:
+            all_projects = json.load(file)
+        for iterate in range(len(all_projects)):
+            if all_projects[iterate]["project_id"] == my_project.get_project_id():
+                all_tasks = all_projects[iterate]["tasks"]
+                if all_tasks:
+                    backlog_tasks = []
+                    todo_tasks = []
+                    doing_tasks = []
+                    done_tasks = []
+                    archived_tasks = []
 
-            for it in range(len(all_tasks)):
-                if all_tasks[it]["status"] == "BACKLOG":
-                    backlog_tasks.append(all_tasks[it])
+                    for it in range(len(all_tasks)):
+                        if all_tasks[it]["status"] == "BACKLOG":
+                            backlog_tasks.append(all_tasks[it])
 
-                elif all_tasks[it]["status"] == "TODO":
-                    todo_tasks.append(all_tasks[it])
+                        elif all_tasks[it]["status"] == "TODO":
+                            todo_tasks.append(all_tasks[it])
 
-                elif all_tasks[it]["status"] == "DOING":
-                    doing_tasks.append(all_tasks[it])
+                        elif all_tasks[it]["status"] == "DOING":
+                            doing_tasks.append(all_tasks[it])
 
-                elif all_tasks[it]["status"] == "DONE":
-                    done_tasks.append(all_tasks[it])
+                        elif all_tasks[it]["status"] == "DONE":
+                            done_tasks.append(all_tasks[it])
 
-                elif all_tasks[it]["status"] == "ARCHIVED":
-                    archived_tasks.append(all_tasks[it])
+                        elif all_tasks[it]["status"] == "ARCHIVED":
+                            archived_tasks.append(all_tasks[it])
 
-            # Table of the project's tasks
-            table = Table(title=f"IDs of tasks in project {my_project.get_project_title()}:")
-            table.add_column("BACKLOG", justify="right", style="cyan", no_wrap=True)  #.
-            table.add_column("TODO", style="magenta", no_wrap=True)  #.
-            table.add_column("DOING", justify="right", style="green", no_wrap=True)  #.
-            table.add_column("DONE", justify="right", style="cyan", no_wrap=True)  #.
-            table.add_column("ARCHIVED", justify="right", style="magenta", no_wrap=True)  #.
+                    # Table of the project's tasks
+                    table = Table(title=f"IDs of tasks in project {my_project.get_project_title()}:")
+                    table.add_column("BACKLOG", justify="right", style="cyan", no_wrap=True)  #.
+                    table.add_column("TODO", style="magenta", no_wrap=True)  #.
+                    table.add_column("DOING", justify="right", style="green", no_wrap=True)  #.
+                    table.add_column("DONE", justify="right", style="cyan", no_wrap=True)  #.
+                    table.add_column("ARCHIVED", justify="right", style="magenta", no_wrap=True)  #.
 
-            for it in range(max(len(backlog_tasks), len(todo_tasks),
-                                len(doing_tasks), len(done_tasks), len(archived_tasks))):
-                if it >= len(backlog_tasks):
-                    backlog_tasks_id = ""
+                    for it in range(max(len(backlog_tasks), len(todo_tasks),
+                                        len(doing_tasks), len(done_tasks), len(archived_tasks))):
+                        if it >= len(backlog_tasks):
+                            backlog_tasks_id = ""
+                        else:
+                            backlog_tasks_id = backlog_tasks[it]["task_id"][:8]
+
+                        if it >= len(todo_tasks):
+                            todo_tasks_id = ""
+                        else:
+                            todo_tasks_id = todo_tasks[it]["task_id"][:8]
+
+                        if it >= len(doing_tasks):
+                            doing_tasks_id = ""
+                        else:
+                            doing_tasks_id = doing_tasks[it]["task_id"][:8]
+
+                        if it >= len(done_tasks):
+                            done_tasks_id = ""
+                        else:
+                            done_tasks_id = done_tasks[it]["task_id"][:8]
+
+                        if it >= len(archived_tasks):
+                            archived_tasks_id = ""
+                        else:
+                            archived_tasks_id = archived_tasks[it]["task_id"][:8]
+
+                        table.add_row(f"{backlog_tasks_id}", f"{todo_tasks_id}",
+                                      f"{doing_tasks_id}", f"{done_tasks_id}",
+                                      f"{archived_tasks_id}")
+
+                    console = Console()
+                    console.print(table)
+
+                    print("\n1. New task\n2. Back")
+                    print("Enter the task's ID to see and change the details.")
+                    ch = input()
+
                 else:
-                    backlog_tasks_id = backlog_tasks[it]["task_id"][:8]
+                    print("    No tasks")
 
-                if it >= len(todo_tasks):
-                    todo_tasks_id = ""
-                else:
-                    todo_tasks_id = todo_tasks[it]["task_id"][:8]
+                print("1. New task\n2. Back")
+                ch = input()
+                if ch == "1":  # 1. New task
+                    if user.username == my_project.leader_username:
+                        my_task = create_a_task(my_project)  #.
+                        my_project = my_task.to_dict_and_save_to_file(my_project)
+                        pr_green("Task created successfully!")
+                        pr_green(f"task {my_task.get_task_id()} has been added to project {my_project.get_project_title()}.")
+                        clear_console(3)
 
-                if it >= len(doing_tasks):
-                    doing_tasks_id = ""
-                else:
-                    doing_tasks_id = doing_tasks[it]["task_id"][:8]
+                    else:
+                        pr_red(f"As a member of project {my_project.get_project_title()}, You can not create a task!")
+                        print("Going Back...")
+                        clear_console(2)
 
-                if it >= len(done_tasks):
-                    done_tasks_id = ""
-                else:
-                    done_tasks_id = done_tasks[it]["task_id"][:8]
-
-                if it >= len(archived_tasks):
-                    archived_tasks_id = ""
-                else:
-                    archived_tasks_id = archived_tasks[it]["task_id"][:8]
-
-                table.add_row(f"{backlog_tasks_id}", f"{todo_tasks_id}",
-                              f"{doing_tasks_id}", f"{done_tasks_id}",
-                              f"{archived_tasks_id}")
-
-            console = Console()
-            console.print(table)
-
-            print("\n1. New task\n2. Back")
-            print("Enter the task's ID to see and change the details.")
-            ch = input()
-
-        else:
-            print("    No tasks")
-
-        print("1. New task\n2. Back")
-        ch = input()
-        if ch == "1":  # 1. New task
-            if user.username == my_project.leader_username:
-                my_task = create_a_task(my_project)  #.
-                my_project = my_task.to_dict_and_save_to_file(my_project)
-                pr_green("Task created successfully!")
-                pr_green(f"task {my_task.get_task_id()} has been added to project {my_project.get_project_title()}.")
-                clear_console(3)
-
-            else:
-                pr_red(f"As a member of project {my_project.get_project_title()}, You can not create a task!")
-                print("Going Back...")
-                clear_console(2)
-
-        elif ch == "2":  # 2. Back
-            print("Going Back...")
-            clear_console(2)
-            return user, my_project
-
-        else:
-            for it in range(len(all_tasks)):
-                if ch == all_tasks[it]["task_id"][:8]:
-                    my_task = Task(my_project)
-                    my_task.set_task_id(all_tasks[it]["task_id"])
-                    my_task.task_title = all_tasks[it]["task_title"]
-                    my_task.description = all_tasks[it]["description"]
-                    my_task.start_date = all_tasks[it]["start_date"]
-                    my_task.due_date = all_tasks[it]["due_date"]
-                    my_task.assignees = all_tasks[it]["assignees"]
-                    my_task.priority = all_tasks[it]["priority"]
-                    my_task.status = all_tasks[it]["status"]
-                    my_task.comments = all_tasks[it]["comments"]
-
-                    # To see and change the task's details:
-                    user, my_project, my_task = task_details(user, my_project, my_task)
-
+                elif ch == "2":  # 2. Back
+                    print("Going Back...")
                     clear_console(2)
-                    ch = "-1"
-                    break
+                    return user, my_project
 
-            if ch != "-1":
-                pr_red("Error: Invalid value!")
-                ch = "-1"
+                else:
+                    for it in range(len(all_tasks)):
+                        if ch == all_tasks[it]["task_id"][:8]:
+                            my_task = Task(my_project)
+                            my_task.set_task_id(all_tasks[it]["task_id"])
+                            my_task.task_title = all_tasks[it]["task_title"]
+                            my_task.description = all_tasks[it]["description"]
+                            my_task.start_date = all_tasks[it]["start_date"]
+                            my_task.due_date = all_tasks[it]["due_date"]
+                            my_task.assignees = all_tasks[it]["assignees"]
+                            my_task.priority = all_tasks[it]["priority"]
+                            my_task.status = all_tasks[it]["status"]
+                            my_task.comments = all_tasks[it]["comments"]
+
+                            # To see and change the task's details:
+                            user, my_project, my_task = task_details(user, my_project, my_task)
+
+                            clear_console(2)
+                            ch = "-1"
+                            break
+
+                    if ch != "-1":
+                        pr_red("Error: Invalid value!")
+                        ch = "-1"
+
+
 
 
 def task_details(user: User, my_project: Project, my_task: Task):
@@ -332,8 +338,8 @@ def task_details(user: User, my_project: Project, my_task: Task):
         if my_task.comments:
             for iterate in range(len(my_task.comments)):
                 pr_cyan(f"        {my_task.comments[iterate]["comment"]}")
-                pr_cyan(f"      By: {my_task.comments[iterate]["username"]}")
-                pr_cyan(f"      Date:{my_task.comments[iterate]["date"]}")
+                pr_cyan(f"        By: {my_task.comments[iterate]["username"]}")
+                pr_cyan(f"        Date:{my_task.comments[iterate]["date"]}")
 
         print("\n1. Change details\n2. Back")
         ch = input()
@@ -1148,8 +1154,125 @@ def change_status(status, user: User, my_project: Project, my_task: Task):
 
 
 # 7. Add comment
-# def add_comment(comment, user: User, my_project: Project, my_task: Task):  # The user is either the leader or an assignee
-#
+def add_comment(comment, user: User, my_project: Project, my_task: Task):
+    pr_green(f"A new comment has been added to the task (task ID: {my_task.get_task_id()}).")
+    comment_dict = {
+        "comment": comment,
+        "username": user.username,
+        "date": time.ctime(time.time())
+    }
+    # Updating Task object
+    my_task.comments.append(comment_dict)
+    # Updating Project object
+    all_tasks = my_project.tasks
+    for iterate in range(len(all_tasks)):
+        if all_tasks[iterate]["task_id"] == my_task.get_task_id():
+            all_tasks[iterate]["comments"] = my_task.comments
+            break
+    # Updating User object
+    if user.username == my_project.leader_username:
+        for iterate in range(len(user.projects_as_leader)):
+            project_tasks = user.projects_as_leader[iterate]["tasks"]
+            if project_tasks:
+                for it in range(len(project_tasks)):
+                    if project_tasks[it]["task_id"] == my_task.get_task_id():
+                        project_tasks[it]["comments"] = my_task.comments
+                        break
+
+    else:
+        for iterate in range(len(user.projects_as_member)):
+            project_tasks = user.projects_as_member[iterate]["tasks"]
+            if project_tasks:
+                for it in range(len(project_tasks)):
+                    if project_tasks[it]["task_id"] == my_task.get_task_id():
+                        project_tasks[it]["comments"] = my_task.comments
+                        break
+    # Updating 'projects.json' file
+    with open(projects_file_path, "r") as read_projects:
+        all_projects = json.load(read_projects)
+    for iterate in range(len(all_projects)):
+        if all_projects[iterate]["project_id"] == my_project.get_project_id():
+            project_tasks = all_projects[iterate]["tasks"]
+            if project_tasks:
+                for it in range(len(project_tasks)):
+                    if project_tasks[it]["task_id"] == my_task.get_task_id():
+                        project_tasks[it]["comments"] = my_task.comments
+                        all_projects[iterate]["tasks"] = project_tasks
+                        break
+    with open(projects_file_path, "w") as write:  # Updating the projects file
+        json.dump(all_projects, write, indent=4)
+
+    # Updating the project in 'user.json' file (leader + members)
+    with open(user_file_path, "r") as read_file:
+        user_list = json.load(read_file)
+
+    # Updating the leader in file
+    for iterate in range(len(user_list)):
+        if user_list[iterate]["username"] == my_project.leader_username:
+            leader_projects_as_leader = user_list[iterate]["projects_as_leader"]
+            for it in range(len(leader_projects_as_leader)):
+                if leader_projects_as_leader[it]["project_id"] == my_project.get_project_id():
+                    project_tasks = leader_projects_as_leader[it]["tasks"]
+                    for i in range(len(project_tasks)):
+                        if project_tasks[i]["task_id"] == my_task.get_task_id():
+                            project_tasks[i]["comments"] = my_task.comments
+                            leader_projects_as_leader[it]["tasks"] = project_tasks
+                            user_list[iterate]["projects_as_leader"] = leader_projects_as_leader
+                            break
+        for item in range(len(all_projects)):
+            if all_projects[item]["project_id"] == my_project.get_project_id():
+                project_members = all_projects[item]["members"]
+                if user_list[iterate]["username"] in project_members:  # Updating the members in file
+                    member_projects_as_member = user_list[iterate]["projects_as_member"]
+                    for it in range(len(member_projects_as_member)):
+                        if member_projects_as_member[it]["project_id"] == my_project.get_project_id():
+                            project_tasks = member_projects_as_member[it]["tasks"]
+                            for i in range(len(project_tasks)):
+                                if project_tasks[i]["task_id"] == my_task.get_task_id():
+                                    project_tasks[i]["comments"] = my_task.comments
+                                    member_projects_as_member[it]["tasks"] = project_tasks
+                                    user_list[iterate]["projects_as_member"] = member_projects_as_member
+                                    break
+
+    with open(user_file_path, "w") as f:
+        json.dump(user_list, f, indent=4)
+
+    # Updating the project in 'admin.json' file (if leader or if member)
+    with open(admin_file_path, "r") as f:
+        admin_list = json.load(f)
+
+    if admin_list:
+        if admin_list[0]["username"] == my_project.leader_username:  # Admin is the leader
+            leader_projects_as_leader = admin_list[0]["projects_as_leader"]
+            for iterate in range(len(leader_projects_as_leader)):
+                if leader_projects_as_leader[iterate]["project_id"] == my_project.get_project_id():
+                    project_tasks = leader_projects_as_leader[iterate]["tasks"]
+                    for it in range(len(project_tasks)):
+                        if project_tasks[it]["task_id"] == my_task.get_task_id():
+                            project_tasks[it]["comments"] = my_task.comments
+                            leader_projects_as_leader[iterate]["tasks"] = project_tasks
+                            admin_list[0]["projects_as_leader"] = leader_projects_as_leader
+                            break
+
+        for item in range(len(all_projects)):
+            if all_projects[item]["project_id"] == my_project.get_project_id():
+                project_members = all_projects[item]["members"]
+                if admin_list[0]["username"] in project_members:  # Admin is a member
+                    member_projects_as_member = admin_list[0]["projects_as_member"]
+                    for iterate in range(len(member_projects_as_member)):
+                        if member_projects_as_member[iterate]["project_id"] == my_project.get_project_id():
+                            project_tasks = member_projects_as_member[iterate]["tasks"]
+                            for i in range(len(project_tasks)):
+                                if project_tasks[i]["task_id"] == my_task.get_task_id():
+                                    project_tasks[i]["comments"] = my_task.comments
+                                    member_projects_as_member[iterate]["tasks"] = project_tasks
+                                    admin_list[0]["projects_as_member"] = member_projects_as_member
+                                    break
+        with open(admin_file_path, "w") as write:
+            json.dump(admin_list, write, indent=4)
+    clear_console(2)
+    return user, my_project, my_task
+
 
 #########################################
 #########################################
@@ -1182,6 +1305,7 @@ def change_task_details(user: User, my_project: Project, my_task: Task):
         elif ch == "5":  # 5. Priority
             ans = "-1"
             while ans == "-1":
+                clear_console(1)
                 print("1. LOW\n2. MEDIUM\n3. HIGH\n4. CRITICAL")
                 ans = input("Enter the new priority of the task: ")
                 if ans == "1":
@@ -1205,36 +1329,40 @@ def change_task_details(user: User, my_project: Project, my_task: Task):
             clear_console(2)
 
         elif ch == "6":  # 6. Status
-            print("1. BACKLOG\n2. TODO\n3. DOING\n4. DONE\n5. ARCHIVED")
-            ans = input("Enter the new priority of the task: ")
-            if ans == "1":
-                status = Status.BACKLOG.value
-                user, my_project, my_task = (status, user, my_project, my_task)
+            ans = "-1"
+            while ans == "-1":
+                clear_console(1)
+                print("1. BACKLOG\n2. TODO\n3. DOING\n4. DONE\n5. ARCHIVED")
+                ans = input("Enter the new priority of the task: ")
+                if ans == "1":
+                    status = Status.BACKLOG.value
+                    user, my_project, my_task = change_status(status, user, my_project, my_task)
 
-            elif ans == "2":
-                status = Status.TODO.value
-                user, my_project, my_task = change_priority(status, user, my_project, my_task)
+                elif ans == "2":
+                    status = Status.TODO.value
+                    user, my_project, my_task = change_status(status, user, my_project, my_task)
 
-            elif ans == "3":
-                status = Status.DOING.value
-                user, my_project, my_task = change_priority(status, user, my_project, my_task)
+                elif ans == "3":
+                    status = Status.DOING.value
+                    user, my_project, my_task = change_status(status, user, my_project, my_task)
 
-            elif ans == "4":
-                status = Status.DONE.value
-                user, my_project, my_task = change_priority(status, user, my_project, my_task)
+                elif ans == "4":
+                    status = Status.DONE.value
+                    user, my_project, my_task = change_status(status, user, my_project, my_task)
 
-            elif ans == "5":
-                status = Status.ARCHIVED.value
-                user, my_project, my_task = change_priority(status, user, my_project, my_task)
+                elif ans == "5":
+                    status = Status.ARCHIVED.value
+                    user, my_project, my_task = change_status(status, user, my_project, my_task)
 
-            else:
-                pr_red("Error: Invalid value!")
+                else:
+                    pr_red("Error: Invalid value!")
+                    clear_console(2)
+                    ans = "-1"
                 clear_console(2)
-                ans = "-1"
-            clear_console(2)
 
         elif ch == "7":  # 7. Add comment
-            print("add comment")
+            comment = input("Enter a comment: ")
+            user, my_project, my_task = add_comment(comment, user, my_project, my_task)
             clear_console(2)
 
         elif ch == "8":  # 8. Back
