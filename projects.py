@@ -391,7 +391,7 @@ def my_project_members(user: User, my_project: Project):
 
             if not is_leader:
                 clear_console(0)
-                log_info(f"As a member of project {my_project.get_project_title()},"
+                log_error(f"As a member of project {my_project.get_project_title()},"
                        f" you can not add any members to it.")
                 pr_red(f"As a member of project {my_project.get_project_title()},"
                        f" you can not add any members to it.")
@@ -408,7 +408,7 @@ def my_project_members(user: User, my_project: Project):
 
             if not is_leader:
                 clear_console(0)
-                log_info(f"As a member of project {my_project.get_project_title()},"
+                log_error(f"As a member of project {my_project.get_project_title()},"
                        f" you can not remove any members from it.")
                 pr_red(f"As a member of project {my_project.get_project_title()},"
                        f" you can not remove any members from it.")
@@ -756,3 +756,4 @@ def delete_project(user: User, my_project: Project):
 
             else:
                 pr_red("Invalid input! Please try again.")
+
