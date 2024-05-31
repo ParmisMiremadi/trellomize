@@ -48,6 +48,14 @@ def is_valid_email(email):
     return re.fullmatch(valid_email, email)
 
 
+def is_valid_username(username):
+    return len(username)>=6
+
+
+def is_valid_password(password):
+    return len(password)>=8
+
+
 def sign_up():
     os.system("cls")
     while True:
@@ -58,8 +66,20 @@ def sign_up():
         else:
             break
 
-    username = input("Enter your username: ")
-    password = getpass.getpass("Enter your password: ")
+    while True:
+        username = input("Enter your username: ")
+        if not is_valid_username(username):
+            pr_red("Error: Invalid username format! username must be at list 6 characters.")
+        else:
+            break
+    
+    while True:
+        password = getpass.getpass("Enter your password: ")
+        if not is_valid_password(password):
+            pr_red("Error: Invalid password format! password must be at list 8 characters.")
+        else:
+            break
+
     encrypted_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
     user_obj = User(email, username, encrypted_password)
 
