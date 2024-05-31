@@ -8,7 +8,24 @@ from user import pr_red, pr_green, pr_cyan
 from user import Admin
 from rich.console import Console
 from rich.table import Table
+from loguru import logger
 
+
+logger.remove()
+logger.add("logfile.log", rotation="500 MB", format="{time} - {level} - {file} - {message}")
+
+
+def log_info(massage):
+    logger.info(massage)
+
+
+def log_warning(massage):
+    logger.warning(massage)
+
+
+def log_error(massage):
+    logger.error(massage)
+ 
 
 class Project:
     def __init__(self, project_title, project_id, leader: User):
@@ -125,9 +142,7 @@ class Task:
 
         for it in range(len(all_projects)):
             if all_projects[it]["project_id"] == self.project_id:
-                print("tasks before: ", all_projects[it]["tasks"])  #.
                 all_projects[it]["tasks"] = my_project.tasks
-                print("tasks after: ", all_projects[it]["tasks"])  #.
                 break
 
         with open(projects_file_path, "w") as f:
@@ -277,11 +292,14 @@ def show_tasks_and_options(user: User, my_project: Project):
                     if user.username == my_project.leader_username:
                         my_task = create_a_task(my_project)  #.
                         my_project = my_task.to_dict_and_save_to_file(my_project)
+                        log_info("Task created successfully!")
+                        log_info(f"task {my_task.get_task_id()} has been added to project {my_project.get_project_title()}.")
                         pr_green("Task created successfully!")
                         pr_green(f"task {my_task.get_task_id()} has been added to project {my_project.get_project_title()}.")
                         clear_console(3)
 
                     else:
+                        log_error(f"As a member of project {my_project.get_project_title()}, You can not create a task!")
                         pr_red(f"As a member of project {my_project.get_project_title()}, You can not create a task!")
                         print("Going Back...")
                         clear_console(2)
@@ -347,6 +365,8 @@ def task_details(user: User, my_project: Project, my_task: Task):
             if user.username == my_project.leader_username or (user.username in my_task.assignees):
                 user, my_project, my_task = change_task_details(user, my_project, my_task)
             else:
+                log_error("As neither the leader of this project nor an "
+                       "assignee of the task, you can not change its details.")
                 pr_red("As neither the leader of this project nor an "
                        "assignee of the task, you can not change its details.")
                 clear_console(2)
@@ -362,6 +382,7 @@ def task_details(user: User, my_project: Project, my_task: Task):
 # Changing task details
 # 1. Title
 def change_title(title, user: User, my_project: Project, my_task: Task):
+    log_info(f"The title of the task (ID: {my_task.get_task_id()})\n has been changed to {title}.")
     pr_green(f"The title of the task (ID: {my_task.get_task_id()})\n has been changed to {title}.")
     # Updating Task object
     my_task.task_title = title
@@ -479,6 +500,7 @@ def change_title(title, user: User, my_project: Project, my_task: Task):
 
 # 2. Description
 def change_description(description, user: User, my_project: Project, my_task: Task):
+    log_info(f"The description of the task (ID: {my_task.get_task_id()})\n has been changed to: {description}.")
     pr_green(f"The description of the task (ID: {my_task.get_task_id()})\n has been changed to: {description}.")
     # Updating Task object
     my_task.description = description
@@ -631,7 +653,8 @@ def add_assignees(user: User, my_project: Project, my_task: Task):
 
                             elif isinstance(ch, int) and 1 <= ch <= len(assignee_possible):
                                 username_to_add = assignee_possible[ch - 1]
-                                pr_green(f"username_to_add: {username_to_add}")  #.
+                                log_info(f"A new assignee (username: {username_to_add}) has been added "
+                                         f"to the task (task ID: {my_task.get_task_id()}).")
                                 pr_green(f"A new assignee (username: {username_to_add}) has been added "
                                          f"to the task (task ID: {my_task.get_task_id()}).")
                                 # Updating Task object
@@ -796,6 +819,8 @@ def remove_assignees(user: User, my_project: Project, my_task: Task):
 
                 elif isinstance(ch, int) and 1 <= ch <= (len(my_task.assignees)):
                     username_to_remove = my_task.assignees[ch - 1]
+                    log_info(f"An assignee (username: {username_to_remove}) has been removed "
+                             f"from the task (task ID: {my_task.get_task_id()}).")
                     pr_green(f"An assignee (username: {username_to_remove}) has been removed "
                              f"from the task (task ID: {my_task.get_task_id()}).")
                     # Updating Task object
@@ -923,6 +948,7 @@ def remove_assignees(user: User, my_project: Project, my_task: Task):
 
 # 5. Priority
 def change_priority(priority, user: User, my_project: Project, my_task: Task):
+    log_info(f"The priority of the task (task ID: {my_task.get_task_id()})\n has been changed to: {priority}.")
     pr_green(f"The priority of the task (task ID: {my_task.get_task_id()})\n has been changed to: {priority}.")
     # Updating Task object
     my_task.priority = priority
@@ -1039,6 +1065,7 @@ def change_priority(priority, user: User, my_project: Project, my_task: Task):
 
 # 6. Status
 def change_status(status, user: User, my_project: Project, my_task: Task):
+    log_info(f"The status of the task (task ID: {my_task.get_task_id()})\n has been changed to: {status}.")
     pr_green(f"The status of the task (task ID: {my_task.get_task_id()})\n has been changed to: {status}.")
     # Updating Task object
     my_task.status = status
@@ -1155,6 +1182,7 @@ def change_status(status, user: User, my_project: Project, my_task: Task):
 
 # 7. Add comment
 def add_comment(comment, user: User, my_project: Project, my_task: Task):
+    log_info(f"A new comment has been added to the task (task ID: {my_task.get_task_id()}).")
     pr_green(f"A new comment has been added to the task (task ID: {my_task.get_task_id()}).")
     comment_dict = {
         "comment": comment,
