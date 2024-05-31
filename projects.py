@@ -560,7 +560,7 @@ def remove_members(leader: User, my_project: Project):
 
         with open(admin_file_path, "r") as f:
             admin_list_1 = json.load(f)
-
+        clear_console(1)    
         print(f"Choose one of the following members to remove them"
               f" from project {my_project.get_project_title()}:")
 
