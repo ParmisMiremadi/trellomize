@@ -4,6 +4,7 @@ from user import User
 from user import clear_console
 from user import Admin
 import tasks
+from loguru import logger
 
 
 def pr_cyan(skk): print("\033[36m {}\033[00m".format(skk))
@@ -13,6 +14,22 @@ def pr_green(skk): print("\033[32m {}\033[00m".format(skk))
 
 
 def pr_red(skk): print("\033[31m {}\033[00m".format(skk))
+
+
+logger.remove()
+logger.add("logfile.log", rotation="500 MB", format="{time} - {level} - {file} - {message}")
+
+
+def log_info(massage):
+    logger.info(massage)
+
+
+def log_warning(massage):
+    logger.warning(massage)
+
+
+def log_error(massage):
+    logger.error(massage)
 
 
 user_file_path = "user.json"
@@ -104,6 +121,8 @@ def create_a_project(leader: User):  # Returns an object of Project. It has to b
     else:
         is_unique = is_project_unique(projects_list, project_id)
     if not is_unique:
+        log_error("Error: This ID already exists for another project.")
+        log_error("       Action failed!")
         pr_red("Error: This ID already exists for another project.")
         pr_red("       Action failed!")
         clear_console(2)
@@ -153,7 +172,7 @@ def show_list_of_projects_and_choose(user_obj: User):  # If Back, returns 0; els
             clear_console(2)
         else:
             if isinstance(ch, int) and (ch < 0 or ch > (it_leader + it_member)):
-                print("Error: Invalid choice! Please try again.")
+                pr_red("Error: Invalid choice! Please try again.")
                 clear_console(2)
 
             elif ch == 0:  # Going back
@@ -222,6 +241,7 @@ def options_for_my_project(user: User, my_project: Project):  # Called in the ma
             project_title = my_project.get_project_title()
             user, my_project = delete_project(user, my_project)    # Delete project
             if my_project.get_project_id() == "":
+                log_info(f"Project {project_title} has been deleted!")
                 pr_green(f"Project {project_title} has been deleted!")
             print("Going Back...")
             clear_console(2)
@@ -270,6 +290,7 @@ def activate_users(users_list: [dict]):
                             users_list[iterate]["is_active"] = true_bool
 
                     save_projects_to_file(user_file_path, users_list)
+                    log_info(f"{this_username}'s account has been activated.")
                     pr_green(f"{this_username}'s account has been activated.")
                     print("Going back...")
                     clear_console(3)
@@ -317,6 +338,7 @@ def deactivate_users(users_list: [dict]):
                             users_list[iterate]["is_active"] = False
 
                     save_projects_to_file(user_file_path, users_list)
+                    log_info(f"{this_username}'s account has been deactivated.")
                     pr_green(f"{this_username}'s account has been deactivated.")
                     print("Going back...")
                     clear_console(3)
@@ -360,9 +382,6 @@ def my_project_members(user: User, my_project: Project):
         ch = input("Enter your choice: ")
         
         if ch == "1":  # 1. Add members
-            print(f"{user.projects_as_leader}")
-            print(my_project.get_project_id())
-
             is_leader = False
             for iterate in range(len(user.projects_as_leader)):
                 if user.projects_as_leader[iterate]["project_id"] == my_project.get_project_id():
@@ -372,6 +391,8 @@ def my_project_members(user: User, my_project: Project):
 
             if not is_leader:
                 clear_console(0)
+                log_info(f"As a member of project {my_project.get_project_title()},"
+                       f" you can not add any members to it.")
                 pr_red(f"As a member of project {my_project.get_project_title()},"
                        f" you can not add any members to it.")
                 print("Going Back...")
@@ -387,6 +408,8 @@ def my_project_members(user: User, my_project: Project):
 
             if not is_leader:
                 clear_console(0)
+                log_info(f"As a member of project {my_project.get_project_title()},"
+                       f" you can not remove any members from it.")
                 pr_red(f"As a member of project {my_project.get_project_title()},"
                        f" you can not remove any members from it.")
                 print("Going Back...")
@@ -643,6 +666,7 @@ def remove_members(leader: User, my_project: Project):
 def delete_project(user: User, my_project: Project):
     clear_console(2)
     if user.username != my_project.leader_username:  # The user is not the leader
+        log_info(f"As a member of project {my_project.get_project_title()}, you can not delete it!")
         pr_red(f"As a member of project {my_project.get_project_title()}, you can not delete it!")
         clear_console(2)
         return user, my_project
