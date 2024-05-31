@@ -4,7 +4,7 @@ from enum import Enum
 from user import User
 import time
 from user import clear_console
-from user import pr_red, pr_green
+from user import pr_red, pr_green, pr_cyan
 from user import Admin
 from rich.console import Console
 from rich.table import Table
@@ -316,24 +316,25 @@ def show_tasks_and_options(user: User, my_project: Project):
 def task_details(user: User, my_project: Project, my_task: Task):
     ch = "-1"
     while ch != "0":
-        table = Table(title="Task details")
+        print("        Task details")
+        pr_cyan(f"    ID: {my_task.get_task_id()}")
+        pr_cyan(f"    Title: {my_task.task_title}")
+        pr_cyan(f"    Description: {my_task.description}")
+        pr_cyan(f"    Start date: {my_task.start_date}")
+        pr_cyan(f"    Due date: {my_task.due_date}")
+        pr_cyan(f"    Assignees: ")
+        if my_task.assignees:
+            for it in range(len(my_task.assignees)):
+                pr_cyan(f"        {my_task.assignees[it]}")
+        pr_cyan(f"    Priority: {my_task.priority}")
+        pr_cyan(f"    Status: {my_task.status}")
+        pr_cyan(f"    Comments: ")
+        if my_task.comments:
+            for iterate in range(len(my_task.comments)):
+                pr_cyan(f"        {my_task.comments[iterate]["comment"]}")
+                pr_cyan(f"      By: {my_task.comments[iterate]["username"]}")
+                pr_cyan(f"      Date:{my_task.comments[iterate]["date"]}")
 
-        table.add_column("ID", justify="right", style="cyan", no_wrap=True, min_width=20)
-        table.add_column("Title", justify="right", style="cyan", no_wrap=True, min_width=20)
-        table.add_column("Description", justify="right", style="cyan", no_wrap=True, min_width=20)
-        table.add_column("Start Date", justify="right", style="cyan", no_wrap=True, min_width=20)
-        table.add_column("Due Date", justify="right", style="cyan", no_wrap=True, min_width=20)
-        table.add_column("Assignees", justify="right", style="cyan", no_wrap=True, min_width=20)
-        table.add_column("Priority", justify="right", style="cyan", no_wrap=True, min_width=20)
-        table.add_column("Status", justify="right", style="cyan", no_wrap=True, min_width=20)
-        table.add_column("Comments", justify="right", style="cyan", no_wrap=True, width=150)
-
-        table.add_row(f"{my_task.get_task_id()}", f"{my_task.task_title}", f"{my_task.description}",
-                      f"{my_task.start_date}", f"{my_task.due_date}", f"{my_task.assignees}", f"{my_task.priority}",
-                      f"{my_task.status}", f"{my_task.comments}")
-
-        console = Console()
-        console.print(table)
 
         print("\n1. Change details\n2. Back")
         ch = input()
@@ -475,10 +476,10 @@ def change_title(title, user: User, my_project: Project, my_task: Task):
     return user, my_project, my_task
 
 
-# # 2. Description
-# def set_description(description, user: User, my_project: Project, my_task: Task):
-#     pass
-#
+# 2. Description
+def set_description(description, user: User, my_project: Project, my_task: Task):
+    pass
+
 #
 # # 3. Add assignees
 # def add_assignees(user: User, my_project: Project, my_task: Task):
