@@ -104,8 +104,8 @@ def create_a_project(leader: User):  # Returns an object of Project. It has to b
     else:
         is_unique = is_project_unique(projects_list, project_id)
     if not is_unique:
-        pr_red('Error: This ID already exists for another project.')
-        pr_red('       Action failed!')
+        pr_red("Error: This ID already exists for another project.")
+        pr_red("       Action failed!")
         clear_console(2)
         return 1
 
