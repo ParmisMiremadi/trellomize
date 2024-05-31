@@ -338,7 +338,8 @@ def task_details(user: User, my_project: Project, my_task: Task):
         print("\n1. Change details\n2. Back")
         ch = input()
         if ch == "1":  # 1. Change details
-            if user.username == my_project.leader_username or user.username in my_task.assignees:
+            if user.username == my_project.leader_username or (user.username in my_task.assignees):
+                print(f"** MEMBERS LIST: {my_project.members}")
                 user, my_project, my_task = change_task_details(user, my_project, my_task)
             else:
                 pr_red("As neither the leader of this project nor an "
@@ -356,6 +357,10 @@ def task_details(user: User, my_project: Project, my_task: Task):
 # Changing task details
 # 1. Title
 def change_title(title, user: User, my_project: Project, my_task: Task):
+    print(f"MY_PROJECT TITLE: {my_project.get_project_title()}", f", ID =={my_task.project_id}") #.
+    print(f"USER: {user.username}, MEMBERS LIST: {my_project.members}")
+
+    pr_green(f"The title of the task (ID: {my_task.get_task_id()})\n has been changed to {title}.")
     # Updating Task object
     my_task.task_title = title
     # Updating Project object
@@ -414,18 +419,22 @@ def change_title(title, user: User, my_project: Project, my_task: Task):
                             leader_projects_as_leader[it]["tasks"] = project_tasks
                             user_list[iterate]["projects_as_leader"] = leader_projects_as_leader
                             break
+        for item in range(len(all_projects)):
+            if all_projects[item]["project_id"] == my_project.get_project_id():
+                project_members = all_projects[item]["members"]
+                if user_list[iterate]["username"] in project_members:    # Updating the members in file
+                    print(" IS IN MEMBERS") #.
+                    member_projects_as_member = user_list[iterate]["projects_as_member"]
+                    for it in range(len(member_projects_as_member)):
+                        if member_projects_as_member[it]["project_id"] == my_project.get_project_id():
+                            project_tasks = member_projects_as_member[it]["tasks"]
+                            for i in range(len(project_tasks)):
+                                if project_tasks[i]["task_id"] == my_task.get_task_id():
+                                    project_tasks[i]["task_title"] = my_task.task_title
+                                    member_projects_as_member[it]["tasks"] = project_tasks
+                                    user_list[iterate]["projects_as_member"] = member_projects_as_member
+                                    break
 
-        if user_list[iterate]["username"] in my_project.members:    # Updating the members in file
-            member_projects_as_member = user_list[iterate]["projects_as_member"]
-            for it in range(len(member_projects_as_member)):
-                if member_projects_as_member[it]["project_id"] == my_project.get_project_id():
-                    project_tasks = member_projects_as_member[it]["tasks"]
-                    for i in range(len(project_tasks)):
-                        if project_tasks[i]["task_id"] == my_task.get_task_id():
-                            project_tasks[i]["task_title"] = my_task.task_title
-                            member_projects_as_member[it]["tasks"] = project_tasks
-                            user_list[iterate]["projects_as_member"] = member_projects_as_member
-                            break
     with open(user_file_path, "w") as f:
         json.dump(user_list, f, indent=4)
 
@@ -446,20 +455,23 @@ def change_title(title, user: User, my_project: Project, my_task: Task):
                             admin_list[0]["projects_as_leader"] = leader_projects_as_leader
                             break
 
-        elif admin_list[0]["username"] in my_project.members:    # Admin is a member
-            member_projects_as_member = admin_list[0]["projects_as_member"]
-            for iterate in range(len(member_projects_as_member)):
-                if member_projects_as_member[iterate]["project_id"] == my_project.get_project_id():
-                    project_tasks = member_projects_as_member[iterate]["tasks"]
-                    for i in range(len(project_tasks)):
-                        if project_tasks[i]["task_id"] == my_task.get_task_id():
-                            project_tasks[i]["task_title"] = my_task.task_title
-                            member_projects_as_member[iterate]["tasks"] = project_tasks
-                            admin_list[0]["projects_as_member"] = member_projects_as_member
-                            break
+        for item in range(len(all_projects)):
+            if all_projects[item]["project_id"] == my_project.get_project_id():
+                project_members = all_projects[item]["members"]
+                if admin_list[0]["username"] in project_members:    # Admin is a member
+                    member_projects_as_member = admin_list[0]["projects_as_member"]
+                    for iterate in range(len(member_projects_as_member)):
+                        if member_projects_as_member[iterate]["project_id"] == my_project.get_project_id():
+                            project_tasks = member_projects_as_member[iterate]["tasks"]
+                            for i in range(len(project_tasks)):
+                                if project_tasks[i]["task_id"] == my_task.get_task_id():
+                                    project_tasks[i]["task_title"] = my_task.task_title
+                                    member_projects_as_member[iterate]["tasks"] = project_tasks
+                                    admin_list[0]["projects_as_member"] = member_projects_as_member
+                                    break
         with open(admin_file_path, "w") as write:
             json.dump(admin_list, write, indent=4)
-
+    clear_console(2)
     return user, my_project, my_task
 
 
@@ -566,6 +578,7 @@ def change_task_details(user: User, my_project: Project, my_task: Task):
         ch = input("Enter your choice: ")
         if ch == "1":  # 1. Title
             title = input("Enter the title of the task: ")
+            print(f"* MEMBERS LIST: {my_project.members}") #.
             user, my_project, my_task = change_title(title, user, my_project, my_task)
             clear_console(2)
 
