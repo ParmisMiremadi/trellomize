@@ -34,7 +34,7 @@ class Project:
         }
 
         with open(projects_file_path, "r") as file:
-            projects_dicts = json.load(file)    # List of dictionaries
+            projects_dicts = json.load(file)  # List of dictionaries
         projects_dicts.append(new_project_dict)
         with open(projects_file_path, "w") as file:
             json.dump(projects_dicts, file, indent=4)
@@ -183,37 +183,6 @@ class Task:
                 json.dump(admin_list, f, indent=4)
 
         return my_project
-
-    def set_title(self, title):
-        self.task_title = title
-
-    def set_description(self, description):
-        self.description = description
-
-    def change_priority(self, priority):
-        if priority == "LOW":
-            self.priority = Priority.LOW
-        elif priority == "MEDIUM":
-            self.priority = Priority.MEDIUM
-        elif priority == "HIGH":
-            self.priority = Priority.HIGH
-        elif priority == "CRITICAL":
-            self.priority = Priority.CRITICAL
-
-    def change_status(self, status):
-        if status == "BACKLOG":
-            self.status = Status.BACKLOG
-        elif status == "TODO":
-            self.status = Status.TODO
-        elif status == "DOING":
-            self.status = Status.DOING
-        elif status == "DONE":
-            self.status = Status.DONE
-        elif status == "ARCHIVED":
-            self.status = Status.ARCHIVED
-
-    def add_comment(self, user: User, comment):  # The user is either the leader or an assignee
-        self.comments.append((comment, user.username, time.ctime(time.time())))
 
 
 def create_a_task(my_project: Project):
@@ -383,97 +352,248 @@ def task_details(user: User, my_project: Project, my_task: Task):
             return user, my_project, my_task
 
 
-def add_assignee(user: User, my_project: Project, my_task: Task):
-    ch = -1
-    while ch != 0:
-        assignee_possible = []
-        with open(projects_file_path, "r") as f:
-            all_projects = json.load(f)
-        for iterate in range(len(all_projects)):
-            if all_projects[iterate]["project_id"] == my_project.get_project_id():
-                if all_projects[iterate]["members"]:
-                    for it in range(len(all_projects[iterate]["members"])):
-                        if all_projects[iterate]["members"][it] not in my_task.assignees:
-                            assignee_possible.append(all_projects[iterate]["members"][it])
+#############################################
+# Changing task details
+# 1. Title
+def change_title(title, user: User, my_project: Project, my_task: Task):
+    # Updating Task object
+    my_task.task_title = title
+    # Updating Project object
+    all_tasks = my_project.tasks
+    for iterate in range(len(all_tasks)):
+        if all_tasks[iterate]["task_id"] == my_task.get_task_id():
+            all_tasks[iterate]["task_title"] = my_task.task_title
+            break
+    # Updating User object
+    if user.username == my_project.leader_username:
+        for iterate in range(len(user.projects_as_leader)):
+            project_tasks = user.projects_as_leader[iterate]["tasks"]
+            if project_tasks:
+                for it in range(len(project_tasks)):
+                    if project_tasks[it]["task_id"] == my_task.get_task_id():
+                        project_tasks[it]["task_title"] = my_task.task_title
+                        break
 
-                    if assignee_possible:
-                        for it in range(len(assignee_possible)):
-                            print(f"    {it + 1}. {assignee_possible[it]}")
-                        print(f"    {len(assignee_possible) + 1}. Back")
-                        try:
-                            ch = int(input("Enter a number to add an assignee to the task, or to go back: "))
+    else:
+        for iterate in range(len(user.projects_as_member)):
+            project_tasks = user.projects_as_member[iterate]["tasks"]
+            if project_tasks:
+                for it in range(len(project_tasks)):
+                    if project_tasks[it]["task_id"] == my_task.get_task_id():
+                        project_tasks[it]["task_title"] = my_task.task_title
+                        break
+    # Updating 'projects.json' file
+    with open(projects_file_path, "r") as read_projects:
+        all_projects = json.load(read_projects)
+    for iterate in range(len(all_projects)):
+        if all_projects[iterate]["project_id"] == my_project.get_project_id():
+            project_tasks = all_projects[iterate]["tasks"]
+            if project_tasks:
+                for it in range(len(project_tasks)):
+                    if project_tasks[it]["task_id"] == my_task.get_task_id():
+                        project_tasks[it]["task_title"] = my_task.task_title
+                        all_projects[iterate]["tasks"] = project_tasks
+                        break
+    with open(projects_file_path, "w") as write:  # Updating the projects file
+        json.dump(all_projects, write, indent=4)
 
-                        except ValueError:
-                            clear_console(1)
-                            pr_red("Error: Invalid value!")
-                            clear_console(2.5)
+    # Updating the project in 'user.json' file (leader + members)
+    with open(user_file_path, "r") as read_file:
+        user_list = json.load(read_file)
 
-                        else:
-                            if isinstance(ch, int) and (ch < 1 or ch > len(assignee_possible) + 1):
-                                pr_red("Error: Invalid value!")
-                                clear_console(2)
+    # Updating the leader in file
+    for iterate in range(len(user_list)):
+        if user_list[iterate]["username"] == my_project.leader_username:
+            leader_projects_as_leader = user_list[iterate]["projects_as_leader"]
+            for it in range(len(leader_projects_as_leader)):
+                if leader_projects_as_leader[it]["project_id"] == my_project.get_project_id():
+                    project_tasks = leader_projects_as_leader[it]["tasks"]
+                    for i in range(len(project_tasks)):
+                        if project_tasks[i]["task_id"] == my_task.get_task_id():
+                            project_tasks[i]["task_title"] = my_task.task_title
+                            leader_projects_as_leader[it]["tasks"] = project_tasks
+                            user_list[iterate]["projects_as_leader"] = leader_projects_as_leader
+                            break
 
-                            elif ch == len(assignee_possible) + 1:  # Going back
-                                print("Going back...")
-                                clear_console(2)
-                                return user, my_project, my_task
+        if user_list[iterate]["username"] in my_project.members:    # Updating the members in file
+            member_projects_as_member = user_list[iterate]["projects_as_member"]
+            for it in range(len(member_projects_as_member)):
+                if member_projects_as_member[it]["project_id"] == my_project.get_project_id():
+                    project_tasks = member_projects_as_member[it]["tasks"]
+                    for i in range(len(project_tasks)):
+                        if project_tasks[i]["task_id"] == my_task.get_task_id():
+                            project_tasks[i]["task_title"] = my_task.task_title
+                            member_projects_as_member[it]["tasks"] = project_tasks
+                            user_list[iterate]["projects_as_member"] = member_projects_as_member
+                            break
+    with open(user_file_path, "w") as f:
+        json.dump(user_list, f, indent=4)
 
-                            elif isinstance(ch, int) and 1 <= ch <= len(assignee_possible):
-                                username_to_add = assignee_possible[ch - 1]
-                                pr_green(f"username_to_add: {username_to_add}")  #.
-                                my_task.assignees.append(username_to_add)
-                                #. !!!!!!!!!!!!!!!
+    # Updating the project in 'admin.json' file (if leader or if member)
+    with open(admin_file_path, "r") as f:
+        admin_list = json.load(f)
 
-                    else:
-                        print("Every member of this project is already an assignee!")
-                        print("Going back...")
-                        clear_console(2)
-                        return user, my_project, my_task
+    if admin_list:
+        if admin_list[0]["username"] == my_project.leader_username:    # Admin is the leader
+            leader_projects_as_leader = admin_list[0]["projects_as_leader"]
+            for iterate in range(len(leader_projects_as_leader)):
+                if leader_projects_as_leader[iterate]["project_id"] == my_project.get_project_id():
+                    project_tasks = leader_projects_as_leader[iterate]["tasks"]
+                    for it in range(len(project_tasks)):
+                        if project_tasks[it]["task_id"] == my_task.get_task_id():
+                            project_tasks[it]["task_title"] = my_task.task_title
+                            leader_projects_as_leader[iterate]["tasks"] = project_tasks
+                            admin_list[0]["projects_as_leader"] = leader_projects_as_leader
+                            break
 
-            else:
-                print("    No members to add.")
-                print("Going back...")
-                clear_console(2)
-                return user, my_project, my_task
+        elif admin_list[0]["username"] in my_project.members:    # Admin is a member
+            member_projects_as_member = admin_list[0]["projects_as_member"]
+            for iterate in range(len(member_projects_as_member)):
+                if member_projects_as_member[iterate]["project_id"] == my_project.get_project_id():
+                    project_tasks = member_projects_as_member[iterate]["tasks"]
+                    for i in range(len(project_tasks)):
+                        if project_tasks[i]["task_id"] == my_task.get_task_id():
+                            project_tasks[i]["task_title"] = my_task.task_title
+                            member_projects_as_member[iterate]["tasks"] = project_tasks
+                            admin_list[0]["projects_as_member"] = member_projects_as_member
+                            break
+        with open(admin_file_path, "w") as write:
+            json.dump(admin_list, write, indent=4)
+
+    return user, my_project, my_task
 
 
+# # 2. Description
+# def set_description(description, user: User, my_project: Project, my_task: Task):
+#     pass
+#
+#
+# # 3. Add assignees
+# def add_assignees(user: User, my_project: Project, my_task: Task):
+#     ch = -1
+#     while ch != 0:
+#         assignee_possible = []
+#         with open(projects_file_path, "r") as f:
+#             all_projects = json.load(f)
+#         for iterate in range(len(all_projects)):
+#             if all_projects[iterate]["project_id"] == my_project.get_project_id():
+#                 if all_projects[iterate]["members"]:
+#                     for it in range(len(all_projects[iterate]["members"])):
+#                         if all_projects[iterate]["members"][it] not in my_task.assignees:
+#                             assignee_possible.append(all_projects[iterate]["members"][it])
+#
+#                     if assignee_possible:
+#                         for it in range(len(assignee_possible)):
+#                             print(f"    {it + 1}. {assignee_possible[it]}")
+#                         print(f"    {len(assignee_possible) + 1}. Back")
+#                         try:
+#                             ch = int(input("Enter a number to add an assignee to the task, or to go back: "))
+#
+#                         except ValueError:
+#                             clear_console(1)
+#                             pr_red("Error: Invalid value!")
+#                             clear_console(2.5)
+#
+#                         else:
+#                             if isinstance(ch, int) and (ch < 1 or ch > len(assignee_possible) + 1):
+#                                 pr_red("Error: Invalid value!")
+#                                 clear_console(2)
+#
+#                             elif ch == len(assignee_possible) + 1:  # Going back
+#                                 print("Going back...")
+#                                 clear_console(2)
+#                                 return user, my_project, my_task
+#
+#                             elif isinstance(ch, int) and 1 <= ch <= len(assignee_possible):
+#                                 username_to_add = assignee_possible[ch - 1]
+#                                 pr_green(f"username_to_add: {username_to_add}")  #.
+#                                 my_task.assignees.append(username_to_add)
+#                                 #. !!!!!!!!!!!!!!!
+#
+#                     else:
+#                         print("Every member of this project is already an assignee!")
+#                         print("Going back...")
+#                         clear_console(2)
+#                         return user, my_project, my_task
+#
+#             else:
+#                 print("    No members to add.")
+#                 print("Going back...")
+#                 clear_console(2)
+#                 return user, my_project, my_task
+#
+#
+# def remove_assignees(user: User, my_project: Project, my_task: Task):
+#
+#
+# # 5. Priority
+# def change_priority(priority, user: User, my_project: Project, my_task: Task):
+#     if priority == "LOW":
+#
+#     elif priority == "MEDIUM":
+#
+#     elif priority == "HIGH":
+#
+#     elif priority == "CRITICAL":
+#
+#
+# # 6. Status
+# def change_status(status, user: User, my_project: Project, my_task: Task):
+#     if status == "BACKLOG":
+#
+#     elif status == "TODO":
+#
+#     elif status == "DOING":
+#
+#     elif status == "DONE":
+#
+#     elif status == "ARCHIVED":
+
+
+# 7. Add comment
+# def add_comment(comment, user: User, my_project: Project, my_task: Task):  # The user is either the leader or an assignee
+#
+
+#########################################
+#########################################
 def change_task_details(user: User, my_project: Project, my_task: Task):
-    ch = "-1"
-    while ch != "0":
+    ch = "-1"    # 1. Title  2. Description  3. Add assignees  4. Remove assignees
+    while ch != "0":    # 5. Priority  6. Status 7. Add comment  8. Back
         print("What would you like to change in this task?")
         print("1. Title\n2. Description\n3. Add assignees\n4. Remove assignees")
         print("5. Priority\n6. Status\n7. Add comment\n8. Back")
 
         ch = input("Enter your choice: ")
-        if ch == "1":    # 1. Title
-            print("change title")
+        if ch == "1":  # 1. Title
+            title = input("Enter the title of the task: ")
+            user, my_project, my_task = change_title(title, user, my_project, my_task)
             clear_console(2)
 
-        elif ch == "2":    # 2. Description
+        elif ch == "2":  # 2. Description
             print("change Description")
             clear_console(2)
 
-        elif ch == "3":    # 3. Add assignees
+        elif ch == "3":  # 3. Add assignees
             print("Add assignee")
             clear_console(2)
 
-        elif ch == "4":    # 4. Remove assignees
+        elif ch == "4":  # 4. Remove assignees
             print("Remove assignees")
             clear_console(2)
 
-        elif ch == "5":    # 5. Priority
+        elif ch == "5":  # 5. Priority
             print("change pr")
             clear_console(2)
 
-        elif ch == "6":    # 6. Status
+        elif ch == "6":  # 6. Status
             print("change stat")
             clear_console(2)
 
-        elif ch == "7":    # 7. Add comment
+        elif ch == "7":  # 7. Add comment
             print("add comment")
             clear_console(2)
 
-        elif ch == "8":    # 8. Back
+        elif ch == "8":  # 8. Back
             print("Going back...")
             clear_console(2)
             return user, my_project, my_task
