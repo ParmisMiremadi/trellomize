@@ -4,7 +4,7 @@ from enum import Enum
 from user import User
 import time
 from user import clear_console
-from user import pr_red, pr_green, pr_cyan
+from user import pr_red, pr_green
 from user import Admin
 from rich.console import Console
 from rich.table import Table
@@ -33,9 +33,11 @@ class Project:
             "tasks": self.tasks
         }
 
-        projects_dicts = load_projects_from_file(file_path)  # List of dictionaries
+        with open(projects_file_path, "r") as file:
+            projects_dicts = json.load(file)    # List of dictionaries
         projects_dicts.append(new_project_dict)
-        save_projects_to_file(file_path, projects_dicts)
+        with open(projects_file_path, "w") as file:
+            json.dump(projects_dicts, file, indent=4)
 
         # Appending the new project to the object's projects_as_leader list
         leader.projects_as_leader.append(new_project_dict)
@@ -43,11 +45,12 @@ class Project:
         # Save the new projects_as_leader list to file
         if isinstance(leader, Admin):  # Saving to 'admin.json'
             with open(admin_file_path, "r") as f:
-                users_list = json.load(f)
-                for iterate in range(len(users_list)):
-                    if users_list[iterate]["username"] == leader.username:
-                        users_list[iterate]["projects_as_leader"] = leader.projects_as_leader
-            save_projects_to_file(admin_file_path, users_list)
+                admin_list = json.load(f)
+                for iterate in range(len(admin_list)):
+                    if admin_list[iterate]["username"] == leader.username:
+                        admin_list[iterate]["projects_as_leader"] = leader.projects_as_leader
+            with open(admin_file_path, "w") as file:
+                json.dump(admin_list, file, indent=4)
 
         else:  # Saving to 'user.json'
             with open(user_file_path, "r") as f:
@@ -55,23 +58,10 @@ class Project:
                 for iterate in range(len(users_list)):
                     if users_list[iterate]["username"] == leader.username:
                         users_list[iterate]["projects_as_leader"] = leader.projects_as_leader
-            save_projects_to_file(user_file_path, users_list)
+            with open(user_file_path, "w") as file:
+                json.dump(users_list, file, indent=4)
 
         return leader
-
-
-def save_projects_to_file(file_path, project_dict):
-    with open(file_path, "w") as file_1:
-        json.dump(project_dict, file_1, indent=4)
-
-
-def load_projects_from_file(file_path):  # Returns a list
-    try:
-        with open(file_path, "r") as file_1:
-            projects_1 = json.load(file_1)
-    except FileNotFoundError:
-        projects_1 = []
-    return projects_1
 
 
 user_file_path = "user.json"
@@ -79,14 +69,14 @@ projects_file_path = "projects.json"
 admin_file_path = "admin.json"
 
 
-class Priority(Enum):
+class Priority(str, Enum):
     LOW = "LOW",
     MEDIUM = "MEDIUM",
     HIGH = "HIGH",
     CRITICAL = "CRITICAL"
 
 
-class Status(Enum):
+class Status(str, Enum):
     BACKLOG = "BACKLOG",
     TODO = "TODO",
     DOING = "DOING",
@@ -113,7 +103,7 @@ class Task:
     def set_task_id(self, task_id):
         self.__task_id = task_id
 
-    def to_dict_and_save_to_file(self, my_project: Project):    # Returns my_project after updates
+    def to_dict_and_save_to_file(self, my_project: Project):  # Returns my_project after updates
         new_task_dict = {
             "task_id": self.__task_id,
             "task_title": self.task_title,
@@ -123,7 +113,7 @@ class Task:
             "assignees": self.assignees,
             "priority": self.priority,
             "status": self.status,
-            "comments": self.comments    # List of tuples
+            "comments": self.comments  # List of tuples
         }
 
         # Updating the project object
@@ -135,9 +125,9 @@ class Task:
 
         for it in range(len(all_projects)):
             if all_projects[it]["project_id"] == self.project_id:
-                print("tasks before: ", all_projects[it]["tasks"]) #.
+                print("tasks before: ", all_projects[it]["tasks"])  #.
                 all_projects[it]["tasks"] = my_project.tasks
-                print("tasks after: ", all_projects[it]["tasks"]) #.
+                print("tasks after: ", all_projects[it]["tasks"])  #.
                 break
 
         with open(projects_file_path, "w") as f:
@@ -194,9 +184,6 @@ class Task:
 
         return my_project
 
-    def change_details(self): #. change obj data and save to files
-        pass
-
     def set_title(self, title):
         self.task_title = title
 
@@ -225,11 +212,8 @@ class Task:
         elif status == "ARCHIVED":
             self.status = Status.ARCHIVED
 
-    def add_comment(self, user: User, comment):    # The user is either the leader or an assignee
+    def add_comment(self, user: User, comment):  # The user is either the leader or an assignee
         self.comments.append((comment, user.username, time.ctime(time.time())))
-
-    def add_assignee(self, user: User, my_project: Project):
-        project_members = my_project.members
 
 
 def create_a_task(my_project: Project):
@@ -267,11 +251,11 @@ def show_tasks_and_options(user: User, my_project: Project):
 
             # Table of the project's tasks
             table = Table(title=f"IDs of tasks in project {my_project.get_project_title()}:")
-            table.add_column("BACKLOG", justify="right", style="cyan", no_wrap=True) #.
-            table.add_column("TODO", style="magenta", no_wrap=True) #.
-            table.add_column("DOING", justify="right", style="green", no_wrap=True) #.
-            table.add_column("DONE", justify="right", style="cyan", no_wrap=True) #.
-            table.add_column("ARCHIVED", justify="right", style="magenta", no_wrap=True) #.
+            table.add_column("BACKLOG", justify="right", style="cyan", no_wrap=True)  #.
+            table.add_column("TODO", style="magenta", no_wrap=True)  #.
+            table.add_column("DOING", justify="right", style="green", no_wrap=True)  #.
+            table.add_column("DONE", justify="right", style="cyan", no_wrap=True)  #.
+            table.add_column("ARCHIVED", justify="right", style="magenta", no_wrap=True)  #.
 
             for it in range(max(len(backlog_tasks), len(todo_tasks),
                                 len(doing_tasks), len(done_tasks), len(archived_tasks))):
@@ -318,7 +302,7 @@ def show_tasks_and_options(user: User, my_project: Project):
         ch = input()
         if ch == "1":  # 1. New task
             if user.username == my_project.leader_username:
-                my_task = create_a_task(my_project) #.
+                my_task = create_a_task(my_project)  #.
                 my_project = my_task.to_dict_and_save_to_file(my_project)
                 pr_green("Task created successfully!")
                 pr_green(f"task {my_task.get_task_id()} has been added to project {my_project.get_project_title()}.")
@@ -348,9 +332,9 @@ def show_tasks_and_options(user: User, my_project: Project):
                     my_task.status = all_tasks[it]["status"]
                     my_task.comments = all_tasks[it]["comments"]
 
+                    # To see and change the task's details:
                     user, my_project, my_task = task_details(user, my_project, my_task)
 
-                    print("function to see and change the chosen task's details.")#. function to see and change the chosen task's details
                     clear_console(2)
                     ch = "-1"
                     break
@@ -384,21 +368,117 @@ def task_details(user: User, my_project: Project, my_task: Task):
 
         print("\n1. Change details\n2. Back")
         ch = input()
-        if ch == "1":    # 1. Change details
+        if ch == "1":  # 1. Change details
             if user.username == my_project.leader_username or user.username in my_task.assignees:
-                print("function for changing details") #.
+                user, my_project, my_task = change_task_details(user, my_project, my_task)
             else:
                 pr_red("As neither the leader of this project nor an "
                        "assignee of the task, you can not change its details.")
                 clear_console(2)
                 ch = "-1"
 
-        elif ch == "2":    # 2. Back
+        elif ch == "2":  # 2. Back
             print("Going Back...")
             clear_console(2)
             return user, my_project, my_task
 
 
-# def change_task_details(user: User, my_project: Project, my_task: Task):
-#     ch = "-1"
-#     while ch != "0":
+def add_assignee(user: User, my_project: Project, my_task: Task):
+    ch = -1
+    while ch != 0:
+        assignee_possible = []
+        with open(projects_file_path, "r") as f:
+            all_projects = json.load(f)
+        for iterate in range(len(all_projects)):
+            if all_projects[iterate]["project_id"] == my_project.get_project_id():
+                if all_projects[iterate]["members"]:
+                    for it in range(len(all_projects[iterate]["members"])):
+                        if all_projects[iterate]["members"][it] not in my_task.assignees:
+                            assignee_possible.append(all_projects[iterate]["members"][it])
+
+                    if assignee_possible:
+                        for it in range(len(assignee_possible)):
+                            print(f"    {it + 1}. {assignee_possible[it]}")
+                        print(f"    {len(assignee_possible) + 1}. Back")
+                        try:
+                            ch = int(input("Enter a number to add an assignee to the task, or to go back: "))
+
+                        except ValueError:
+                            clear_console(1)
+                            pr_red("Error: Invalid value!")
+                            clear_console(2.5)
+
+                        else:
+                            if isinstance(ch, int) and (ch < 1 or ch > len(assignee_possible) + 1):
+                                pr_red("Error: Invalid value!")
+                                clear_console(2)
+
+                            elif ch == len(assignee_possible) + 1:  # Going back
+                                print("Going back...")
+                                clear_console(2)
+                                return user, my_project, my_task
+
+                            elif isinstance(ch, int) and 1 <= ch <= len(assignee_possible):
+                                username_to_add = assignee_possible[ch - 1]
+                                pr_green(f"username_to_add: {username_to_add}")  #.
+                                my_task.assignees.append(username_to_add)
+                                #. !!!!!!!!!!!!!!!
+
+                    else:
+                        print("Every member of this project is already an assignee!")
+                        print("Going back...")
+                        clear_console(2)
+                        return user, my_project, my_task
+
+            else:
+                print("    No members to add.")
+                print("Going back...")
+                clear_console(2)
+                return user, my_project, my_task
+
+
+def change_task_details(user: User, my_project: Project, my_task: Task):
+    ch = "-1"
+    while ch != "0":
+        print("What would you like to change in this task?")
+        print("1. Title\n2. Description\n3. Add assignees\n4. Remove assignees")
+        print("5. Priority\n6. Status\n7. Add comment\n8. Back")
+
+        ch = input("Enter your choice: ")
+        if ch == "1":    # 1. Title
+            print("change title")
+            clear_console(2)
+
+        elif ch == "2":    # 2. Description
+            print("change Description")
+            clear_console(2)
+
+        elif ch == "3":    # 3. Add assignees
+            print("Add assignee")
+            clear_console(2)
+
+        elif ch == "4":    # 4. Remove assignees
+            print("Remove assignees")
+            clear_console(2)
+
+        elif ch == "5":    # 5. Priority
+            print("change pr")
+            clear_console(2)
+
+        elif ch == "6":    # 6. Status
+            print("change stat")
+            clear_console(2)
+
+        elif ch == "7":    # 7. Add comment
+            print("add comment")
+            clear_console(2)
+
+        elif ch == "8":    # 8. Back
+            print("Going back...")
+            clear_console(2)
+            return user, my_project, my_task
+
+        else:
+            pr_red("Error: Invalid value!")
+            clear_console(2.5)
+            ch = "-1"
