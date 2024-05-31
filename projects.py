@@ -1,4 +1,5 @@
 import json
+import os
 from user import User
 from user import clear_console
 from user import Admin
@@ -103,8 +104,8 @@ def create_a_project(leader: User):  # Returns an object of Project. It has to b
     else:
         is_unique = is_project_unique(projects_list, project_id)
     if not is_unique:
-        print("This ID already exists for another project.")
-        print("Action failed!")
+        pr_red('Error: This ID already exists for another project.')
+        pr_red('       Action failed!')
         clear_console(2)
         return 1
 
@@ -135,25 +136,24 @@ def show_list_of_projects_and_choose(user_obj: User):  # If Back, returns 0; els
             for it in range(it_leader):
                 pr_cyan(f"    {it + 1}. {projects_as_leader_list[it].get("project_title")}")
         else:
-            print("    No projects as leader.")
+            pr_cyan("    No projects as leader.")
         it = 0
         print("\nYour projects as a member:")
         if it_member > 0:
             for it in range(it_member):
                 pr_cyan(f"    {it_leader + it + 1}. {projects_as_member_list[it]["project_title"]}")
         else:
-            print("    No projects as a member.")
+            pr_cyan("    No projects as a member.")
 
         try:
             ch = int(input("\nEnter your choice: "))
         except ValueError:
             clear_console(1)
-            print("Error: Invalid value!")
-            clear_console(2.5)
-
+            pr_red("Error: Invalid choice! Please try again.")
+            clear_console(2)
         else:
             if isinstance(ch, int) and (ch < 0 or ch > (it_leader + it_member)):
-                print("Error: Invalid value!")
+                print("Error: Invalid choice! Please try again.")
                 clear_console(2)
 
             elif ch == 0:  # Going back
@@ -208,9 +208,9 @@ def options_for_my_project(user: User, my_project: Project):  # Called in the ma
     ch = "-1"  # 1. Members  2. Tasks  3. Delete project  4. Back
     while ch != "0":
         clear_console(1)
-        pr_cyan(f"        {my_project.get_project_title()}")
-        print("    1. Members\n    2. Tasks\n    3. Delete project\n    4. Back")
-        ch = input()
+        pr_cyan(f"{my_project.get_project_title()}"" project")
+        print("1. Members\n2. Tasks\n3. Delete project\n4. Back")
+        ch = input("Enter your choice: ")
 
         if ch == "1":  # 1. Members
             my_project_members(user, my_project)
@@ -233,7 +233,7 @@ def options_for_my_project(user: User, my_project: Project):  # Called in the ma
             return user, my_project
 
         else:
-            pr_red("Error: Invalid value!")
+            pr_red("Error: Invalid choice! Please try again.")
 
 
 def activate_users(users_list: [dict]):
@@ -331,11 +331,9 @@ def deactivate_users(users_list: [dict]):
 
 
 def my_project_members(user: User, my_project: Project):
-    ch = "-1"
-    while ch != "0":  # 1. Add members  2. Remove members  3. Back
-        clear_console(2)
-        print("1. Add members\n2. Remove members\n3. Back")
-
+    ch = "0"
+    while ch != "1" or ch != "2" or ch != "3":  # 1. Add members  2. Remove members  3. Back
+        os.system("cls")
         print(f"\nMembers of project {my_project.get_project_title()}:")
         this_project = dict
         with open(projects_file_path, "r") as f:
@@ -347,7 +345,7 @@ def my_project_members(user: User, my_project: Project):
         my_project.members = project_members
 
         if len(project_members) == 0:
-            print("    No members")
+            pr_cyan("    No members")
 
         elif len(all_projects) > 0:
             for iterate in range(len(all_projects)):
@@ -358,7 +356,9 @@ def my_project_members(user: User, my_project: Project):
         else:
             print("    No projects")
 
-        ch = input()
+        print("\n1. Add members\n2. Remove members\n3. Back")
+        ch = input("Enter your choice: ")
+        
         if ch == "1":  # 1. Add members
             print(f"{user.projects_as_leader}")
             print(my_project.get_project_id())
