@@ -5,7 +5,8 @@ from user import clear_console as clear_console
 from user import log_in
 from user import sign_up
 import projects
-from projects import Project as Project
+from projects import Project 
+from loguru import logger
 
 
 def pr_cyan(skk): print("\033[36m {}\033[00m".format(skk))
@@ -21,6 +22,23 @@ if not os.path.exists("projects.json"):
     with open("projects.json", "w") as file:
         json.dump([], file, indent=4)
     file.close()
+
+
+logger.remove()
+logger.add("logfile.log", rotation="500 MB", format="{time} - {level} - {file} - {message}")
+
+
+def log_info(massage):
+    logger.info(massage)
+
+
+def log_warning(massage):
+    logger.warning(massage)
+
+
+def log_error(massage):
+    logger.error(massage)
+ 
 
 user = User("", "", "")
 projects_file_path = "projects.json"
@@ -74,6 +92,7 @@ while run == true_bool:
                 project_object = projects.create_a_project(user)
                 if isinstance(project_object, Project):
                     user = project_object.to_dict_and_save_to_file(projects_file_path, user)
+                    log_info("Creating a new project")
                     pr_green("Creating a new project")
                     clear_console(1)
                     pr_green("Creating a new project.")
@@ -84,6 +103,7 @@ while run == true_bool:
                     clear_console(1)
                     # List of dictionaries:
                     projects_list = projects.load_projects_from_file(projects_file_path)
+                    log_info("Project created successfully.")
                     print("\033[36m {}\033[32m {}\033[36m {}\033[00m".format
                           ("Project created successfully.\n You are now the "
                            "leader of the project", f"{project_object.get_project_title()}", "."))
@@ -103,6 +123,7 @@ while run == true_bool:
 
             elif choice_1 == "3":  # 3. Exit
                 os.system("cls")
+                log_info("Exiting program...")
                 pr_green("Exiting program...")
                 clear_console(2)
                 pr_green("Exit code: 0")
@@ -124,6 +145,7 @@ while run == true_bool:
                 project_object = projects.create_a_project(user)
                 if isinstance(project_object, Project):
                     user = project_object.to_dict_and_save_to_file(projects_file_path, user)
+                    log_info("Creating a new project")
                     pr_green("Creating a new project")
                     clear_console(1)
                     pr_green("Creating a new project.")
@@ -134,6 +156,7 @@ while run == true_bool:
                     clear_console(1)
                     projects_list = projects.load_projects_from_file(
                         projects_file_path)  # List of dictionaries
+                    log_info("Project created successfully.")
                     print("\033[36m {}\033[32m {}\033[36m {}\033[00m".format
                           ("Project created successfully.\n You are now the "
                            "leader of the project", f"{project_object.get_project_title()}", "."))
@@ -162,6 +185,7 @@ while run == true_bool:
 
             elif ch_1 == "5":  # 5. Exit
                 os.system("cls")
+                log_info("Exiting program...")
                 pr_green("Exiting program...")
                 clear_console(2)
                 pr_green("Exit code: 0")
@@ -174,6 +198,7 @@ while run == true_bool:
                 ch_1 = "-1"
 
     else:
+        log_error("Exiting program...")
         print("Exiting program...")
         clear_console(2)
         pr_red("Exit code: 1")
