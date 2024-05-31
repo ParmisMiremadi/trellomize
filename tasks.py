@@ -477,8 +477,119 @@ def change_title(title, user: User, my_project: Project, my_task: Task):
 
 
 # 2. Description
-def set_description(description, user: User, my_project: Project, my_task: Task):
-    pass
+def change_description(description, user: User, my_project: Project, my_task: Task):
+    pr_green(f"The description of the task (ID: {my_task.get_task_id()})\n has been changed to: {description}.")
+    # Updating Task object
+    my_task.description = description
+    # Updating Project object
+    all_tasks = my_project.tasks
+    for iterate in range(len(all_tasks)):
+        if all_tasks[iterate]["task_id"] == my_task.get_task_id():
+            all_tasks[iterate]["description"] = my_task.description
+            break
+    # Updating User object
+    if user.username == my_project.leader_username:
+        for iterate in range(len(user.projects_as_leader)):
+            project_tasks = user.projects_as_leader[iterate]["tasks"]
+            if project_tasks:
+                for it in range(len(project_tasks)):
+                    if project_tasks[it]["task_id"] == my_task.get_task_id():
+                        project_tasks[it]["description"] = my_task.description
+                        break
+
+    else:
+        for iterate in range(len(user.projects_as_member)):
+            project_tasks = user.projects_as_member[iterate]["tasks"]
+            if project_tasks:
+                for it in range(len(project_tasks)):
+                    if project_tasks[it]["task_id"] == my_task.get_task_id():
+                        project_tasks[it]["description"] = my_task.description
+                        break
+    # Updating 'projects.json' file
+    with open(projects_file_path, "r") as read_projects:
+        all_projects = json.load(read_projects)
+    for iterate in range(len(all_projects)):
+        if all_projects[iterate]["project_id"] == my_project.get_project_id():
+            project_tasks = all_projects[iterate]["tasks"]
+            if project_tasks:
+                for it in range(len(project_tasks)):
+                    if project_tasks[it]["task_id"] == my_task.get_task_id():
+                        project_tasks[it]["description"] = my_task.description
+                        all_projects[iterate]["tasks"] = project_tasks
+                        break
+    with open(projects_file_path, "w") as write:  # Updating the projects file
+        json.dump(all_projects, write, indent=4)
+
+    # Updating the project in 'user.json' file (leader + members)
+    with open(user_file_path, "r") as read_file:
+        user_list = json.load(read_file)
+
+    # Updating the leader in file
+    for iterate in range(len(user_list)):
+        if user_list[iterate]["username"] == my_project.leader_username:
+            leader_projects_as_leader = user_list[iterate]["projects_as_leader"]
+            for it in range(len(leader_projects_as_leader)):
+                if leader_projects_as_leader[it]["project_id"] == my_project.get_project_id():
+                    project_tasks = leader_projects_as_leader[it]["tasks"]
+                    for i in range(len(project_tasks)):
+                        if project_tasks[i]["task_id"] == my_task.get_task_id():
+                            project_tasks[i]["description"] = my_task.description
+                            leader_projects_as_leader[it]["tasks"] = project_tasks
+                            user_list[iterate]["projects_as_leader"] = leader_projects_as_leader
+                            break
+        for item in range(len(all_projects)):
+            if all_projects[item]["project_id"] == my_project.get_project_id():
+                project_members = all_projects[item]["members"]
+                if user_list[iterate]["username"] in project_members:  # Updating the members in file
+                    member_projects_as_member = user_list[iterate]["projects_as_member"]
+                    for it in range(len(member_projects_as_member)):
+                        if member_projects_as_member[it]["project_id"] == my_project.get_project_id():
+                            project_tasks = member_projects_as_member[it]["tasks"]
+                            for i in range(len(project_tasks)):
+                                if project_tasks[i]["task_id"] == my_task.get_task_id():
+                                    project_tasks[i]["description"] = my_task.description
+                                    member_projects_as_member[it]["tasks"] = project_tasks
+                                    user_list[iterate]["projects_as_member"] = member_projects_as_member
+                                    break
+
+    with open(user_file_path, "w") as f:
+        json.dump(user_list, f, indent=4)
+
+    # Updating the project in 'admin.json' file (if leader or if member)
+    with open(admin_file_path, "r") as f:
+        admin_list = json.load(f)
+
+    if admin_list:
+        if admin_list[0]["username"] == my_project.leader_username:  # Admin is the leader
+            leader_projects_as_leader = admin_list[0]["projects_as_leader"]
+            for iterate in range(len(leader_projects_as_leader)):
+                if leader_projects_as_leader[iterate]["project_id"] == my_project.get_project_id():
+                    project_tasks = leader_projects_as_leader[iterate]["tasks"]
+                    for it in range(len(project_tasks)):
+                        if project_tasks[it]["task_id"] == my_task.get_task_id():
+                            project_tasks[it]["description"] = my_task.description
+                            leader_projects_as_leader[iterate]["tasks"] = project_tasks
+                            admin_list[0]["projects_as_leader"] = leader_projects_as_leader
+                            break
+
+        for item in range(len(all_projects)):
+            if all_projects[item]["project_id"] == my_project.get_project_id():
+                project_members = all_projects[item]["members"]
+                if admin_list[0]["username"] in project_members:  # Admin is a member
+                    member_projects_as_member = admin_list[0]["projects_as_member"]
+                    for iterate in range(len(member_projects_as_member)):
+                        if member_projects_as_member[iterate]["project_id"] == my_project.get_project_id():
+                            project_tasks = member_projects_as_member[iterate]["tasks"]
+                            for i in range(len(project_tasks)):
+                                if project_tasks[i]["task_id"] == my_task.get_task_id():
+                                    project_tasks[i]["description"] = my_task.description
+                                    member_projects_as_member[iterate]["tasks"] = project_tasks
+                                    admin_list[0]["projects_as_member"] = member_projects_as_member
+                                    break
+        with open(admin_file_path, "w") as write:
+            json.dump(admin_list, write, indent=4)
+    clear_console(2)
+    return user, my_project, my_task
 
 #
 # # 3. Add assignees
@@ -579,12 +690,12 @@ def change_task_details(user: User, my_project: Project, my_task: Task):
         ch = input("Enter your choice: ")
         if ch == "1":  # 1. Title
             title = input("Enter the title of the task: ")
-            print(f"* MEMBERS LIST: {my_project.members}") #.
             user, my_project, my_task = change_title(title, user, my_project, my_task)
             clear_console(2)
 
         elif ch == "2":  # 2. Description
-            print("change Description")
+            description = input("Enter the description of the task: ")
+            user, my_project, my_task = change_description(description, user, my_project, my_task)
             clear_console(2)
 
         elif ch == "3":  # 3. Add assignees
