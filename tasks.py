@@ -915,17 +915,122 @@ def remove_assignees(user: User, my_project: Project, my_task: Task):
                     return user, my_project, my_task
 
 
-#
-# # 5. Priority
-# def change_priority(priority, user: User, my_project: Project, my_task: Task):
-#     if priority == "LOW":
-#
-#     elif priority == "MEDIUM":
-#
-#     elif priority == "HIGH":
-#
-#     elif priority == "CRITICAL":
-#
+# 5. Priority
+def change_priority(priority, user: User, my_project: Project, my_task: Task):
+    pr_green(f"The priority of the task (task ID: {my_task.get_task_id()})\n has been changed to: {priority}.")
+    # Updating Task object
+    my_task.priority = priority
+    # Updating Project object
+    all_tasks = my_project.tasks
+    for iterate in range(len(all_tasks)):
+        if all_tasks[iterate]["task_id"] == my_task.get_task_id():
+            all_tasks[iterate]["priority"] = my_task.priority
+            break
+    # Updating User object
+    if user.username == my_project.leader_username:
+        for iterate in range(len(user.projects_as_leader)):
+            project_tasks = user.projects_as_leader[iterate]["tasks"]
+            if project_tasks:
+                for it in range(len(project_tasks)):
+                    if project_tasks[it]["task_id"] == my_task.get_task_id():
+                        project_tasks[it]["priority"] = my_task.priority
+                        break
+
+    else:
+        for iterate in range(len(user.projects_as_member)):
+            project_tasks = user.projects_as_member[iterate]["tasks"]
+            if project_tasks:
+                for it in range(len(project_tasks)):
+                    if project_tasks[it]["task_id"] == my_task.get_task_id():
+                        project_tasks[it]["priority"] = my_task.priority
+                        break
+    # Updating 'projects.json' file
+    with open(projects_file_path, "r") as read_projects:
+        all_projects = json.load(read_projects)
+    for iterate in range(len(all_projects)):
+        if all_projects[iterate]["project_id"] == my_project.get_project_id():
+            project_tasks = all_projects[iterate]["tasks"]
+            if project_tasks:
+                for it in range(len(project_tasks)):
+                    if project_tasks[it]["task_id"] == my_task.get_task_id():
+                        project_tasks[it]["priority"] = my_task.priority
+                        all_projects[iterate]["tasks"] = project_tasks
+                        break
+    with open(projects_file_path, "w") as write:  # Updating the projects file
+        json.dump(all_projects, write, indent=4)
+
+    # Updating the project in 'user.json' file (leader + members)
+    with open(user_file_path, "r") as read_file:
+        user_list = json.load(read_file)
+
+    # Updating the leader in file
+    for iterate in range(len(user_list)):
+        if user_list[iterate]["username"] == my_project.leader_username:
+            leader_projects_as_leader = user_list[iterate]["projects_as_leader"]
+            for it in range(len(leader_projects_as_leader)):
+                if leader_projects_as_leader[it]["project_id"] == my_project.get_project_id():
+                    project_tasks = leader_projects_as_leader[it]["tasks"]
+                    for i in range(len(project_tasks)):
+                        if project_tasks[i]["task_id"] == my_task.get_task_id():
+                            project_tasks[i]["priority"] = my_task.priority
+                            leader_projects_as_leader[it]["tasks"] = project_tasks
+                            user_list[iterate]["projects_as_leader"] = leader_projects_as_leader
+                            break
+        for item in range(len(all_projects)):
+            if all_projects[item]["project_id"] == my_project.get_project_id():
+                project_members = all_projects[item]["members"]
+                if user_list[iterate]["username"] in project_members:  # Updating the members in file
+                    member_projects_as_member = user_list[iterate]["projects_as_member"]
+                    for it in range(len(member_projects_as_member)):
+                        if member_projects_as_member[it]["project_id"] == my_project.get_project_id():
+                            project_tasks = member_projects_as_member[it]["tasks"]
+                            for i in range(len(project_tasks)):
+                                if project_tasks[i]["task_id"] == my_task.get_task_id():
+                                    project_tasks[i]["priority"] = my_task.priority
+                                    member_projects_as_member[it]["tasks"] = project_tasks
+                                    user_list[iterate]["projects_as_member"] = member_projects_as_member
+                                    break
+
+    with open(user_file_path, "w") as f:
+        json.dump(user_list, f, indent=4)
+
+    # Updating the project in 'admin.json' file (if leader or if member)
+    with open(admin_file_path, "r") as f:
+        admin_list = json.load(f)
+
+    if admin_list:
+        if admin_list[0]["username"] == my_project.leader_username:  # Admin is the leader
+            leader_projects_as_leader = admin_list[0]["projects_as_leader"]
+            for iterate in range(len(leader_projects_as_leader)):
+                if leader_projects_as_leader[iterate]["project_id"] == my_project.get_project_id():
+                    project_tasks = leader_projects_as_leader[iterate]["tasks"]
+                    for it in range(len(project_tasks)):
+                        if project_tasks[it]["task_id"] == my_task.get_task_id():
+                            project_tasks[it]["priority"] = my_task.priority
+                            leader_projects_as_leader[iterate]["tasks"] = project_tasks
+                            admin_list[0]["projects_as_leader"] = leader_projects_as_leader
+                            break
+
+        for item in range(len(all_projects)):
+            if all_projects[item]["project_id"] == my_project.get_project_id():
+                project_members = all_projects[item]["members"]
+                if admin_list[0]["username"] in project_members:  # Admin is a member
+                    member_projects_as_member = admin_list[0]["projects_as_member"]
+                    for iterate in range(len(member_projects_as_member)):
+                        if member_projects_as_member[iterate]["project_id"] == my_project.get_project_id():
+                            project_tasks = member_projects_as_member[iterate]["tasks"]
+                            for i in range(len(project_tasks)):
+                                if project_tasks[i]["task_id"] == my_task.get_task_id():
+                                    project_tasks[i]["priority"] = my_task.priority
+                                    member_projects_as_member[iterate]["tasks"] = project_tasks
+                                    admin_list[0]["projects_as_member"] = member_projects_as_member
+                                    break
+        with open(admin_file_path, "w") as write:
+            json.dump(admin_list, write, indent=4)
+    clear_console(2)
+    return user, my_project, my_task
+
+
 #
 # # 6. Status
 # def change_status(status, user: User, my_project: Project, my_task: Task):
@@ -973,11 +1078,51 @@ def change_task_details(user: User, my_project: Project, my_task: Task):
             clear_console(2)
 
         elif ch == "5":  # 5. Priority
-            print("change pr")
+            ans = "-1"
+            while ans == "-1":
+                print("1. LOW\n2. MEDIUM\n3. HIGH\n4. CRITICAL")
+                ans = input("Enter the new priority of the task: ")
+                if ans == "1":
+                    priority = Priority.LOW
+                    user, my_project, my_task = change_priority(priority, user, my_project, my_task)
+                    
+                elif ch == "2":
+                    priority = Priority.MEDIUM
+                    user, my_project, my_task = change_priority(priority, user, my_project, my_task)
+                    
+                elif ch == "3":
+                    priority = Priority.HIGH
+                    user, my_project, my_task = change_priority(priority, user, my_project, my_task)
+                elif ch == "4":
+                    priority = Priority.CRITICAL
+                    user, my_project, my_task = change_priority(priority, user, my_project, my_task)
+                else:
+                    pr_red("Error: Invalid value!")
+                    clear_console(2)
+                    ans = "-1"
             clear_console(2)
 
         elif ch == "6":  # 6. Status
-            print("change stat")
+            print("1. BACKLOG\n2. TODO\n3. DOING\n4. DONE\n5. ARCHIVED")
+            ans = input("Enter the new priority of the task: ")
+            if ans == "1":
+                status = Priority.LOW
+                user, my_project, my_task = change_priority(priority, user, my_project, my_task)
+
+            elif ch == "2":
+                priority = Priority.MEDIUM
+                user, my_project, my_task = change_priority(priority, user, my_project, my_task)
+
+            elif ch == "3":
+                priority = Priority.HIGH
+                user, my_project, my_task = change_priority(priority, user, my_project, my_task)
+            elif ch == "4":
+                priority = Priority.CRITICAL
+                user, my_project, my_task = change_priority(priority, user, my_project, my_task)
+            else:
+                pr_red("Error: Invalid value!")
+                clear_console(2)
+                ans = "-1"
             clear_console(2)
 
         elif ch == "7":  # 7. Add comment
