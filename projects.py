@@ -239,7 +239,7 @@ def options_for_my_project(user: User, my_project: Project):  # Called in the ma
 
         elif ch == "3":  # 3. Delete project
             project_title = my_project.get_project_title()
-            user, my_project = delete_project(user, my_project)    # Delete project
+            user, my_project = delete_project(user, my_project)  # Delete project
             if my_project.get_project_id() == "":
                 log_info(f"Project {project_title} has been deleted!")
                 pr_green(f"Project {project_title} has been deleted!")
@@ -380,7 +380,7 @@ def my_project_members(user: User, my_project: Project):
 
         print("\n1. Add members\n2. Remove members\n3. Back")
         ch = input("Enter your choice: ")
-        
+
         if ch == "1":  # 1. Add members
             is_leader = False
             for iterate in range(len(user.projects_as_leader)):
@@ -392,7 +392,7 @@ def my_project_members(user: User, my_project: Project):
             if not is_leader:
                 clear_console(0)
                 log_error(f"As a member of project {my_project.get_project_title()},"
-                       f" you can not add any members to it.")
+                          f" you can not add any members to it.")
                 pr_red(f"As a member of project {my_project.get_project_title()},"
                        f" you can not add any members to it.")
                 print("Going Back...")
@@ -409,7 +409,7 @@ def my_project_members(user: User, my_project: Project):
             if not is_leader:
                 clear_console(0)
                 log_error(f"As a member of project {my_project.get_project_title()},"
-                       f" you can not remove any members from it.")
+                          f" you can not remove any members from it.")
                 pr_red(f"As a member of project {my_project.get_project_title()},"
                        f" you can not remove any members from it.")
                 print("Going Back...")
@@ -560,14 +560,14 @@ def remove_members(leader: User, my_project: Project):
 
         with open(admin_file_path, "r") as f:
             admin_list_1 = json.load(f)
-        clear_console(1)    
+        clear_console(1)
         print(f"Choose one of the following members to remove them"
               f" from project {my_project.get_project_title()}:")
 
         if len(my_project.members) > 0:
             for iterate in range(len(my_project.members)):
                 pr_cyan(f"    {iterate + 1}. {my_project.members[iterate]}")
-            print(f"    {len(my_project.members) + 1}. Back")
+            print(f"     {len(my_project.members) + 1}. Back")
 
             try:
                 choice = int(input())
@@ -756,4 +756,3 @@ def delete_project(user: User, my_project: Project):
 
             else:
                 pr_red("Invalid input! Please try again.")
-
