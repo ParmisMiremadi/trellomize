@@ -1,6 +1,5 @@
 import json
 import os
-import time
 from user import User as User
 from user import clear_console as clear_console
 from user import log_in
@@ -70,7 +69,7 @@ while run == true_bool:
             print("1. New project\n2. My projects\n3. Exit")
             choice_1 = input("Enter your choice: ")
 
-            if choice_1 == "1":    # 1. New project
+            if choice_1 == "1":  # 1. New project
                 os.system("cls")
                 project_object = projects.create_a_project(user)
                 if isinstance(project_object, Project):
@@ -94,21 +93,15 @@ while run == true_bool:
                 else:
                     pass
 
-            elif choice_1 == "2":    # 2. My projects
+            elif choice_1 == "2":  # 2. My projects
                 os.system("cls")
                 if isinstance(projects.show_list_of_projects_and_choose(user), Project):
-                    print(f"2 __ The user: {user.username}")  #.
-                    print(f"2 __ The leader: {my_project.leader_username}")  #.
                     my_project = projects.show_list_of_projects_and_choose(user)
-                    print(f"3 __ The user: {user.username}")  #.
-                    print(f"3 __ The leader: {my_project.leader_username}")  #.
                     user, my_project = projects.options_for_my_project(user, my_project)
-                    print(f"4 __ The user: {user.username}")  #.
-                    print(f"4 __ The leader: {my_project.leader_username}")  #.
                 else:
                     choice_1 = "0"
 
-            elif choice_1 == "3":    # 3. Exit
+            elif choice_1 == "3":  # 3. Exit
                 os.system("cls")
                 pr_green("Exiting program...")
                 clear_console(2)
@@ -147,7 +140,7 @@ while run == true_bool:
                     print("\033[36m {}\033[32m {}\033[00m".format
                           ("Project ID:", f"{project_object.get_project_id()}"))
                     clear_console(5)
-                
+
                 else:
                     pass
 
@@ -179,7 +172,7 @@ while run == true_bool:
                 pr_red("Error: Invalid choice! Please try again.")
                 clear_console(2)
                 ch_1 = "-1"
-    
+
     else:
         print("Exiting program...")
         clear_console(2)
