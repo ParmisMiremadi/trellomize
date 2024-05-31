@@ -770,4 +770,3 @@ def delete_project(user: User, my_project: Project):
 
             else:
                 pr_red("Invalid input! Please try again.")
-
