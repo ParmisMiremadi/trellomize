@@ -339,7 +339,6 @@ def task_details(user: User, my_project: Project, my_task: Task):
         ch = input()
         if ch == "1":  # 1. Change details
             if user.username == my_project.leader_username or (user.username in my_task.assignees):
-                print(f"** MEMBERS LIST: {my_project.members}")
                 user, my_project, my_task = change_task_details(user, my_project, my_task)
             else:
                 pr_red("As neither the leader of this project nor an "
@@ -357,9 +356,6 @@ def task_details(user: User, my_project: Project, my_task: Task):
 # Changing task details
 # 1. Title
 def change_title(title, user: User, my_project: Project, my_task: Task):
-    print(f"MY_PROJECT TITLE: {my_project.get_project_title()}", f", ID =={my_task.project_id}")  #.
-    print(f"USER: {user.username}, MEMBERS LIST: {my_project.members}")
-
     pr_green(f"The title of the task (ID: {my_task.get_task_id()})\n has been changed to {title}.")
     # Updating Task object
     my_task.task_title = title
@@ -683,7 +679,7 @@ def add_assignees(user: User, my_project: Project, my_task: Task):
                                     if user_list[iterate_1]["username"] == my_project.leader_username:
                                         leader_projects_as_leader = user_list[iterate_1]["projects_as_leader"]
                                         for it_1 in range(len(leader_projects_as_leader)):
-                                            if (leader_projects_as_leader[it_1]["project_id"] 
+                                            if (leader_projects_as_leader[it_1]["project_id"]
                                                     == my_project.get_project_id()):
                                                 project_tasks = leader_projects_as_leader[it_1]["tasks"]
                                                 for i in range(len(project_tasks)):
@@ -792,7 +788,7 @@ def remove_assignees(user: User, my_project: Project, my_task: Task):
                     clear_console(2)
                     return user, my_project, my_task
 
-                elif isinstance(ch, int) and 1 <= ch <= (len(my_project.members)):
+                elif isinstance(ch, int) and 1 <= ch <= (len(my_task.assignees)):
                     username_to_remove = my_task.assignees[ch - 1]
                     pr_green(f"An assignee (username: {username_to_remove}) has been removed "
                              f"from the task (task ID: {my_task.get_task_id()}).")
@@ -917,7 +913,7 @@ def remove_assignees(user: User, my_project: Project, my_task: Task):
                             json.dump(admin_list, write, indent=4)
                     clear_console(2)
                     return user, my_project, my_task
-                    
+
 
 #
 # # 5. Priority
@@ -973,7 +969,7 @@ def change_task_details(user: User, my_project: Project, my_task: Task):
             clear_console(2)
 
         elif ch == "4":  # 4. Remove assignees
-            print("Remove assignees")
+            user, my_project, my_task = remove_assignees(user, my_project, my_task)
             clear_console(2)
 
         elif ch == "5":  # 5. Priority
