@@ -115,11 +115,19 @@ def create_a_project(leader: User):  # Returns an object of Project. It has to b
     project_id = input("The ID of your project: ")  # Needs to be checked in the projects file
     is_unique = True
     if isinstance(leader, Admin):
-        is_unique = is_project_unique(admin_projects_as_leader, project_id)
-        if is_unique:
-            is_unique = is_project_unique(admin_projects_as_member, project_id)
+        #A
+        with open(admin_file_path, "r") as f:
+            admin_list_1 = json.load(f)
+        if len(admin_list) > 0:
+            admin_projects_as_leader_1 = admin_list_1[0]["projects_as_leader"]  # List of dictionaries
+            admin_projects_as_member_1 = admin_list_1[0]["projects_as_member"]  # List of dictionaries
+            is_unique = is_project_unique(admin_projects_as_leader_1, project_id)
+            if is_unique:
+                is_unique = is_project_unique(admin_projects_as_member, project_id)
     else:
-        is_unique = is_project_unique(projects_list, project_id)
+        #A
+        projects_list_1 = load_projects_from_file(projects_file_path)
+        is_unique = is_project_unique(projects_list_1, project_id)
     if not is_unique:
         log_error("Error: This ID already exists for another project.")
         log_error("       Action failed!")
