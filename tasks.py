@@ -285,7 +285,8 @@ def show_tasks_and_options(user: User, my_project: Project):
                 else:
                     print("    No tasks")
                     print("1. New task\n2. Back")
-                    ch = input()
+                    ch = input("Enter your choice: ")
+                    clear_console(0)
                 # print("1. New task\n2. Back")
                 # ch = input()
                 if ch == "1":  # 1. New task
@@ -362,7 +363,7 @@ def task_details(user: User, my_project: Project, my_task: Task):
                 pr_cyan(f"        Date:{my_task.comments[iterate]["date"]}")
 
         print("\n1. Change details\n2. Back")
-        ch = input()
+        ch = input("Enter your choice: ")
         if ch == "1":  # 1. Change details
             if user.username == my_project.leader_username or (user.username in my_task.assignees):
                 user, my_project, my_task = change_task_details(user, my_project, my_task)
@@ -378,6 +379,10 @@ def task_details(user: User, my_project: Project, my_task: Task):
             print("Going Back...")
             clear_console(2)
             return user, my_project, my_task
+        #@
+        else:
+            pr_red("Error: Invalid choice! Please try again.")
+            clear_console(2)
 
 
 #############################################
@@ -638,9 +643,8 @@ def add_assignees(user: User, my_project: Project, my_task: Task):
                             ch = int(input("Enter a number to add an assignee to the task, or to go back: "))
 
                         except ValueError:
-                            clear_console(1)
                             pr_red("Error: Invalid choice! Please try again.")
-                            clear_console(2.5)
+                            clear_console(2)
 
                         else:
                             if isinstance(ch, int) and (ch < 1 or ch > len(assignee_possible) + 1):
@@ -812,9 +816,11 @@ def remove_assignees(user: User, my_project: Project, my_task: Task):
             print(f"     {len(my_task.assignees) + 1}. Back")
 
             try:
-                ch = int(input())
+                ch = int(input("Enter your choice: "))
+                clear_console(0)
             except ValueError:
                 pr_red("Error: Invalid choice! Please try again.")
+                clear_console(2)
             else:
                 if isinstance(ch, int) and (ch < 1 or ch > len(my_task.assignees) + 1):
                     pr_red("Error: Invalid choice! Please try again.")
@@ -1073,7 +1079,7 @@ def change_priority(priority, user: User, my_project: Project, my_task: Task):
                                     break
         with open(admin_file_path, "w") as write:
             json.dump(admin_list, write, indent=4)
-    clear_console(2)
+    # clear_console(2)
     return user, my_project, my_task
 
 
@@ -1190,7 +1196,7 @@ def change_status(status, user: User, my_project: Project, my_task: Task):
                                     break
         with open(admin_file_path, "w") as write:
             json.dump(admin_list, write, indent=4)
-    clear_console(2)
+    # clear_console(2)
     return user, my_project, my_task
 
 
@@ -1321,33 +1327,39 @@ def add_comment(comment, user: User, my_project: Project, my_task: Task):
 def change_task_details(user: User, my_project: Project, my_task: Task):
     ch = "-1"  # 1. Title  2. Description  3. Add assignees  4. Remove assignees
     while ch != "0":  # 5. Priority  6. Status 7. Add comment  8. Back
+        clear_console(0)
         print("What would you like to change in this task?")
         print("1. Title\n2. Description\n3. Add assignees\n4. Remove assignees")
         print("5. Priority\n6. Status\n7. Add comment\n8. Back")
 
         ch = input("Enter your choice: ")
         if ch == "1":  # 1. Title
+            clear_console(0)
             title = input("Enter the title of the task: ")
             user, my_project, my_task = change_title(title, user, my_project, my_task)
             clear_console(2)
 
         elif ch == "2":  # 2. Description
+            clear_console(0)
             description = input("Enter the description of the task: ")
             user, my_project, my_task = change_description(description, user, my_project, my_task)
             clear_console(2)
 
         elif ch == "3":  # 3. Add assignees
+            clear_console(0)
             user, my_project, my_task = add_assignees(user, my_project, my_task)
             clear_console(2)
 
         elif ch == "4":  # 4. Remove assignees
+            clear_console(0)
             user, my_project, my_task = remove_assignees(user, my_project, my_task)
             clear_console(2)
 
         elif ch == "5":  # 5. Priority
+            clear_console(0)
             ans = "-1"
             while ans == "-1":
-                clear_console(1)
+                clear_console(0)
                 print("1. LOW\n2. MEDIUM\n3. HIGH\n4. CRITICAL")
                 ans = input("Enter the new priority of the task: ")
                 if ans == "1":
@@ -1371,6 +1383,7 @@ def change_task_details(user: User, my_project: Project, my_task: Task):
             clear_console(2)
 
         elif ch == "6":  # 6. Status
+            clear_console(0)
             ans = "-1"
             while ans == "-1":
                 clear_console(1)
@@ -1403,6 +1416,7 @@ def change_task_details(user: User, my_project: Project, my_task: Task):
                 clear_console(2)
 
         elif ch == "7":  # 7. Add comment
+            clear_console(0)
             comment = input("Enter a comment: ")
             user, my_project, my_task = add_comment(comment, user, my_project, my_task)
             clear_console(2)
