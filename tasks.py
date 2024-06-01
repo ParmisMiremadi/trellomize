@@ -286,7 +286,6 @@ def show_tasks_and_options(user: User, my_project: Project):
                     print("    No tasks")
                     print("1. New task\n2. Back")
                     ch = input("Enter your choice: ")
-                    clear_console(0)
                 # print("1. New task\n2. Back")
                 # ch = input()
                 if ch == "1":  # 1. New task
@@ -314,8 +313,10 @@ def show_tasks_and_options(user: User, my_project: Project):
                     return user, my_project
 
                 else:
+
                     for it in range(len(all_tasks)):
                         if ch == all_tasks[it]["task_id"][:8]:
+                            clear_console(0)
                             my_task = Task(my_project)
                             my_task.set_task_id(all_tasks[it]["task_id"])
                             my_task.task_title = all_tasks[it]["task_title"]
@@ -336,6 +337,7 @@ def show_tasks_and_options(user: User, my_project: Project):
 
                     if ch != "-1":
                         pr_red("Error: Invalid choice! Please try again.")
+                        clear_console(2)
                         ch = "-1"
 
 
