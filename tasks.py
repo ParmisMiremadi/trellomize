@@ -281,12 +281,13 @@ def show_tasks_and_options(user: User, my_project: Project):
                     print("\n1. New task\n2. Back")
                     print("Enter the task's ID to see and change the details.")
                     ch = input()
-
+                #A
                 else:
                     print("    No tasks")
-
-                print("1. New task\n2. Back")
-                ch = input()
+                    print("1. New task\n2. Back")
+                    ch = input()
+                # print("1. New task\n2. Back")
+                # ch = input()
                 if ch == "1":  # 1. New task
                     if user.username == my_project.leader_username:
                         my_task = create_a_task(my_project)
@@ -785,11 +786,18 @@ def add_assignees(user: User, my_project: Project, my_task: Task):
                         clear_console(2)
                         return user, my_project, my_task
 
-            else:
-                print("    No members to add.")
-                print("Going back...")
-                clear_console(2)
-                return user, my_project, my_task
+                #A
+                else:
+                    print("    No members to add.")
+                    print("Going back...")
+                    clear_console(2)
+                    return user, my_project, my_task
+
+            # else:
+            #     print("    No members to add.")
+            #     print("Going back...")
+            #     clear_console(2)
+            #     return user, my_project, my_task
 
 
 def remove_assignees(user: User, my_project: Project, my_task: Task):
@@ -943,6 +951,12 @@ def remove_assignees(user: User, my_project: Project, my_task: Task):
                             json.dump(admin_list, write, indent=4)
                     clear_console(2)
                     return user, my_project, my_task
+        #A
+        else:
+            print("    No assignees to remove.")
+            print("Going back...")
+            clear_console(2)
+            return user, my_project, my_task
 
 
 # 5. Priority
