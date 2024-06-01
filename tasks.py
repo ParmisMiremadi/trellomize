@@ -281,7 +281,7 @@ def show_tasks_and_options(user: User, my_project: Project):
                     print("\n1. New task\n2. Back")
                     print("Enter the task's ID to see and change the details.")
                     ch = input()
-                #A
+                #@
                 else:
                     print("    No tasks")
                     print("1. New task\n2. Back")
@@ -334,13 +334,14 @@ def show_tasks_and_options(user: User, my_project: Project):
                             break
 
                     if ch != "-1":
-                        pr_red("Error: Invalid value!")
+                        pr_red("Error: Invalid choice! Please try again.")
                         ch = "-1"
 
 
 def task_details(user: User, my_project: Project, my_task: Task):
     ch = "-1"
     while ch != "0":
+        clear_console(2)
         print("        Task details")
         pr_cyan(f"    ID: {my_task.get_task_id()}")
         pr_cyan(f"    Title: {my_task.task_title}")
@@ -638,12 +639,12 @@ def add_assignees(user: User, my_project: Project, my_task: Task):
 
                         except ValueError:
                             clear_console(1)
-                            pr_red("Error: Invalid value!")
+                            pr_red("Error: Invalid choice! Please try again.")
                             clear_console(2.5)
 
                         else:
                             if isinstance(ch, int) and (ch < 1 or ch > len(assignee_possible) + 1):
-                                pr_red("Error: Invalid value!")
+                                pr_red("Error: Invalid choice! Please try again.")
                                 clear_console(2)
 
                             elif ch == len(assignee_possible) + 1:  # Going back
@@ -786,7 +787,7 @@ def add_assignees(user: User, my_project: Project, my_task: Task):
                         clear_console(2)
                         return user, my_project, my_task
 
-                #A
+                #@
                 else:
                     print("    No members to add.")
                     print("Going back...")
@@ -808,15 +809,15 @@ def remove_assignees(user: User, my_project: Project, my_task: Task):
         if len(my_task.assignees) > 0:
             for iterate in range(len(my_task.assignees)):
                 pr_cyan(f"    {iterate + 1}. {my_task.assignees[iterate]}")
-            print(f"    {len(my_task.assignees) + 1}. Back")
+            print(f"     {len(my_task.assignees) + 1}. Back")
 
             try:
                 ch = int(input())
             except ValueError:
-                pr_red("Error: Invalid value!")
+                pr_red("Error: Invalid choice! Please try again.")
             else:
                 if isinstance(ch, int) and (ch < 1 or ch > len(my_task.assignees) + 1):
-                    pr_red("Error: Invalid value!")
+                    pr_red("Error: Invalid choice! Please try again.")
                     clear_console(2)
 
                 elif ch == len(my_task.assignees) + 1:  # Going back
@@ -951,7 +952,7 @@ def remove_assignees(user: User, my_project: Project, my_task: Task):
                             json.dump(admin_list, write, indent=4)
                     clear_console(2)
                     return user, my_project, my_task
-        #A
+        #@
         else:
             print("    No assignees to remove.")
             print("Going back...")
@@ -1364,7 +1365,7 @@ def change_task_details(user: User, my_project: Project, my_task: Task):
                     priority = Priority.CRITICAL.value
                     user, my_project, my_task = change_priority(priority, user, my_project, my_task)
                 else:
-                    pr_red("Error: Invalid value!")
+                    pr_red("Error: Invalid choice! Please try again.")
                     clear_console(2)
                     ans = "-1"
             clear_console(2)
@@ -1396,7 +1397,7 @@ def change_task_details(user: User, my_project: Project, my_task: Task):
                     user, my_project, my_task = change_status(status, user, my_project, my_task)
 
                 else:
-                    pr_red("Error: Invalid value!")
+                    pr_red("Error: Invalid choice! Please try again.")
                     clear_console(2)
                     ans = "-1"
                 clear_console(2)
@@ -1412,6 +1413,6 @@ def change_task_details(user: User, my_project: Project, my_task: Task):
             return user, my_project, my_task
 
         else:
-            pr_red("Error: Invalid value!")
-            clear_console(2.5)
+            pr_red("Error: Invalid choice! Please try again.")
+            clear_console(2)
             ch = "-1"
