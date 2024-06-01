@@ -183,18 +183,19 @@ def show_list_of_projects_and_choose(user_obj: User):  # If Back, returns 0; els
                 clear_console(2)
 
             elif ch == 0:  # Going back
+                print("Going back...")
                 clear_console(2)
                 return 0
 
             elif it_leader > 0 and 1 <= ch <= it_leader:  # Valid choice: Choosing a project
-                clear_console(2)
+                clear_console(0)
                 my_project = Project(projects_as_leader_list[ch - 1]["project_title"],
                                      projects_as_leader_list[ch - 1]["project_id"], user_obj)
                 my_project.tasks = projects_as_leader_list[ch - 1]["tasks"]
                 return my_project
 
             elif it_member > 0 and it_leader < ch <= (it_member + it_leader):  # Valid choice: Choosing a project
-                clear_console(2)
+                clear_console(0)
                 with open(projects_file_path, "r") as f:
                     all_projects = json.load(f)
 
@@ -426,7 +427,7 @@ def my_project_members(user: User, my_project: Project):
             print("Going Back...")
             clear_console(2)
             return user, my_project
-        #@
+        
         else:
             pr_red("Error: Invalid choice! Please try again.")
             clear_console(2)
