@@ -115,7 +115,7 @@ def create_a_project(leader: User):  # Returns an object of Project. It has to b
     project_id = input("The ID of your project: ")  # Needs to be checked in the projects file
     is_unique = True
     if isinstance(leader, Admin):
-        #A
+        #@
         with open(admin_file_path, "r") as f:
             admin_list_1 = json.load(f)
         if len(admin_list) > 0:
@@ -125,7 +125,7 @@ def create_a_project(leader: User):  # Returns an object of Project. It has to b
             if is_unique:
                 is_unique = is_project_unique(admin_projects_as_member, project_id)
     else:
-        #A
+        #@
         projects_list_1 = load_projects_from_file(projects_file_path)
         is_unique = is_project_unique(projects_list_1, project_id)
     if not is_unique:
@@ -288,7 +288,7 @@ def activate_users(users_list: [dict]):
             try:
                 which_user = int(input())
             except ValueError:
-                pr_red("Error: Invalid value!")
+                pr_red("Error: Invalid choice! Please try again.")
                 which_user = 0
             else:
                 if isinstance(which_user, int) and 0 < which_user <= len(inactive_users):
@@ -308,7 +308,7 @@ def activate_users(users_list: [dict]):
                     clear_console(2)
 
                 else:
-                    pr_red("Error: Invalid value!")
+                    pr_red("Error: Invalid choice! Please try again.")
                     which_user = 0
 
 
@@ -336,7 +336,7 @@ def deactivate_users(users_list: [dict]):
             try:
                 which_user = int(input())
             except ValueError:
-                pr_red("Error: Invalid value!")
+                pr_red("Error: Invalid choice! Please try again.")
                 which_user = 0
             else:
                 if isinstance(which_user, int) and 0 < which_user <= len(active_users):
@@ -356,7 +356,7 @@ def deactivate_users(users_list: [dict]):
                     clear_console(2)
 
                 else:
-                    pr_red("Error: Invalid value!")
+                    pr_red("Error: Invalid choice! Please try again.")
                     which_user = 0
 
 
@@ -459,7 +459,7 @@ def add_members(leader: User, my_project: Project):
                 try:
                     ch = int(input())
                 except ValueError:
-                    pr_red("Error: Invalid value!")
+                    pr_red("Error: Invalid choice! Please try again.")
                 else:
                     if isinstance(ch, int) and 1 <= ch <= (len(adding_possible)):
                         username_to_add = adding_possible[ch - 1]
@@ -543,7 +543,7 @@ def add_members(leader: User, my_project: Project):
                         clear_console(2)
                         return leader, my_project
                     else:
-                        print("Error: Invalid value!")
+                        pr_red("Error: Invalid choice! Please try again.")
                         ch = "-1"
 
             else:
@@ -580,7 +580,7 @@ def remove_members(leader: User, my_project: Project):
             try:
                 choice = int(input())
             except ValueError:
-                pr_red("Error: Invalid value!")
+                pr_red("Error: Invalid choice! Please try again.")
             else:
                 if isinstance(choice, int) and 1 <= choice <= (len(my_project.members)):
                     username_to_remove = my_project.members[choice - 1]
@@ -663,7 +663,7 @@ def remove_members(leader: User, my_project: Project):
                     return leader, my_project
 
                 else:
-                    pr_red("Error: Invalid value!")
+                    pr_red("Error: Invalid choice! Please try again.")
 
         else:
             print("    No members to remove")
@@ -763,4 +763,4 @@ def delete_project(user: User, my_project: Project):
                 return user, my_project
 
             else:
-                pr_red("Invalid input! Please try again.")
+                pr_red("Error: Invalid choice! Please try again.")
