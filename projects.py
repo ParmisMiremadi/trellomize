@@ -175,7 +175,6 @@ def show_list_of_projects_and_choose(user_obj: User):  # If Back, returns 0; els
         try:
             ch = int(input("\nEnter your choice: "))
         except ValueError:
-            clear_console(1)
             pr_red("Error: Invalid choice! Please try again.")
             clear_console(2)
         else:
@@ -427,6 +426,10 @@ def my_project_members(user: User, my_project: Project):
             print("Going Back...")
             clear_console(2)
             return user, my_project
+        #@
+        else:
+            pr_red("Error: Invalid choice! Please try again.")
+            clear_console(2)
 
 
 def add_members(leader: User, my_project: Project):
@@ -453,6 +456,8 @@ def add_members(leader: User, my_project: Project):
                         adding_possible.append(admin_list_1[0]["username"])
 
             if len(adding_possible) > 0:
+                print(f"Choose one of the following users to add them"
+                      f" to project {my_project.get_project_title()}:")
                 for iterate in range(len(adding_possible)):
                     pr_cyan(f"    {iterate + 1}. {adding_possible[iterate]}")
                 print(f"     {len(adding_possible) + 1}. Back")
@@ -682,8 +687,8 @@ def delete_project(user: User, my_project: Project):
         ch = "0"
         while ch != "y" or ch != "Y" or ch != "n" or ch != "N":
             clear_console(2)
-            print(f"Are you sure about deleting project {my_project.get_project_title()}? (Enter Y or N)")
-            ch = input()
+            print(f"Are you sure about deleting project {my_project.get_project_title()}?")
+            ch = input("Enter y for yes and n for no: ")
             if ch == "n" or ch == "N":
                 clear_console(2)
                 return user, my_project
